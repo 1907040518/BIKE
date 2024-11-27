@@ -118,7 +118,7 @@ def main(args):
     logger.info("storing name: {}".format(working_dir))
 
 
-
+    # 将 config 字典转换为 DotMap 对象
     config = DotMap(config)
 
     device = "cpu"
@@ -143,13 +143,14 @@ def main(args):
         pretrain=config.network.init,
         joint_st = config.network.joint_st) # Must set jit=False for training  ViT-B/32
 
-    transform_train = get_augmentation(True, config)
+    transform_train = get_augmentation(True, config)   # 数据增强配置
     transform_val = get_augmentation(False, config)
 
-
+    # 日志记录数据增强配置
     logger.info('train transforms: {}'.format(transform_train.transforms))
     logger.info('val transforms: {}'.format(transform_val.transforms))
 
+    # 创建文本的头部网络
     sentence_head = sentence_text_logit(clip_state_dict)
 
 
@@ -260,7 +261,7 @@ def main(args):
 
         if (epoch+1) % config.logging.eval_freq == 0:  # and epoch>0
             prec1, output_list, labels_list = validate_text(start_epoch, val_loader, classes, device, model, sentence_head, config, n_class,logger)
-            if dist.get_rank() == 0:
+            if dist.get_rank() == 0:   # 主进程
                 is_best = prec1 > best_prec1
                 best_prec1 = max(prec1, best_prec1)
                 logger.info('Testing: {}/{}'.format(prec1,best_prec1))

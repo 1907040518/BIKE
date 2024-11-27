@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.checkpoint import checkpoint
+from .VitaCLIP_text_encoder import CLIPTextEncoder, TextPromptLearner
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -197,6 +198,117 @@ class AfterReconstruction(nn.Identity):
         super().__init__()
         self.inplanes = inplanes
 
+class CrossFramelAttentionBlockOrigin(nn.Module):
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, droppath = 0., T=0, ):
+        super().__init__()
+        self.T = T
+
+        self.message_fc = nn.Linear(d_model, d_model)
+        self.message_ln = LayerNorm(d_model)
+        self.message_attn = nn.MultiheadAttention(d_model, n_head,)
+           
+        self.attn = nn.MultiheadAttention(d_model, n_head,)
+        self.ln_1 = LayerNorm(d_model)
+        
+        self.drop_path = DropPath(droppath) if droppath > 0. else nn.Identity()
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        self.attn_mask = attn_mask
+
+    def attention(self, x: torch.Tensor):
+        self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
+        return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
+
+
+    def forward(self, x):
+        l, bt, d = x.size()
+        b = bt // self.T
+        x = x.view(l, b, self.T, d) 
+
+        msg_token = self.message_fc(x[0,:,:,:]) 
+        msg_token = msg_token.view(b, self.T, 1, d) 
+        
+        msg_token = msg_token.permute(1,2,0,3).view(self.T, b, d) 
+        msg_token = msg_token + self.drop_path(self.message_attn(self.message_ln(msg_token),self.message_ln(msg_token),self.message_ln(msg_token),need_weights=False)[0])
+        msg_token = msg_token.view(self.T, 1, b, d).permute(1,2,0,3)
+        
+        x = torch.cat([x, msg_token], dim=0)
+        
+        x = x.view(l+1, -1, d)
+        x = x + self.drop_path(self.attention(self.ln_1(x)))
+        x = x[:l,:,:]
+        x = x + self.drop_path(self.mlp(self.ln_2(x)))
+        return x
+
+
+class CrossFramelAttentionBlock(nn.Module):
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, droppath = 0., T=0 ):
+        super().__init__()
+        self.T = T
+
+        self.message_fc = nn.Linear(d_model, d_model)
+        self.message_ln = LayerNorm(d_model)
+        self.message_attn = nn.MultiheadAttention(d_model, n_head,)
+           
+        self.attn = nn.MultiheadAttention(d_model, n_head,)
+        self.ln_1 = LayerNorm(d_model)
+        
+        self.drop_path = DropPath(droppath) if droppath > 0. else nn.Identity()
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        self.attn_mask = attn_mask
+
+    def attention(self, x: torch.Tensor):
+        self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
+        return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
+
+
+    def forward(self, x, use_checkpoint=False):
+        l, bt, d = x.size()
+        b = bt // self.T
+        x = x.view(l, b, self.T, d) 
+
+        msg_token = self.message_fc(x[0,:,:,:]) 
+        msg_token = msg_token.view(b, self.T, 1, d) 
+        
+        msg_token = msg_token.permute(1,2,0,3).view(self.T, b, d) 
+        # 使用梯度检查点计算 message_attention
+        if use_checkpoint:
+            attn_out = checkpoint(self.message_attn, self.message_ln(msg_token), self.message_ln(msg_token), self.message_ln(msg_token), need_weights=False)[0]
+            msg_token = msg_token + self.drop_path(attn_out)
+        else:
+            msg_token = msg_token + self.drop_path(self.message_attn(self.message_ln(msg_token), self.message_ln(msg_token), self.message_ln(msg_token), need_weights=False)[0])
+        
+        # msg_token = msg_token + self.drop_path(self.message_attn(self.message_ln(msg_token),self.message_ln(msg_token),self.message_ln(msg_token),need_weights=False)[0])
+        msg_token = msg_token.view(self.T, 1, b, d).permute(1,2,0,3)
+        
+        x = torch.cat([x, msg_token], dim=0)
+        
+        x = x.view(l+1, -1, d)
+        # 使用梯度检查点计算 attention
+        if use_checkpoint:
+            attn = checkpoint(self.attention, self.ln_1(x))
+            x = x + drop_path(attn)
+        else:
+            x = x + self.drop_path(self.attention(self.ln_1(x)))
+        # x = x + self.drop_path(self.attention(self.ln_1(x)))
+        x = x[:l,:,:]
+        if use_checkpoint:
+            attn_drop = checkpoint(self.mlp, self.ln_2(x))
+            x = x + drop_path(attn_drop)
+        else:
+            x = x + self.drop_path(self.mlp(self.ln_2(x)))
+        # x = x + self.drop_path(self.mlp(self.ln_2(x)))
+        return x
+
 class ResidualAttentionBlock(nn.Module):
     def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, dropout = 0.):
         super().__init__()
@@ -234,17 +346,36 @@ class ResidualAttentionBlock(nn.Module):
             x = x + self.drop_path(self.mlp(self.ln_2(x)))
         return x
 
-
-class Transformer(nn.Module):
-    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None, ):
+# 可以进行识别，加入Cross条件的transformer
+class V_Transformer(nn.Module):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None, Block = "Origin", T = 8):
         super().__init__()
         if dropout is None:
             dropout = [0.0 for i in range(layers)] 
         print('dropout used:{}'.format(dropout))
         self.width = width
         self.layers = layers
-        
-        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
+
+        if Block == 'Origin':
+            print("model Block: ResidualAttentionBlock")
+            self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
+        elif Block == 'Cross':
+            print("model Block: CrossFramelAttentionBlock")
+            # 创建剩余层的ResidualAttentionBlock
+            # 假设ResidualAttentionBlock的定义不需要attn_mask和T参数
+            residual_blocks = [
+                ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers-3)
+            ]
+            # 创建前三层CrossFramelAttentionBlock
+            cross_frame_blocks = [
+                CrossFramelAttentionBlock(width, heads, attn_mask, dropout[i], T) for i in range(layers-3, layers)
+            ]
+
+            # 合并两个列表
+            all_blocks =  residual_blocks+ cross_frame_blocks
+
+            # 创建Sequential模型
+            self.resblocks = nn.Sequential(*all_blocks)
         self.grad_checkpointing = True
 
     def forward(self, x: torch.Tensor):
@@ -255,9 +386,93 @@ class Transformer(nn.Module):
                 x = r(x)
         return x
 
+# 原始的text使用的Transformer
+# class Transformer(nn.Module):
+#     def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None):
+#         super().__init__()
+#         if dropout is None:
+#             dropout = [0.0 for i in range(layers)] 
+#         print('dropout used:{}'.format(dropout))
+#         self.width = width
+#         self.layers = layers
+        
+#         self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
+#         self.grad_checkpointing = True
+
+#     def forward(self, x: torch.Tensor):
+#         for r in self.resblocks:
+#             if self.grad_checkpointing and not torch.jit.is_scripting():
+#                 x = checkpoint(r, x)
+#             else:
+#                 x = r(x)
+#         return x
+
+class Transformer(nn.Module):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None):
+        """
+        整合版 Transformer,支持动态上下文插入 (maple_prompts)、每层独立的 dropout 设置，以及梯度检查点。
+        """
+        super().__init__()
+        self.width = width
+        self.layers = layers
+        self.attn_mask = attn_mask
+
+        # 初始化 dropout，默认为 0.0
+        if dropout is None:
+            dropout = [0.0 for _ in range(layers)]
+        if len(dropout) != layers:
+            raise ValueError("Dropout list length must match the number of layers.")
+        print(f'Dropout used for each layer: {dropout}')
+
+        # 用 ModuleList 定义残差块
+        self.resblocks = nn.ModuleList(
+            [ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)]
+        )
+
+        # 梯度检查点开关
+        self.grad_checkpointing = True
+
+    def forward(self, x: torch.Tensor, maple_prompts=None):
+        """
+        参数:
+            x: 输入的特征张量。
+            maple_prompts: 可选，用于动态插入上下文的提示列表，默认为 None。
+        """
+        if maple_prompts:
+            num_prompts = maple_prompts[0].shape[0]
+            for i, blk in enumerate(self.resblocks):
+                if i == 0:
+                    # 第一层正常处理输入
+                    x = blk(x)
+                else:
+                    # 拆分输入，动态插入上下文
+                    prefix = x[:1, :, :]  # 保留首行（一般是 CLS Token）
+                    suffix = x[1 + num_prompts:, :, :]  # 跳过插入的 Prompt
+                    textual_context = maple_prompts[i - 1]  # 当前层的动态上下文
+                    textual_context = textual_context.expand(x.shape[1], -1, -1).permute(1, 0, 2)
+
+                    # 合并上下文并送入残差块
+                    x = torch.cat([prefix, textual_context, suffix], dim=0)
+                    if self.grad_checkpointing and not torch.jit.is_scripting():
+                        # 使用梯度检查点
+                        x = checkpoint(blk, x)
+                    else:
+                        x = blk(x)
+        else:
+            # 无上下文插入，直接逐层前向计算
+            for blk in self.resblocks:
+                if self.grad_checkpointing and not torch.jit.is_scripting():
+                    # 使用梯度检查点
+                    x = checkpoint(blk, x)
+                else:
+                    x = blk(x)
+
+        return x
+
+
 
 class VisualTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0., T=8):
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0., Block = "Origin", T=8):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -278,7 +493,7 @@ class VisualTransformer(nn.Module):
             print('emb_dropout:{}'.format(emb_dropout))
 
         ## Attention Blocks
-        self.transformer = Transformer(width, layers, heads, dropout=dropout)
+        self.transformer = V_Transformer(width, layers, heads, dropout=dropout,Block = Block, T=T,)
 
         self.ln_post = LayerNorm(width)
         self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
@@ -329,11 +544,12 @@ class CLIP(nn.Module):
                  transformer_width: int,
                  transformer_heads: int,
                  transformer_layers: int,
+                 use_text_prompt_learning: bool = False,
                  joint=False,
-                 tm=None, T=8,dropout = 0., emb_dropout = 0.,
+                 tm=None, Block = "Origin", T=8,dropout = 0., emb_dropout = 0.,
                  ):
         super().__init__()
-
+        self.use_text_prompt_learning = use_text_prompt_learning
         self.context_length = context_length
         if dropout > 0.:
             dpr = [x.item() for x in torch.linspace(0, dropout, vision_layers)]  # stochastic depth decay rule
@@ -353,6 +569,7 @@ class CLIP(nn.Module):
 
         else:
             vision_heads = vision_width // 64
+
             self.visual = VisualTransformer(
                 input_resolution=image_resolution,
                 patch_size=vision_patch_size,
@@ -362,17 +579,19 @@ class CLIP(nn.Module):
                 output_dim=embed_dim,
                 joint=joint,dropout=dpr,
                 emb_dropout=emb_dropout,
+                Block=Block,
                 T=T,
             )
+
 
         self.transformer = Transformer(
             width=transformer_width,
             layers=transformer_layers,
             heads=transformer_heads,
             attn_mask=self.build_attention_mask(),
-            dropout=dpr
+            dropout=dpr,
         )
-
+        
         self.vocab_size = vocab_size
         self.token_embedding = nn.Embedding(vocab_size, transformer_width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
@@ -386,7 +605,25 @@ class CLIP(nn.Module):
 
         self.T = T
 
+        if self.use_text_prompt_learning:
+            with open('/home/mmstu_b/gmk/BIKE/Vita-CLIP/classes/hmdb51_classes.txt', 'r') as f:
+                classes = f.read().strip().split('\n')
+            print("classes:", classes)
+            self.prompt_learner = TextPromptLearner(
+                            classnames=classes,
+                            ln_final=self.ln_final,
+                            token_embedding=self.token_embedding,
+                            num_prompts=8,
+                            prompts_init='',
+                            CSC=True,
+                            ctx_pos='end'
+                            )
+            self.tokenized_prompts = self.prompt_learner.tokenized_prompts
+
+
+
         self.initialize_parameters()
+
 
     def initialize_parameters(self):
         nn.init.normal_(self.token_embedding.weight, std=0.02)
@@ -456,9 +693,44 @@ class CLIP(nn.Module):
             return x, None    
 
 
+    def Vita_prompts_text(self, prompts, tokenized_prompts, return_token = False, maple_prompts=None):
+        x = prompts + self.positional_embedding
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        
+        if maple_prompts:
+            x = self.transformer(x, maple_prompts)
+        else:
+            x = self.transformer(x)
+            
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_final(x)
+        text_token = x @ self.text_projection   # eg, [400 77 512]
+
+        # x.shape = [batch_size, n_ctx, transformer.width]
+        # take features from the eot embedding (eot_token is the highest number in each sequence)
+        x = x[torch.arange(x.shape[0]), tokenized_prompts.argmax(dim=-1)] @ self.text_projection
+
+        if return_token:
+            return x, text_token
+        else:
+            return x, None    
+
+
     def forward(self, image, text, return_token=False):
         image_feats = self.encode_image(image)
-        cls_feat, text_feats = self.encode_text(text, return_token)
+        # used in training
+        if self.use_text_prompt_learning:
+            # text side
+            prompts = self.prompt_learner()
+            tokenized_prompts = self.tokenized_prompts
+            cls_feat, text_feats = self.Vita_prompts_text(prompts, tokenized_prompts, return_token= return_token)
+            # vision side
+            # video_features = self.visual(x)
+        # used in Origin training
+        else:
+            cls_feat, text_feats = self.encode_text(text, return_token)
+
+
         return image_feats, cls_feat, text_feats, self.logit_scale.exp()
 
 
@@ -486,7 +758,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict, tm=None,T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True):
+def build_model(state_dict: dict, use_text_prompt_learning = False, tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -514,9 +786,9 @@ def build_model(state_dict: dict, tm=None,T=8,dropout=0., joint=False,emb_dropou
     model = CLIP(
         embed_dim,
         image_resolution, vision_layers, vision_width, vision_patch_size,
-        context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
+        context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,use_text_prompt_learning,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,
+        dropout=dropout, emb_dropout=emb_dropout,Block=Block,
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:
@@ -530,7 +802,19 @@ def build_model(state_dict: dict, tm=None,T=8,dropout=0., joint=False,emb_dropou
         if joint:  #or emb_dropout>0 or dropout>0
             model.load_state_dict(state_dict,strict=False)
         else:
-            model.load_state_dict(state_dict)
+            # 加载状态字典
+            missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
+
+            # 获取模型的当前 state_dict 中的键
+            loaded_keys = [key for key in state_dict.keys() if key not in missing_keys]
+
+            # 输出信息
+            # print("Loaded keys:", loaded_keys)
+            # print("Missing keys:", missing_keys)
+            # print("Unexpected keys:", unexpected_keys)
+
+            # model.load_state_dict(state_dict, strict=False)   # 加载时忽略不匹配的键
+            # model.load_state_dict(state_dict)   # 加载时不匹配的键报错
     else:
         print('not using full clip pretrained model, only visual!')
         
@@ -540,4 +824,48 @@ def build_model(state_dict: dict, tm=None,T=8,dropout=0., joint=False,emb_dropou
 
         model.load_state_dict(state_dict,strict=False)
 
+
+    # # 输出测试
+    # # 获取当前模型的 state_dict
+    # model_state_dict = model.state_dict()
+    # # 找出匹配成功的键
+    # matched_keys = [key for key in state_dict.keys() if key in model_state_dict]
+
+    # # 找出未匹配的键（在state_dict中但在model中不存在）
+    # unmatched_keys = [key for key in state_dict.keys() if key not in model_state_dict]
+
+    # # 打印匹配和未匹配的键
+    # print("Matched Keys:")   # 512
+    # for key in matched_keys:
+    #     print(key)
+
+    # print("\nUnmatched Keys (ignored by strict=False):")   # 960
+    # for key in unmatched_keys:
+    #     print(key)
+
+    # # 可选：打印加载的参数名和形状
+    # print("\nLoaded Parameters (Matched Keys):")
+    # for key in matched_keys:
+    #     print(f"{key}: {model_state_dict[key].shape}")
+
+    # # 输出打印
     return model.eval()
+
+
+
+if __name__=='__main__':
+    match=ResidualAttentionBlock()
+    
+    image_input = torch.rand(16,16,768)  # 2 8 3 224 224
+    # image_input = image_input.view(2,-1,3)
+    text_input = torch.rand(16, 77, 768)
+    cls_input = torch.rand(16, 768)
+    cls_input = cls_input.unsqueeze(1) 
+    cls_input = cls_input + match(cls_input, image_input)
+    # input = rearrange(input, 'b t c h w -> b c t h w')
+
+    print(cls_input.shape)
+    cls_input = cls_input.squeeze()
+    print(cls_input.shape)
+    # print(f.shape)
+    # print(f)

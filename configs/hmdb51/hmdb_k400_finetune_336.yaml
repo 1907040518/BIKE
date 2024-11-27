@@ -6,12 +6,12 @@ data:
     modality: RGB
     num_segments: 16
     seg_length: 1
-    batch_size: 8
+    batch_size: 1
     workers: 4
     num_classes: 51
-    image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/bpfs/v2_mnt/VIS/wuwenhao/hmdb51_rgb_img_256_340'
-    val_root: '/bpfs/v2_mnt/VIS/wuwenhao/hmdb51_rgb_img_256_340'
+    image_tmpl: 'img_{:05d}.jpg'
+    train_root: '/datasets/hmdb51/hmdb51_flow'
+    val_root: '/datasets/hmdb51/hmdb51_flow'
     train_list: 'lists/hmdb51/train_rgb_split_1.txt'
     val_list: 'lists/hmdb51/val_rgb_split_1.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'

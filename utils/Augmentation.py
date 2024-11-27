@@ -24,41 +24,47 @@ def train_augmentation(input_size, flip=True):
 
 
 def get_augmentation(training, config):
-    input_mean = [0.48145466, 0.4578275, 0.40821073]
-    input_std = [0.26862954, 0.26130258, 0.27577711]
-    scale_size = 256 if config.data.input_size == 224 else config.data.input_size
+    if config.data.modality in ['RGB', 'video', 'iframe']:
+        input_mean = [0.48145466, 0.4578275, 0.40821073]
+        input_std = [0.26862954, 0.26130258, 0.27577711]
+        scale_size = 256 if config.data.input_size == 224 else config.data.input_size
 
-    normalize = GroupNormalize(input_mean, input_std)
-    if 'something' in config.data.dataset:
-        groupscale = GroupScale((256, 320))
-    else:
-        groupscale = GroupScale(int(scale_size))
+        normalize = GroupNormalize(input_mean, input_std)
+        if 'something' in config.data.dataset:
+            groupscale = GroupScale((256, 320))
+        else:
+            groupscale = GroupScale(int(scale_size))
 
 
-    common = torchvision.transforms.Compose([
-        Stack(roll=False),
-        ToTorchFormatTensor(div=True),
-        normalize])
+        common = torchvision.transforms.Compose([
+            Stack(roll=False),
+            ToTorchFormatTensor(div=True),
+            normalize])
 
-    if training:
-        train_aug = train_augmentation(
-            config.data.input_size,
-            flip=False if 'something' in config.data.dataset else True)
+        if training:
+            train_aug = train_augmentation(
+                config.data.input_size,
+                flip=False if 'something' in config.data.dataset else True)
 
-        unique = torchvision.transforms.Compose([
-            groupscale,
-            train_aug,
-            GroupRandomGrayscale(p=0 if 'something' in config.data.dataset else 0.2),
-        ])
-            
-        return torchvision.transforms.Compose([unique, common])
+            unique = torchvision.transforms.Compose([
+                groupscale,
+                train_aug,
+                GroupRandomGrayscale(p=0 if 'something' in config.data.dataset else 0.2),
+            ])
+                
+            return torchvision.transforms.Compose([unique, common])
 
-    else:
-        unique = torchvision.transforms.Compose([
-            groupscale,
-            GroupCenterCrop(config.data.input_size)])
-        return torchvision.transforms.Compose([unique, common])
-
+        else:
+            unique = torchvision.transforms.Compose([
+                groupscale,
+                GroupCenterCrop(config.data.input_size)])
+            return torchvision.transforms.Compose([unique, common])
+    elif config.data.modality in ['mv', 'residual']:
+        scales = [1, .875, .75]
+        print('Augmentation scales:', scales)
+        return torchvision.transforms.Compose(
+            [GroupMultiScaleCrop(scale_size, scales),
+             GroupRandomHorizontalFlip(is_mv=(config.data.modality == 'mv'))])
 
 
 def multiple_samples_collate(batch):

@@ -9,7 +9,7 @@ import torch.distributed.nn as distnn
 from torch import nn
 import numpy as np
 import json
-import math
+import math 
 
 def init_distributed_mode(args):
     """ init for distribute mode """
@@ -23,7 +23,7 @@ def init_distributed_mode(args):
     else:
         print('Not using distributed mode')
         args.distributed = False
-        return
+        return 
 
     args.distributed = True
 

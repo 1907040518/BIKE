@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from .model import build_model
 from .simple_tokenizer import SimpleTokenizer as _Tokenizer
-
+import pandas as pd
 try:
     from torchvision.transforms import InterpolationMode
     BICUBIC = InterpolationMode.BICUBIC
@@ -94,8 +94,9 @@ def available_models() -> List[str]:
 def load(
         name: str,
         device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", 
+        use_text_prompt_learning: bool = False,
         jit=True, 
-        internal_modeling=False, joint_st=False, T=8, dropout=0., 
+        internal_modeling=False, joint_st=False, Block= "Origin",T=8, dropout=0., 
         emb_dropout=0., 
         pretrain=True):
     """Load a CLIP model
@@ -123,25 +124,55 @@ def load(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if name in _MODELS:
-        model_path = _download(_MODELS[name])
+        # CLIP预训练模型路径
+        model_path = _download(_MODELS[name]) 
     elif os.path.isfile(name):
         model_path = name
     else:
         raise RuntimeError(f"Model {name} not found; available models = {available_models()}")
 
     try:
-        # loading JIT archive
+        # loading JIT archive    
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
+
+        # # 创建一个字典来存储参数名、形状、数值的前几个元素
+        # param_info = {
+        #     "Parameter Name": [],
+        #     "Shape": [],
+        #     # "First Few Values": []
+        # }
+        # # 填充字典
+        # for param_name, param_tensor in model.state_dict().items():
+        #     param_info["Parameter Name"].append(param_name)
+        #     param_info["Shape"].append(param_tensor.shape)
+        #     # param_info["First Few Values"].append(param_tensor.flatten()[:5].tolist())  # 取前五个值
+        # # 设置显示的最大行数和列数为 None，表示不限制
+        # pd.set_option('display.max_colwidth', None)  # 不限制列宽
+
+        # pd.set_option('display.max_rows', None)  # 显示所有行
+        # pd.set_option('display.max_columns', None)  # 显示所有列
+        # # 将字典转化为 DataFrame，并打印
+        # df = pd.DataFrame(param_info)
+        # print(df)
+        # # print("model:",model)
         state_dict = None
     except RuntimeError:
         # loading saved state dict
+        # print("抛出了异常")
         if jit:
             warnings.warn(f"File {model_path} is not a JIT archive. Loading as a state dict instead")
             jit = False
         state_dict = torch.load(model_path, map_location="cpu")
 
+    # print("model_path",model_path)   model_path ../CLIP-models/ViT-L-14.pt
+    # print("state_dict----------------------------------------",model.state_dict())
     if not jit:
-        model = build_model(state_dict or model.state_dict(), joint=joint_st, tm=internal_modeling, T=T, dropout=dropout, emb_dropout=emb_dropout, pretrain=pretrain).to(device)
+
+        model = build_model(state_dict or model.state_dict(), use_text_prompt_learning = use_text_prompt_learning, joint=joint_st, tm=internal_modeling, 
+                            Block=Block, T=T, 
+                            dropout=dropout, 
+                            emb_dropout=emb_dropout, 
+                            pretrain=pretrain).to(device)
         if str(device) == "cpu":
             model.float()        
         return model, model.state_dict()

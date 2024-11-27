@@ -12,6 +12,8 @@ import math
 import copy
 
 
+GOP_SIZE = 12
+
 class VideoRecord(object):
     def __init__(self, row):
         self._data = row
@@ -29,10 +31,45 @@ class VideoRecord(object):
         return int(self._data[-1])
 
 
+def clip_and_scale(img, size):
+    return (img * (127.5 / size)).astype(np.int32)
+
+
+def get_seg_range(n, num_segments, seg, representation):
+    if representation in ['residual', 'mv']:
+        n -= 1
+
+    seg_size = float(n - 1) / num_segments
+    seg_begin = int(np.round(seg_size * seg))
+    seg_end = int(np.round(seg_size * (seg+1)))
+    if seg_end == seg_begin:
+        seg_end = seg_begin + 1
+
+    if representation in ['residual', 'mv']:
+        # Exclude the 0-th frame, because it's an I-frmae.
+        return seg_begin + 1, seg_end + 1
+
+    return seg_begin, seg_end
+
+
+def get_gop_pos(frame_idx, representation):
+    gop_index = frame_idx // GOP_SIZE
+    gop_pos = frame_idx % GOP_SIZE
+    if representation in ['residual', 'mv']:
+        if gop_pos == 0:
+            gop_index -= 1
+            gop_pos = GOP_SIZE - 1
+    else:
+        gop_pos = 0
+    return gop_index, gop_pos
+
+
+
 class Video_dataset(data.Dataset):
-    def __init__(self, root_path, list_file, labels_file,
+    # modality='RGB' 'iframe' 'mv' 'res' 'videos' 'compress'
+    def __init__(self, root_path, list_file, labels_file, 
                  num_segments=1, modality='RGB', new_length=1,
-                 image_tmpl='img_{:05d}.jpg', transform=None,
+                 image_tmpl='image_{:06d}.jpg', transform=None,
                  random_shift=True, test_mode=False,
                  index_bias=1, dense_sample=False, test_clips=3,
                  num_sample=1):
@@ -76,7 +113,7 @@ class Video_dataset(data.Dataset):
         return classes_all.values.tolist()
     
     def _parse_list(self):
-        # check the frame number is large >3:
+        # check the frame number is large >3:  查看训练集和验证集视频数量并输出
         tmp = [x.strip().split(' ') for x in open(self.list_file)]
         if len(tmp[0]) == 3: # skip remove_missin for decording "raw_video label" type dataset_config
             if not self.test_mode:
@@ -93,7 +130,7 @@ class Video_dataset(data.Dataset):
             offsets = (base_offsets + start_idx) % len(video_list)
             return np.array(offsets) + self.index_bias
         else:
-
+            # 取num_segments帧
             seg_size = float(len(video_list) - 1) / self.num_segments
             offsets = []
             for i in range(self.num_segments):
@@ -151,6 +188,28 @@ class Video_dataset(data.Dataset):
         
         return container
 
+
+    def _get_train_frame_index(self, num_frames, seg):
+        # Compute the range of the segment.
+        seg_begin, seg_end = get_seg_range(num_frames, self._num_segments, seg,
+                                                 representation=self._representation)
+
+        # Sample one frame from the segment.
+        v_frame_idx = random.randint(seg_begin, seg_end - 1)
+        return get_gop_pos(v_frame_idx, self._representation)
+
+    def _get_test_frame_index(self, num_frames, seg):
+        if self._representation in ['mv', 'residual']:
+            num_frames -= 1
+
+        seg_size = float(num_frames - 1) / self._num_segments
+        v_frame_idx = int(np.round(seg_size * (seg + 0.5)))
+
+        if self._representation in ['mv', 'residual']:
+            v_frame_idx += 1
+
+        return get_gop_pos(v_frame_idx, self._representation)
+
     def __getitem__(self, index):
         # decode frames to video_list
         if self.modality == 'video':
@@ -167,7 +226,7 @@ class Video_dataset(data.Dataset):
                     index = random.randint(0, len(self.video_list))
                     continue
                 break
-        else:
+        else :
             record = self.video_list[index]
             video_list = os.listdir(os.path.join(self.root_path, record.path))
 
@@ -183,6 +242,7 @@ class Video_dataset(data.Dataset):
         if self.modality == 'RGB':
             try:
                 return [Image.open(os.path.join(self.root_path, directory, self.image_tmpl.format(idx))).convert('RGB')]
+                
             except Exception:
                 print('error loading image:', os.path.join(self.root_path, directory, self.image_tmpl.format(idx)))
                 return [Image.open(os.path.join(self.root_path, directory, self.image_tmpl.format(1))).convert('RGB')]
@@ -213,3 +273,4 @@ class Video_dataset(data.Dataset):
 
     def __len__(self):
         return len(self.video_list)
+
