@@ -7,7 +7,7 @@ def text_prompt(data, config):
         classname = [c.replace(' ', '_') for _, c in data.classes]
         
         # 打印 classname 验证结果
-        print(classname)
+        # print(classname)
         return classname, len(classname)
     else:
         # text_aug = ['{}']
@@ -15,6 +15,6 @@ def text_prompt(data, config):
         # for i, c in data.classes:
         #     if i <=2:
         #         print(text_aug.format(c))
-        print("data.classes:", data.classes)
+        # print("data.classes:", data.classes)
         classes = torch.cat([clip.tokenize(text_aug.format(c)) for i, c in data.classes])
         return classes, classes.size(0)

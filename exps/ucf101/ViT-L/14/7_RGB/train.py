@@ -33,10 +33,6 @@ from utils.Augmentation import get_augmentation
 from utils.solver import _optimizer, _lr_scheduler
 from modules.text_prompt import text_prompt
 
-from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
-from X_CLIP.models.prompt import VideoSpecificPrompt
-from X_CLIP.models.prompt import Video_Prompt
-
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
 
@@ -78,9 +74,7 @@ def get_parser():
         choices=["amp", "fp16", "fp32"],
         default="fp32",
         help="Floating point precition."
-    )        
-    parser.add_argument('--no-accumulation', action='store_true',
-                    help='disable accumulation of motion vectors and residuals.')                
+    )                        
     args = parser.parse_args()
     return args
 
@@ -138,30 +132,18 @@ def main(args):
 
 
     # get fp16 model and weight
-    # model: 这将是一个可用于前向推理或继续训练的 CLIP 模型实例。你可以使用这个模型输入图像和文本进行特征提取、相似度计算等任务。
-    # clip_state_dict: 包含了模型当前的权重和偏置，你可以使用这个字典在训练过程中更新模型的参数，或者在保存和加载模型时使用。
     model, clip_state_dict = clip.load(
         config.network.arch,
         device='cpu',jit=False,
-        use_text_prompt_learning=config.network.use_text_prompt_learning,
         internal_modeling=config.network.tm,
-        Block=config.network.Block,
         T=config.data.num_segments,
         dropout=config.network.drop_out,
         emb_dropout=config.network.emb_dropout,
         pretrain=config.network.init,
         joint_st = config.network.joint_st) # Must set jit=False for training  ViT-B/32
-    
-    if config.data.modality in ['mv', 'residual', 'iframe']:
-        transform_train = get_compress_augmentation(True, config)
-        transform_val = get_compress_augmentation(False, config)
-        torchvision.transforms.Compose([
-            GroupScale(int(config.data.input_size * 256 // 224)),
-            GroupCenterCrop(config.data.input_size),
-                ]),
-    else:
-        transform_train = get_augmentation(True, config)
-        transform_val = get_augmentation(False, config)
+
+    transform_train = get_augmentation(True, config)
+    transform_val = get_augmentation(False, config)
 
 
     logger.info('train transforms: {}'.format(transform_train.transforms))
@@ -173,57 +155,38 @@ def main(args):
         config.network.interaction,
         clip_state_dict)
 
-    video_prompt = Video_Prompt(clip_state_dict)
-
-
     if args.precision == "amp" or args.precision == "fp32":
         model = model.float()
 
-    if config.data.modality in ['RGB', 'video']:
-        if config.data.dataset == 'charades':
-            from datasets.charades import Video_dataset
-            train_data = Video_dataset(
-                config.data.train_root, config.data.train_list,
-                config.data.label_list, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-                transform=transform_train, dense_sample=config.data.dense,
-                fps=config.data.fps)
-            val_data = Video_dataset(
-                config.data.val_root, config.data.val_list, config.data.label_list,
-                random_shift=False, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl,
-                transform=transform_val, test_mode=True, dense_sample=config.data.dense)            
-        else:
-            # 创建训练数据集和验证数据集
-            from datasets.video import Video_dataset
-            train_data = Video_dataset(
-                config.data.train_root, config.data.train_list,
-                config.data.label_list, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-                transform=transform_train, dense_sample=config.data.dense)
-            val_data = Video_dataset(
-                config.data.val_root, config.data.val_list, config.data.label_list,
-                random_shift=False, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl,
-                transform=transform_val, dense_sample=config.data.dense)   
-    elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video_compress import Video_compress_dataset
-        train_data = Video_compress_dataset(
+    if config.data.dataset == 'charades':
+        from datasets.charades import Video_dataset
+        train_data = Video_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
-        val_data = Video_compress_dataset(
+            transform=transform_train, dense_sample=config.data.dense,
+            fps=config.data.fps)
+        val_data = Video_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
+            transform=transform_val, test_mode=True, dense_sample=config.data.dense)            
+    else:
+        from datasets.video import Video_dataset
+        train_data = Video_dataset(
+            config.data.train_root, config.data.train_list,
+            config.data.label_list, num_segments=config.data.num_segments,
+            modality=config.data.modality,
+            image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
+            transform=transform_train, dense_sample=config.data.dense)
+        val_data = Video_dataset(
+            config.data.val_root, config.data.val_list, config.data.label_list,
+            random_shift=False, num_segments=config.data.num_segments,
+            modality=config.data.modality,
+            image_tmpl=config.data.image_tmpl,
+            transform=transform_val, dense_sample=config.data.dense)            
 
     ################ Few shot data for training ###########
     if config.data.shot:
@@ -269,8 +232,8 @@ def main(args):
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
             checkpoint = torch.load(config.pretrain, map_location='cpu')
-            model.load_state_dict(checkpoint['model_state_dict'], False)
-            video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            video_head.load_state_dict(checkpoint['fusion_model_state_dict'])
             del checkpoint
         else:
             logger.info("=> no pretrain checkpoint found at '{}'".format(config.resume))
@@ -288,8 +251,8 @@ def main(args):
         else:
             logger.info("=> no resume checkpoint found at '{}'".format(config.pretrain))
 
-    classes,n_class = text_prompt(train_data, config)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
-
+    classes = text_prompt(train_data)
+    n_class = classes.size(0)
 
     if config.network.fix_text:
         for name, param in model.named_parameters():
@@ -306,8 +269,6 @@ def main(args):
 
     if args.distributed:
         model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu])
-        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu])
-
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
         else:
@@ -341,9 +302,8 @@ def main(args):
         if args.distributed:
             train_loader.sampler.set_epoch(epoch)        
 
-        # print(model)
         train(model, video_head, train_loader, optimizer, criterion, scaler,
-              epoch, device, lr_scheduler, config, classes, logger, video_prompt)
+              epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
@@ -367,7 +327,7 @@ def main(args):
 
 
 def train(model, video_head, train_loader, optimizer, criterion, scaler,
-          epoch, device, lr_scheduler, config, classes, logger, video_prompt):
+          epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -377,11 +337,10 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
     model.train()
     video_head.train()
-    video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     for i,(images, list_id) in enumerate(train_loader):
-        # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize
+        # print(list_id)
         # exit()
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
@@ -392,34 +351,24 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         # b t3 h w
         images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
         b,t,c,h,w = images.size()
-        # [b*t, c, h, w]
+
         images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
 
         texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
-                texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
+                texts = texts[list_id]  # bs 77
                 image_embedding, cls_embedding, text_embedding, logit_scale = model(images, texts, return_token=True)
-                # exit()
-                # image_embedding.shape== torch.Size([32, 768])
-                # cls_embedding.shape== torch.Size([2, 768])
-                # text_embedding.shape== torch.Size([2, 77, 768])
-                # logit_scale== tensor(95.5525, device='cuda:0', grad_fn=<ExpBackward>)
-                # image_embedding.view.shape== torch.Size([2, 16, 768])
                 image_embedding = image_embedding.view(b,t,-1)
                 # gather
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
-                if config.network.video_prompt:
-                    cls_embedding = cls_embedding.unsqueeze(1) 
-                    cls_embedding = cls_embedding + video_prompt(cls_embedding, image_embedding)
-                    cls_embedding = cls_embedding.squeeze()
-                    print("cls_embedding-video_prompt")
-                logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
+                logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
+                
                 list_id = gather_labels(list_id.to(device))  # bs -> n_gpu * bs
 
                 ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
@@ -437,6 +386,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
             # back propagation
             # scaler.scale(loss).backward()
             scaled_loss = scaler.scale(loss)
+
             scaled_loss.backward()
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
                 scaler.step(optimizer)
@@ -467,37 +417,6 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                          'Loss {loss.val:.4f} ({loss.avg:.4f})'.format(
                              epoch, i, len(train_loader), eta_sec, batch_time=batch_time, data_time=data_time, loss=losses,
                              lr=optimizer.param_groups[-1]['lr'])))
-
-def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
-          epoch, device, lr_scheduler, config, classes, logger):
-    """ train a epoch """
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    img_losses = AverageMeter()
-    text_losses = AverageMeter()
-
-    model.train()
-    video_head.train()
-    autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
-    end = time.time()
-
-    for i,(images, list_id) in enumerate(train_loader):
-        if config.solver.type != 'monitor':
-            if (i + 1) == 1 or (i + 1) % 10 == 0:
-                lr_scheduler.step(epoch + i / len(train_loader))
-        # lr_scheduler.step()
-
-        data_time.update(time.time() - end)
-        # b t3 h w
-        
-        images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
-        b,t,c,h,w = images.size()
-
-        images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
-
-        texts = classes # n_cls 77
-
 
 
 
