@@ -104,7 +104,9 @@ def main(args):
     if dist.get_rank() == 0:
         Path(working_dir).mkdir(parents=True, exist_ok=True)
         shutil.copy(args.config, working_dir)
-        shutil.copy('train.py', working_dir)
+        # 获取当前执行脚本的文件名
+        current_script_name = os.path.basename(__file__)
+        shutil.copy(current_script_name, working_dir)
 
 
     # build logger, print env and config
