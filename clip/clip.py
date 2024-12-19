@@ -94,7 +94,6 @@ def available_models() -> List[str]:
 def load(
         name: str,
         device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", 
-        use_text_prompt_learning: bool = False,
         jit=True, 
         internal_modeling=False, joint_st=False, Block= "Origin",T=8, dropout=0., 
         emb_dropout=0., 
@@ -168,7 +167,7 @@ def load(
     # print("state_dict----------------------------------------",model.state_dict())
     if not jit:
 
-        model = build_model(state_dict or model.state_dict(), use_text_prompt_learning = use_text_prompt_learning, joint=joint_st, tm=internal_modeling, 
+        model = build_model(state_dict or model.state_dict(), joint=joint_st, tm=internal_modeling, 
                             Block=Block, T=T, 
                             dropout=dropout, 
                             emb_dropout=emb_dropout, 

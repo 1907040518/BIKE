@@ -145,7 +145,6 @@ def main(args):
     model, clip_state_dict = clip.load(
         config.network.arch,
         device='cpu',jit=False,
-        use_text_prompt_learning=config.network.use_text_prompt_learning,
         internal_modeling=config.network.tm,
         Block=config.network.Block,
         T=config.data.num_segments,
@@ -383,7 +382,8 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     for i,(images, list_id) in enumerate(train_loader):
-        # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize
+        # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
+        # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
@@ -391,6 +391,10 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         # lr_scheduler.step()
 
         data_time.update(time.time() - end)
+        print(images.size())
+        print(images.shape)
+
+        exit()
         # b t3 h w
         images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
         b,t,c,h,w = images.size()
