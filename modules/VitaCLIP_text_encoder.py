@@ -172,6 +172,7 @@ class CLIPTextEncoder(nn.Module):
             return x, None    
 
 
+
 class TextPromptLearner(nn.Module):
     def __init__(self, classnames, ln_final, token_embedding, num_prompts, prompts_init='', CSC=False, ctx_pos='end'):
         super().__init__()
@@ -294,6 +295,9 @@ class TextPromptLearner(nn.Module):
             raise ValueError
 
         return prompts
+
+
+
 
 
 

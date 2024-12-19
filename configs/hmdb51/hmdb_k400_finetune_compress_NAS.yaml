@@ -37,7 +37,7 @@ network:
     use_text_prompt_learning: False
 solver:
     type: cosine
-    epochs: 2
+    epochs: 20
     start_epoch: 0
     optim: adamw
     lr: 5.e-5

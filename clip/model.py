@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.checkpoint import checkpoint
-from .VitaCLIP_text_encoder import CLIPTextEncoder, TextPromptLearner
+
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -544,12 +544,10 @@ class CLIP(nn.Module):
                  transformer_width: int,
                  transformer_heads: int,
                  transformer_layers: int,
-                 use_text_prompt_learning: bool = False,
                  joint=False,
                  tm=None, Block = "Origin", T=8,dropout = 0., emb_dropout = 0.,
                  ):
         super().__init__()
-        self.use_text_prompt_learning = use_text_prompt_learning
         self.context_length = context_length
         if dropout > 0.:
             dpr = [x.item() for x in torch.linspace(0, dropout, vision_layers)]  # stochastic depth decay rule
@@ -605,23 +603,6 @@ class CLIP(nn.Module):
 
         self.T = T
 
-        if self.use_text_prompt_learning:
-            with open('/home/mmstu_b/gmk/BIKE/Vita-CLIP/classes/hmdb51_classes.txt', 'r') as f:
-                classes = f.read().strip().split('\n')
-            print("classes:", classes)
-            self.prompt_learner = TextPromptLearner(
-                            classnames=classes,
-                            ln_final=self.ln_final,
-                            token_embedding=self.token_embedding,
-                            num_prompts=8,
-                            prompts_init='',
-                            CSC=True,
-                            ctx_pos='end'
-                            )
-            self.tokenized_prompts = self.prompt_learner.tokenized_prompts
-
-
-
         self.initialize_parameters()
 
 
@@ -671,6 +652,7 @@ class CLIP(nn.Module):
 
 
     def encode_text(self, text, return_token=False):
+        # print("encode_text:",text)
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
 
         x = x + self.positional_embedding.type(self.dtype)
@@ -693,42 +675,9 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def Vita_prompts_text(self, prompts, tokenized_prompts, return_token = False, maple_prompts=None):
-        x = prompts + self.positional_embedding
-        x = x.permute(1, 0, 2)  # NLD -> LND
-        
-        if maple_prompts:
-            x = self.transformer(x, maple_prompts)
-        else:
-            x = self.transformer(x)
-            
-        x = x.permute(1, 0, 2)  # LND -> NLD
-        x = self.ln_final(x)
-        text_token = x @ self.text_projection   # eg, [400 77 512]
-
-        # x.shape = [batch_size, n_ctx, transformer.width]
-        # take features from the eot embedding (eot_token is the highest number in each sequence)
-        x = x[torch.arange(x.shape[0]), tokenized_prompts.argmax(dim=-1)] @ self.text_projection
-
-        if return_token:
-            return x, text_token
-        else:
-            return x, None    
-
-
     def forward(self, image, text, return_token=False):
         image_feats = self.encode_image(image)
-        # used in training
-        if self.use_text_prompt_learning:
-            # text side
-            prompts = self.prompt_learner()
-            tokenized_prompts = self.tokenized_prompts
-            cls_feat, text_feats = self.Vita_prompts_text(prompts, tokenized_prompts, return_token= return_token)
-            # vision side
-            # video_features = self.visual(x)
-        # used in Origin training
-        else:
-            cls_feat, text_feats = self.encode_text(text, return_token)
+        cls_feat, text_feats = self.encode_text(text, return_token)
 
 
         return image_feats, cls_feat, text_feats, self.logit_scale.exp()
@@ -758,7 +707,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict, use_text_prompt_learning = False, tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True):
+def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -786,7 +735,7 @@ def build_model(state_dict: dict, use_text_prompt_learning = False, tm=None,Bloc
     model = CLIP(
         embed_dim,
         image_resolution, vision_layers, vision_width, vision_patch_size,
-        context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,use_text_prompt_learning,
+        context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
         dropout=dropout, emb_dropout=emb_dropout,Block=Block,
     )

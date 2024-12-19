@@ -1,4 +1,5 @@
-pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
+# pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
+pretrain:
 resume:
 seed: 1024
 data:
@@ -7,7 +8,7 @@ data:
     num_segments: 16
     seg_length: 1
     batch_size: 2
-    workers: 4
+    workers: 1
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
     train_root: '/datasets/hmdb51/mpeg4_videos'
@@ -27,11 +28,13 @@ network:
     emb_dropout: 0.0 
     sim_header: Transf
     interaction: VCS
+    video_prompt: False
     joint_st: False
     drop: 0      
     fix_text: True  
     fix_video: False  
-    Block: Origin     
+    Block: Origin
+    use_text_prompt_learning: False
 solver:
     type: cosine
     epochs: 20

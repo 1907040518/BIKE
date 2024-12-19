@@ -32,7 +32,7 @@ network:
     drop: 0      
     fix_text: True  
     fix_video: False
-    Block: Origin
+    Block: Cross
     use_text_prompt_learning: False
 solver:
     type: cosine
