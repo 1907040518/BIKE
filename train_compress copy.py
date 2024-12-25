@@ -210,7 +210,7 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video_compress import Video_compress_dataset
+        from datasets.compress_3 import Video_compress_dataset
         train_data = Video_compress_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
@@ -379,7 +379,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i,(images, list_id) in enumerate(train_loader):
+    for i,(mvs, residuals, images, list_id) in enumerate(train_loader):
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -390,21 +390,38 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
         data_time.update(time.time() - end)
         # b t3 h w
-        if images.shape[2] == 2:
-            images = images.view((-1,config.data.num_segments,2)+images.size()[-2:])  # bt 3 h w
-        else:
-            images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
-        b,t,c,h,w = images.size()
-        # [b*t, c, h, w]
-        images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
+        print(f'images.size:{images.size()}')
+        print(f'mvs.size:{mvs.size()}')
+        print(f'residuals.size:{residuals.size()}')
+        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
+        mvs = mvs.view((-1, config.data.num_segments, mvs.size(1), mvs.size(2), mvs.size(3)))  # Adjust if necessary
+        residuals = residuals.view((-1, config.data.num_segments, residuals.size(1), residuals.size(2), residuals.size(3)))  # Adjust if necessary
+        print(f'images view.size:{images.size()}')
+        print(f'mvs view .size:{mvs.size()}')
+        print(f'residuals view.size:{residuals.size()}')
+        b, t, c, h, w = images.size()
+        images = images.view(-1, c, h, w)  # Flatten batch and time steps
+        mvs = mvs.view(-1, mvs.size(2), mvs.size(3), mvs.size(4))  # Flatten mvs similarly
+        residuals = residuals.view(-1, residuals.size(2), residuals.size(3), residuals.size(4))  # Flatten residuals similarly
+        print(f'images two view.size:{images.size()}')
+        print(f'mvs two view .size:{mvs.size()}')
+        print(f'residuals two view.size:{residuals.size()}')
 
+
+        # print(f'images.size:{images.size()}')
+        # images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
+        # print(f'images view.size:{images.size()}')
+        # b,t,c,h,w = images.size()
+        # # [b*t, c, h, w]
+        # images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
+        # print(f'images two view.size:{images.size()}')
         texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, texts, return_token=True)
-                # exit()
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images,mvs, residuals,  texts, return_token=True)
+                exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
                 # text_embedding.shape== torch.Size([2, 77, 768])
