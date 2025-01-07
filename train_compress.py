@@ -210,7 +210,7 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video_compress import Video_compress_dataset
+        from datasets.compress_3 import Video_compress_dataset
         train_data = Video_compress_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
@@ -304,13 +304,13 @@ def main(args):
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
-        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu])
-        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu])
+        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
+        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
         else:
-            video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu])
+            video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
             video_head_nomodule = video_head.module
         
 
@@ -379,7 +379,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i,(images, list_id) in enumerate(train_loader):
+    for i,(images, mvs, residuals,list_id) in enumerate(train_loader):
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -390,20 +390,21 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
         data_time.update(time.time() - end)
         # b t3 h w
-        if images.shape[2] == 2:
-            images = images.view((-1,config.data.num_segments,2)+images.size()[-2:])  # bt 3 h w
-        else:
-            images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
-        b,t,c,h,w = images.size()
-        # [b*t, c, h, w]
-        images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
+        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
+        mvs = mvs.view((-1, config.data.num_segments, 2)+ mvs.size()[-2:])  # Adjust if necessary
+        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
+        b, t, c_i, h, w = images.size()
+        b, t, c_m, h, w = mvs.size()
+        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
+        mvs = mvs.view(-1, c_m, h, w)  # Flatten mvs similarly
+        residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
 
         texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
                 # exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
@@ -493,8 +494,12 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
         data_time.update(time.time() - end)
         # b t3 h w
-        
-        images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
+        if images.shape[2] == 2:
+            images = images.view((-1,config.data.num_segments,2)+images.size()[-2:])  # bt 3 h w
+        else:
+            images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
+ 
+        # images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
         b,t,c,h,w = images.size()
 
         images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
@@ -516,13 +521,29 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
     with torch.no_grad():
         text_inputs = classes.to(device)  # [n_cls, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
-        for i, (image, class_id) in enumerate(val_loader):
-            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            b, t, c, h, w = image.size()
+        for i,(image, mv, residual, class_id) in enumerate(val_loader):
+            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
+            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            # residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
+            b, t, c_i, h, w = image.size()
+            b, t, c_m, h, w = mv.size()
+
+            # if image.shape[2] == 2:
+            #     image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
+            # else:
+            #     image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
+    
+            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
+            # b, t, c, h, w = image.size()
             class_id = class_id.to(device)
-            image_input = image.to(device).view(-1, c, h, w)
+            image_input = image.to(device).view(-1, c_i, h, w)
+            mv_input = mv.to(device).view(-1, c_m, h, w)
+            # residual_input = residual.to(device).view(-1, c_i, h, w)
             image_features = model.module.encode_image(image_input).view(b, t, -1)
-            similarity = video_head(image_features, text_features, cls_feature)
+            mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_features = weights[0]* image_features + weights[1]* mv_features
+            similarity = video_head(merged_features, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
             similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
@@ -566,7 +587,12 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
         text_inputs = classes.to(device)  # [400, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [400, 512]
         for i, (image, class_id) in enumerate(val_loader):
-            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
+            if image.shape[2] == 2:
+                image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
+            else:
+                image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
+    
+            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c, h, w)

@@ -1,10 +1,10 @@
-# pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
-pretrain:
+pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
+# pretrain:
 resume:
 seed: 1024
 data:
     dataset: hmdb51
-    modality: iframe
+    modality: mv
     num_segments: 16
     seg_length: 1
     batch_size: 2

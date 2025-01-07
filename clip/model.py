@@ -476,7 +476,7 @@ class VisualTransformer(nn.Module):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
-        self.conv2 = nn.Conv2d(in_channels=2, out_channels=3, kernel_size=1, stride=1, bias=False)
+
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
 
         scale = width ** -0.5
@@ -501,8 +501,9 @@ class VisualTransformer(nn.Module):
 
     def forward(self, x: torch.Tensor):
         if x.shape[1] == 2:
-            x = self.conv2(x)
-            print(x.shape)
+            conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
+            conv_2to3 = conv_2to3.to(x.device)  # 将卷积层移动到输入数据所在设备
+            x = conv_2to3(x)
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
@@ -598,7 +599,7 @@ class CLIP(nn.Module):
         self.token_embedding = nn.Embedding(vocab_size, transformer_width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
         self.ln_final = LayerNorm(transformer_width)
-        
+        self.beta = nn.Parameter(torch.tensor([1., 1.], dtype=torch.float), requires_grad=True)
         self.dropout = nn.Dropout(emb_dropout)
         self.emb_dropout = emb_dropout
         
@@ -679,13 +680,38 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, text, return_token=False):
+    def forward(self, image, mv, residual, text, return_token=False):
         image_feats = self.encode_image(image)
+        with torch.no_grad():
+            mv_feats = self.encode_image(mv)
+            residual_feats = self.encode_image(residual)
         cls_feat, text_feats = self.encode_text(text, return_token)
+        # print(f"image_feats shape: {image_feats.shape}")
+        # print(f"mv_feats shape: {mv_feats.shape}")
+        # image_min = torch.min(image_feats)
+
+        # image_max = torch.max(image_feats)
+
+        # print("image_feats range: [{}, {}]".format(image_min.item(), image_max.item()))
+        # mv_min = torch.min(mv_feats)
+
+        # mv_max = torch.max(mv_feats)
+
+        # print("mv_feats range: [{}, {}]".format(mv_min.item(), mv_max.item()))
+        # 使用可学习的beta参数，并确保它参与反向传播
+        weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
+
+        # 按权重加和特征
+        merged_feats = weights[0] * image_feats + weights[1] * mv_feats
+
+        # merged_min = torch.min(merged_feats)
+
+        # merged_max = torch.max(merged_feats)
+
+        # print("merged_feats range: [{}, {}]".format(merged_min.item(), merged_max.item()))
 
 
-        return image_feats, cls_feat, text_feats, self.logit_scale.exp()
-
+        return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""

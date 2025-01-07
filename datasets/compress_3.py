@@ -320,10 +320,10 @@ class Video_compress_dataset(data.Dataset):
                 
 
             # print(f'------------------------------------------------seg结束---------------------------------')
-            print("frames_iframe[0].shape", frames_iframe[0].shape)
-            print("frames_mv[0].shape", frames_mv[0].shape)
-            print("frames_residual[0].shape", frames_residual[0].shape)
-            frames_iframe = self.transform(frames_iframe)
+            # frames_iframe[0].shape (256, 340, 3)
+            # frames_mv[0].shape (256, 340, 2)
+            # frames_residual[0].shape (256, 340, 3)
+            frames_iframe = self.transform(frames_iframe)        # 这里需要修改一下，能对不同模态有不用的增强方式
             frames_mv = self.transform(frames_mv)
             frames_residual = self.transform(frames_residual)
 
@@ -356,7 +356,7 @@ class Video_compress_dataset(data.Dataset):
 
             input_mv = (input_mv - 0.5)
 
-            return input_mv, input_residual, input_iframe, label
+            return input_iframe, input_mv, input_residual, label
 
 
     def _load_image(self, directory, idx):
