@@ -702,7 +702,7 @@ class CLIP(nn.Module):
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
         # 按权重加和特征
-        merged_feats = weights[0] * image_feats + weights[1] * mv_feats
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats
 
         # merged_min = torch.min(merged_feats)
 

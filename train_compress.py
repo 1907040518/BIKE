@@ -523,10 +523,10 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
-            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
-            # residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
+            # mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
-            b, t, c_m, h, w = mv.size()
+            # b, t, c_m, h, w = mv.size()
 
             # if image.shape[2] == 2:
             #     image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
@@ -537,12 +537,14 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             # b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
-            mv_input = mv.to(device).view(-1, c_m, h, w)
-            # residual_input = residual.to(device).view(-1, c_i, h, w)
+
+            # mv_input = mv.to(device).view(-1, c_m, h, w)
+            residual_input = residual.to(device).view(-1, c_i, h, w)
             image_features = model.module.encode_image(image_input).view(b, t, -1)
-            mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+            residual_features = model.module.encode_image(residual_input).view(b, t, -1)
+            # mv_features = model.module.encode_image(mv_input).view(b, t, -1)
             weights = F.softmax(model.module.beta, dim=0)
-            merged_features = weights[0]* image_features + weights[1]* mv_features
+            merged_features = weights[0]* image_features + weights[1]* residual_features
             similarity = video_head(merged_features, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]

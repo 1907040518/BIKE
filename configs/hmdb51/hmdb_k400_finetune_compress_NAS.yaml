@@ -4,7 +4,7 @@ resume:
 seed: 1024
 data:
     dataset: hmdb51
-    modality: mv
+    modality: residual
     num_segments: 16
     seg_length: 1
     batch_size: 2
