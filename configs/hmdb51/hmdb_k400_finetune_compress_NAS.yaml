@@ -32,7 +32,7 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False  
+    fix_video: True  
     Block: Origin
     use_text_prompt_learning: False
 solver:
