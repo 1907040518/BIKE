@@ -171,6 +171,12 @@ def main(args):
         config.network.interaction,
         clip_state_dict)
 
+
+    mv_head = video_header(
+        config.network.sim_header,
+        config.network.interaction,
+        clip_state_dict)
+    
     video_prompt = Video_Prompt(clip_state_dict)
 
 
@@ -270,6 +276,7 @@ def main(args):
             checkpoint = torch.load(config.pretrain, map_location='cpu')
             model.load_state_dict(checkpoint['model_state_dict'], False)
             video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
+            # mv_head.load_state_dict(checkpoint['fusion_model_state_dict', False])
             del checkpoint
         else:
             logger.info("=> no pretrain checkpoint found at '{}'".format(config.resume))
@@ -280,6 +287,7 @@ def main(args):
             checkpoint = torch.load(config.resume, map_location='cpu')
             model.load_state_dict(update_dict(checkpoint['model_state_dict']))
             video_head.load_state_dict(update_dict(checkpoint['fusion_model_state_dict']))
+            # mv_head.load_state_dict(update_dict(checkpoint['fusion_model_state_dict']))
             start_epoch = checkpoint['epoch'] + 1
             logger.info("=> loaded resume checkpoint '{}' (epoch {})"
                    .format(config.evaluate, checkpoint['epoch']))
@@ -300,7 +308,7 @@ def main(args):
             if "visual" in name:
                 param.requires_grad_(False)
 
-    optimizer = _optimizer(config, model, video_head)
+    optimizer = _optimizer(config, model, video_head, mv_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
@@ -309,9 +317,12 @@ def main(args):
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
+            mv_head_nomodule = mv_head
         else:
             video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
+            mv_head = DistributedDataParallel(mv_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
             video_head_nomodule = video_head.module
+            mv_head_nomodule = mv_head
         
 
     scaler = GradScaler() if args.precision == "amp" else None
@@ -324,12 +335,12 @@ def main(args):
             prec1, output_list, labels_list = validate_mAP(
                 start_epoch,
                 val_loader, classes, device,
-                model, video_head, config, n_class, logger)
+                model, video_head, mv_head, config, n_class, logger)
         else:
             prec1, output_list, labels_list = validate(
                 start_epoch,
                 val_loader, classes, device,
-                model, video_head, config, n_class, logger)
+                model, video_head, mv_head, config, n_class, logger)
         return
 
     #############
@@ -341,14 +352,14 @@ def main(args):
             train_loader.sampler.set_epoch(epoch)        
 
         # print(model)
-        train(model, video_head, train_loader, optimizer, criterion, scaler,
+        train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
               epoch, device, lr_scheduler, config, classes, logger, video_prompt)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
-                prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, save_score)
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -357,15 +368,15 @@ def main(args):
                 logger.info('Saving:')
                 filename = "{}/last_model.pt".format(working_dir)
 
-                epoch_saving(epoch, model.module, video_head_nomodule, optimizer, filename)
+                epoch_saving(epoch, model.module, video_head_nomodule, mv_head_nomodule, optimizer, filename)
                 if is_best:
-                    best_saving(working_dir, epoch, model.module, video_head_nomodule, optimizer)
+                    best_saving(working_dir, epoch, model.module, video_head_nomodule, mv_head_nomodule, optimizer)
                     if save_score:
                         save_sims(output_list, labels_list)
 
 
 
-def train(model, video_head, train_loader, optimizer, criterion, scaler,
+def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger, video_prompt):
     """ train a epoch """
     batch_time = AverageMeter()
@@ -376,6 +387,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
     model.train()
     video_head.train()
+    mv_head.train()
     video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
@@ -404,7 +416,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
+                image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
                 # exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
@@ -412,8 +424,10 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                 # logit_scale== tensor(95.5525, device='cuda:0', grad_fn=<ExpBackward>)
                 # image_embedding.view.shape== torch.Size([2, 16, 768])
                 image_embedding = image_embedding.view(b,t,-1)
+                mv_embedding = mv_embedding.view(b,t,-1)
                 # gather
                 image_embedding = allgather(image_embedding)
+                mv_embedding = allgather(mv_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
@@ -422,14 +436,31 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                     cls_embedding = cls_embedding + video_prompt(cls_embedding, image_embedding)
                     cls_embedding = cls_embedding.squeeze()
                     print("cls_embedding-video_prompt")
+                
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
+                # print("The shape of logits:", logits.shape)  # 打印 logits 的形状
+                # print("The content of logits:", logits)  # 打印 logits 的内容
 
+                logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
+                # print("The shape of logits_mv:", logits_mv.shape)  # 打印 logits_mv 的形状
+                # print("The content of logits_mv:", logits_mv)  # 打印 logits_mv 的内容
+                weight_logits = 0.8
+                weight_logits_mv = 0.2
+                weighted_logits = logits * weight_logits
+                weighted_logits_mv = logits_mv * weight_logits_mv
+                combined_logits = weighted_logits + weighted_logits_mv  # 结合加权后的 logits 和 logits_mv
+                # print("The shape of combined_logits:", combined_logits.shape)  # 打印 logits_mv 的形状
+                # print("The content of combined_logits:", combined_logits)  # 打印 logits_mv 的内容
+                
                 list_id = gather_labels(list_id.to(device))  # bs -> n_gpu * bs
 
                 ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
                 # gt = [bs bs]
-                loss_imgs = criterion(logits, ground_truth)
-                loss_texts = criterion(logits.T, ground_truth)
+                # print("The shape of ground_truth:", ground_truth.shape)  # 打印 logits_mv 的形状
+                # print("The content of ground_truth:", ground_truth)  # 打印 logits_mv 的内容
+
+                loss_imgs = criterion(combined_logits, ground_truth)
+                loss_texts = criterion(combined_logits.T, ground_truth)
                 loss = (loss_imgs + loss_texts)/2
             else:
                 raise NotImplementedError
@@ -472,7 +503,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                              epoch, i, len(train_loader), eta_sec, batch_time=batch_time, data_time=data_time, loss=losses,
                              lr=optimizer.param_groups[-1]['lr'])))
 
-def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
+def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
@@ -483,6 +514,7 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
     model.train()
     video_head.train()
+    mv_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
 
@@ -510,53 +542,54 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
 
 
-def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, return_sim=False):
+def validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
     top1 = AverageMeter()
     top5 = AverageMeter()
     sims_list = []
     labels_list = []
     model.eval()
     video_head.eval()
-
+    mv_head.eval()
     with torch.no_grad():
         text_inputs = classes.to(device)  # [n_cls, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
-            # mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
-            # b, t, c_m, h, w = mv.size()
+            b, t, c_m, h, w = mv.size()
 
-            # if image.shape[2] == 2:
-            #     image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
-            # else:
-            #     image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
-    
-            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            # b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
-
-            # mv_input = mv.to(device).view(-1, c_m, h, w)
+            mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
+
             image_features = model.module.encode_image(image_input).view(b, t, -1)
             residual_features = model.module.encode_image(residual_input).view(b, t, -1)
-            # mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+            mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+
             weights = F.softmax(model.module.beta, dim=0)
             merged_features = weights[0]* image_features + weights[1]* residual_features
             similarity = video_head(merged_features, text_features, cls_feature)
+            similarity_mv = mv_head(mv_features, text_features, cls_feature)
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
-            similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
+            combined_similarity = 0.8 * similarity + 0.2 * similarity_mv
+            final_similarity = combined_similarity
+            final_similarity = final_similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
+            final_similarity = final_similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
 
+            # similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
+            # similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
+            # similarity_mv = similarity_mv.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
+            # similarity_mv = similarity_mv.mean(dim=1, keepdim=False)  # [bs, n_cls]
             if return_sim:
-                sims = allgather(similarity)
+                sims = allgather(final_similarity)
                 labels = gather_labels(class_id)
                 sims_list.append(sims)
                 labels_list.append(labels)
 
-            prec = accuracy(similarity, class_id, topk=(1, 5))
+            prec = accuracy(final_similarity, class_id, topk=(1, 5))
             prec1 = reduce_tensor(prec[0])
             prec5 = reduce_tensor(prec[1])
 
@@ -576,10 +609,12 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
     else:
         return top1.avg, None, None
 
-def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, n_class, logger):
+def validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger):
     mAP = AverageMeter()
     model.eval()
     video_head.eval()
+    mv_head.eval()
+
     from torchnet import meter
     maper = meter.mAPMeter()
     sims_list = []
@@ -588,35 +623,52 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
     with torch.no_grad():
         text_inputs = classes.to(device)  # [400, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [400, 512]
-        for i, (image, class_id) in enumerate(val_loader):
-            if image.shape[2] == 2:
-                image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
-            else:
-                image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
-    
-            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            b, t, c, h, w = image.size()
-            class_id = class_id.to(device)
-            image_input = image.to(device).view(-1, c, h, w)
-            image_features = model.module.encode_image(image_input).view(b, t, -1)
-            similarity = video_head(image_features, text_features, cls_feature)
+        
+        for i, (image, mv, residual, class_id) in enumerate(val_loader):
+            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # bt 3 h w
+            # mv 和 residual 也做类似处理
+            mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])  # bt 2 h w
+            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])  # bt 3 h w
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]
-            similarity = similarity.mean(dim=1, keepdim=False)  # [bs, 400]
-            similarity = F.softmax(similarity, dim=1)
-            output = allgather(similarity)
-            labels = gather_labels(class_id)
+            b, t, c_i, h, w = image.size()
+            b, t, c_m, h, w = mv.size()
+            class_id = class_id.to(device)
+
+            image_input = image.to(device).view(-1, c_i, h, w)
+            mv_input = mv.to(device).view(-1, c_m, h, w)  # Assuming 2 channels for mv
+            residual_input = residual.to(device).view(-1, 3, h, w)
+
+            # 计算每种输入的特征
+            image_features = model.module.encode_image(image_input).view(b, t, -1)
+            mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+            residual_features = model.module.encode_image(residual_input).view(b, t, -1)
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_features = weights[0]* image_features + weights[1]* residual_features
+            # 使用video_head计算相似度
+            video_similarity = video_head(merged_features, text_features, cls_feature)
+            mv_similarity = mv_head(mv_features, text_features, cls_feature)
+
+            # 融合两种相似度 (可以根据需求选择不同的融合方式)
+            combined_similarity = 0.8 * video_similarity + 0.2 * mv_similarity  # 加权平均，如果有不同的权重需求，可以调整
+
+            # 处理相似度并计算mAP
+            combined_similarity = combined_similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]
+            combined_similarity = combined_similarity.mean(dim=1, keepdim=False)  # [bs, 400]
+            combined_similarity = F.softmax(combined_similarity, dim=1)  # [bs, 400]
+
+            output = allgather(combined_similarity)  # gather multi-GPU
+            labels = gather_labels(class_id)  # gather class labels
             sims_list.append(output)
             labels_list.append(labels)
 
             maper.add(output, labels)
-            mAP.update(maper.value().numpy(),labels.size(0))
+            mAP.update(maper.value().numpy(), labels.size(0))
 
             if i % config.logging.print_freq == 0:
                 logger.info(
-                    ('Test: [{0}/{1},mAP:{map:.3f}]\t'.format(i, len(val_loader), map=mAP.avg * 100)))
+                    ('Test: [{0}/{1}], mAP: {map:.3f}%\t'.format(i, len(val_loader), map=mAP.avg * 100)))
 
-    logger.info(('Testing Results mAP === {mAP_result:.3f}'.format(mAP_result=mAP.avg * 100)))
+    logger.info(('Testing Results mAP === {mAP_result:.3f}%'.format(mAP_result=mAP.avg * 100)))
     return mAP.avg * 100, sims_list, labels_list
 
 

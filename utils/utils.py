@@ -211,7 +211,7 @@ def cosine_scheduler(base_value, final_value, epochs, niter_per_ep, warmup_epoch
     return schedule
 
 
-def epoch_saving(epoch, model, video_head, optimizer, filename):
+def epoch_saving(epoch, model, video_head, mv_head, optimizer, filename):
     torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
@@ -219,12 +219,13 @@ def epoch_saving(epoch, model, video_head, optimizer, filename):
                     'optimizer_state_dict': optimizer.state_dict(),
                     }, filename) #just change to your preferred folder/filename
 
-def best_saving(working_dir, epoch, model, video_head, optimizer):
+def best_saving(working_dir, epoch, model, video_head, mv_head, optimizer):
     best_name = '{}/model_best.pt'.format(working_dir)
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'fusion_model_state_dict': video_head.state_dict(),
+        'fusion_mv_state_dict': mv_head.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
     }, best_name)  # just change to your preferred folder/filename
 

@@ -711,7 +711,7 @@ class CLIP(nn.Module):
         # print("merged_feats range: [{}, {}]".format(merged_min.item(), merged_max.item()))
 
 
-        return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
+        return merged_feats, mv_feats, cls_feat, text_feats, self.logit_scale.exp()
 
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""
