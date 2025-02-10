@@ -1,5 +1,5 @@
-pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
-# pretrain:
+# pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
+pretrain:
 resume:
 seed: 1024
 data:
@@ -32,7 +32,7 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False  
+    fix_video: True  
     Block: Origin
     use_text_prompt_learning: False
 solver:
@@ -41,6 +41,7 @@ solver:
     start_epoch: 0
     optim: adamw
     lr: 5.e-5
+    mv_lr_ratio: 0.1  # mv_head学习率
     lr_warmup_step: 5
     weight_decay: 0.2
     loss_type: NCE

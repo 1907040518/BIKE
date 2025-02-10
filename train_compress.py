@@ -444,8 +444,8 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
                 # print("The shape of logits_mv:", logits_mv.shape)  # 打印 logits_mv 的形状
                 # print("The content of logits_mv:", logits_mv)  # 打印 logits_mv 的内容
-                weight_logits = 0.8
-                weight_logits_mv = 0.2
+                weight_logits = 0.9
+                weight_logits_mv = 0.1
                 weighted_logits = logits * weight_logits
                 weighted_logits_mv = logits_mv * weight_logits_mv
                 combined_logits = weighted_logits + weighted_logits_mv  # 结合加权后的 logits 和 logits_mv

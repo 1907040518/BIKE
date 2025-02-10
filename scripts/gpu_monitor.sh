@@ -34,7 +34,8 @@ do
       # 替换你自己的命令
       # nohup sh scripts/run_train_compress.sh configs/hmdb51/hmdb_k400_finetune_compress.yaml >> ./exps/hmdb51/ViT-L/14/7_pretrain_iframe_cls_video.log 2>&1 & 
       # nohup sh scripts/run_train_compress.sh configs/hmdb51/hmdb_k400_finetune_compress.yaml >> ./exps/hmdb51/ViT-L/14/7_iframe_CROSS6layer.log 2>&1 
-      nohup sh scripts/run_train_compress.sh configs/hmdb51/hmdb_k400_finetune.yaml >> ./exps/hmdb51/ViT-L/14/7_rgb.log 2>&1 &
+      nohup sh scripts/run_train_compress.sh configs/hmdb51/hmdb_compress_pretrain_fixword.yaml >> ./exps/hmdb51/ViT-L/14/6_i_res_mv_pretrain_total.log 2>&1 & 
+
       training_done=1  # 设置状态标志为已执行
       # exit 0
     elif [ $training_done -eq 1 ]; then
@@ -51,5 +52,5 @@ do
     exit 0
   fi
   
-  sleep 300
+  sleep 100
 done
