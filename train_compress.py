@@ -568,9 +568,8 @@ def validate(epoch, val_loader, classes, device, model, video_head, mv_head, con
             image_features = model.module.encode_image(image_input).view(b, t, -1)
             residual_features = model.module.encode_image(residual_input).view(b, t, -1)
             mv_features = model.module.encode_image(mv_input).view(b, t, -1)
-
             weights = F.softmax(model.module.beta, dim=0)
-            merged_features = weights[0]* image_features + weights[1]* residual_features
+            merged_features = weights[0]* image_features + weights[1]* residual_features + weights[2] *mv_features
             similarity = video_head(merged_features, text_features, cls_feature)
             similarity_mv = mv_head(mv_features, text_features, cls_feature)
 

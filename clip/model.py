@@ -599,7 +599,7 @@ class CLIP(nn.Module):
         self.token_embedding = nn.Embedding(vocab_size, transformer_width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
         self.ln_final = LayerNorm(transformer_width)
-        self.beta = nn.Parameter(torch.tensor([1., 1.], dtype=torch.float), requires_grad=True)
+        self.beta = nn.Parameter(torch.tensor([1., 1.,1.], dtype=torch.float), requires_grad=True)
         self.dropout = nn.Dropout(emb_dropout)
         self.emb_dropout = emb_dropout
         
@@ -702,7 +702,7 @@ class CLIP(nn.Module):
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
         # 按权重加和特征
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] *mv_feats
 
         # merged_min = torch.min(merged_feats)
 
