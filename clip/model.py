@@ -6,6 +6,27 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.checkpoint import checkpoint
+from einops import rearrange
+
+class Adapter(nn.Module):
+    def __init__(self, D_features, mlp_ratio=0.25, act_layer=nn.GELU, skip_connect=True):
+        super().__init__()
+        self.skip_connect = skip_connect
+        D_hidden_features = int(D_features * mlp_ratio)
+        self.act = act_layer()
+        self.D_fc1 = nn.Linear(D_features, D_hidden_features)
+        self.D_fc2 = nn.Linear(D_hidden_features, D_features)
+        
+    def forward(self, x):
+        # x is (BT, HW+1, D)
+        xs = self.D_fc1(x)
+        xs = self.act(xs)
+        xs = self.D_fc2(xs)
+        if self.skip_connect:
+            x = x + xs
+        else:
+            x = xs
+        return x
 
 
 class Bottleneck(nn.Module):
@@ -334,10 +355,10 @@ class ResidualAttentionBlock(nn.Module):
         # MHSA
         if use_checkpoint:
             attn_out = checkpoint(self.attention, self.ln_1(x))
-            x = x + self.drop_path(attn_out)
+            
         else:
-            x = x + self.drop_path(self.attention(self.ln_1(x)))
-
+            attn_out = self.attention(self.ln_1(x))
+        x = x + self.drop_path(attn_out)
         # FFN
         if use_checkpoint:
             mlp_out = checkpoint(self.mlp, self.ln_2(x))
@@ -345,6 +366,62 @@ class ResidualAttentionBlock(nn.Module):
         else:
             x = x + self.drop_path(self.mlp(self.ln_2(x)))
         return x
+
+class AIMResidualAttentionBlock(nn.Module):
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, dropout = 0.):
+        super().__init__()
+
+        self.attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout)
+        self.ln_1 = LayerNorm(d_model)
+        self.MLP_Adapter = Adapter(d_model, skip_connect=False)
+        self.S_Adapter = Adapter(d_model)
+        self.scale = 0.25
+        self.T_Adapter = Adapter(d_model, skip_connect=False)
+
+
+        self.drop_path = DropPath(dropout) if dropout > 0. else nn.Identity()
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        self.attn_mask = attn_mask
+
+    def attention(self, x: torch.Tensor):
+        # x: 50 bT c
+        self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
+        return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
+
+    def forward(self, x: torch.Tensor, use_checkpoint=False):
+        ## x shape [HW+1, BT, D]
+        n, bt, d = x.shape
+        ## temporal adaptation
+        xt = rearrange(x, 'n (b t) d -> t (b n) d', t=16)
+        if use_checkpoint:
+            attn_out = checkpoint(self.attention, self.ln_1(xt))
+            xt = self.T_Adapter(attn_out)
+        else:
+            xt = self.T_Adapter(self.attention(self.ln_1(xt)))
+        xt = rearrange(xt, 't (b n) d -> n (b t) d', n=n)
+        x = x + self.drop_path(xt)
+        ## spatial adaptation
+        if use_checkpoint:
+            attn_out = checkpoint(self.attention, self.ln_1(x))
+            xt = self.S_Adapter(attn_out)
+        else:
+            xt = self.S_Adapter(self.attention(self.ln_1(xt)))
+        x = x + self.drop_path(xt)
+        # FFN   joint adaptation
+        xn = self.ln_2(x)
+        if use_checkpoint:
+            mlp_out = checkpoint(self.mlp, xn)
+        else:
+            mlp_out = self.mlp(xn)
+        x = x + self.drop_path(mlp_out) + self.drop_path(self.scale * self.MLP_Adapter(xn))
+
+        return x
+
 
 # 可以进行识别，加入Cross条件的transformer
 class V_Transformer(nn.Module):
@@ -357,8 +434,8 @@ class V_Transformer(nn.Module):
         self.layers = layers
 
         if Block == 'Origin':
-            print("model Block: ResidualAttentionBlock")
-            self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
+            print("model Block: AIMResidualAttentionBlock")
+            self.resblocks = nn.Sequential(*[AIMResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
         elif Block == 'Cross':
             print("model Block: CrossFramelAttentionBlock")
             # 创建剩余层的ResidualAttentionBlock

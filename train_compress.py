@@ -308,11 +308,16 @@ def main(args):
             if "visual" in name:
                 param.requires_grad_(False)
 
+    ## freeze some parameters
+    for name, param in model.named_parameters():
+        if 'Adapter' in name:
+            param.requires_grad = True
+
     optimizer = _optimizer(config, model, video_head, mv_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
-        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
+        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
         video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
@@ -391,6 +396,7 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
     video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
+    first_iteration = True
     for i,(images, mvs, residuals,list_id) in enumerate(train_loader):
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
@@ -444,8 +450,8 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
                 # print("The shape of logits_mv:", logits_mv.shape)  # 打印 logits_mv 的形状
                 # print("The content of logits_mv:", logits_mv)  # 打印 logits_mv 的内容
-                weight_logits = 0.9
-                weight_logits_mv = 0.1
+                weight_logits = 0.8
+                weight_logits_mv = 0.2
                 weighted_logits = logits * weight_logits
                 weighted_logits_mv = logits_mv * weight_logits_mv
                 combined_logits = weighted_logits + weighted_logits_mv  # 结合加权后的 logits 和 logits_mv
@@ -486,6 +492,20 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
 
         losses.update(loss.item(), logits.size(0))
 
+        if first_iteration:
+            # 查看使用的参数
+            for name, param in model.named_parameters():
+                if hasattr(param, 'grad') and param.grad is not None:
+                    print(f" model Used parameter: {name}")
+            # 查看使用的参数
+            for name, param in video_head.named_parameters():
+                if hasattr(param, 'grad') and param.grad is not None:
+                    print(f"video_head Used parameter: {name}")
+            # 查看使用的参数
+            for name, param in mv_head.named_parameters():
+                if hasattr(param, 'grad') and param.grad is not None:
+                    print(f"mv_head Used parameter: {name}")
+            first_iteration = False  # 第一次迭代结束后，将标志变量设为 False
 
 
         batch_time.update(time.time() - end)
@@ -569,7 +589,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, mv_head, con
             residual_features = model.module.encode_image(residual_input).view(b, t, -1)
             mv_features = model.module.encode_image(mv_input).view(b, t, -1)
             weights = F.softmax(model.module.beta, dim=0)
-            merged_features = weights[0]* image_features + weights[1]* residual_features + weights[2] *mv_features
+            merged_features = weights[0]* image_features + weights[1]* residual_features
             similarity = video_head(merged_features, text_features, cls_feature)
             similarity_mv = mv_head(mv_features, text_features, cls_feature)
 
