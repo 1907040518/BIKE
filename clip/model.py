@@ -6,7 +6,27 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.checkpoint import checkpoint
+from einops import rearrange
 
+class Adapter(nn.Module):
+    def __init__(self, D_features, mlp_ratio=0.25, act_layer=nn.GELU, skip_connect=True):
+        super().__init__()
+        self.skip_connect = skip_connect
+        D_hidden_features = int(D_features * mlp_ratio)
+        self.act = act_layer()
+        self.D_fc1 = nn.Linear(D_features, D_hidden_features)
+        self.D_fc2 = nn.Linear(D_hidden_features, D_features)
+        
+    def forward(self, x):
+        # x is (BT, HW+1, D)
+        xs = self.D_fc1(x)
+        xs = self.act(xs)
+        xs = self.D_fc2(xs)
+        if self.skip_connect:
+            x = x + xs
+        else:
+            x = xs
+        return x
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -334,10 +354,9 @@ class ResidualAttentionBlock(nn.Module):
         # MHSA
         if use_checkpoint:
             attn_out = checkpoint(self.attention, self.ln_1(x))
-            x = x + self.drop_path(attn_out)
         else:
-            x = x + self.drop_path(self.attention(self.ln_1(x)))
-
+            attn_out = self.attention(self.ln_1(x))
+        x = x + self.drop_path(attn_out)
         # FFN
         if use_checkpoint:
             mlp_out = checkpoint(self.mlp, self.ln_2(x))
@@ -345,6 +364,63 @@ class ResidualAttentionBlock(nn.Module):
         else:
             x = x + self.drop_path(self.mlp(self.ln_2(x)))
         return x
+
+
+class AIMResidualAttentionBlock(nn.Module):
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, dropout = 0.):
+        super().__init__()
+
+        self.attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout)
+        self.ln_1 = LayerNorm(d_model)
+        self.MLP_Adapter = Adapter(d_model, skip_connect=False)
+        self.S_Adapter = Adapter(d_model)
+        self.scale = 0.25
+        self.T_Adapter = Adapter(d_model, skip_connect=False)
+
+
+        self.drop_path = DropPath(dropout) if dropout > 0. else nn.Identity()
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        self.attn_mask = attn_mask
+
+    def attention(self, x: torch.Tensor):
+        # x: 50 bT c
+        self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
+        return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
+
+    def forward(self, x: torch.Tensor, use_checkpoint=False):
+        ## x shape [HW+1, BT, D]
+        n, bt, d = x.shape
+        ## temporal adaptation
+        xt = rearrange(x, 'n (b t) d -> t (b n) d', t=16)
+        if use_checkpoint:
+            attn_out = checkpoint(self.attention, self.ln_1(xt))
+            xt = self.T_Adapter(attn_out)
+        else:
+            xt = self.T_Adapter(self.attention(self.ln_1(xt)))
+        xt = rearrange(xt, 't (b n) d -> n (b t) d', n=n)
+        x = x + self.drop_path(xt)
+        ## spatial adaptation
+        if use_checkpoint:
+            attn_out = checkpoint(self.attention, self.ln_1(x))
+            xt = self.S_Adapter(attn_out)
+        else:
+            xt = self.S_Adapter(self.attention(self.ln_1(xt)))
+        x = x + self.drop_path(xt)
+        # FFN   joint adaptation
+        xn = self.ln_2(x)
+        if use_checkpoint:
+            mlp_out = checkpoint(self.mlp, xn)
+        else:
+            mlp_out = self.mlp(xn)
+        x = x + self.drop_path(mlp_out) + self.drop_path(self.scale * self.MLP_Adapter(xn))
+
+        return x
+
 
 # 可以进行识别，加入Cross条件的transformer
 class V_Transformer(nn.Module):
@@ -599,7 +675,7 @@ class CLIP(nn.Module):
         self.token_embedding = nn.Embedding(vocab_size, transformer_width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
         self.ln_final = LayerNorm(transformer_width)
-        self.beta = nn.Parameter(torch.tensor([1., 1.,1.], dtype=torch.float), requires_grad=True)
+        self.beta = nn.Parameter(torch.tensor([0.8, 0.2], dtype=torch.float), requires_grad=True)
         self.dropout = nn.Dropout(emb_dropout)
         self.emb_dropout = emb_dropout
         
@@ -652,8 +728,12 @@ class CLIP(nn.Module):
     def dtype(self):
         return self.visual.conv1.weight.dtype
 
-    def encode_image(self, images):
-        return self.visual(images.type(self.dtype))
+    def encode_image(self, images, mvs, res):
+        image_feat = self.visual(images.type(self.dtype))
+        mvs_feat = self.visual(mvs.type(self.dtype))
+        res_feat = self.visual(res.type(self.dtype))
+
+        return image_feat, mvs_feat, res_feat
 
 
     def encode_text(self, text, return_token=False):
@@ -681,35 +761,11 @@ class CLIP(nn.Module):
 
 
     def forward(self, image, mv, residual, text, return_token=False):
-        image_feats = self.encode_image(image)
-        with torch.no_grad():
-            mv_feats = self.encode_image(mv)
-            residual_feats = self.encode_image(residual)
-        cls_feat, text_feats = self.encode_text(text, return_token)
-        # print(f"image_feats shape: {image_feats.shape}")
-        # print(f"mv_feats shape: {mv_feats.shape}")
-        # image_min = torch.min(image_feats)
-
-        # image_max = torch.max(image_feats)
-
-        # print("image_feats range: [{}, {}]".format(image_min.item(), image_max.item()))
-        # mv_min = torch.min(mv_feats)
-
-        # mv_max = torch.max(mv_feats)
-
-        # print("mv_feats range: [{}, {}]".format(mv_min.item(), mv_max.item()))
-        # 使用可学习的beta参数，并确保它参与反向传播
+        image_feats, mv_feats, res_feats= self.encode_image(image, mv, residual)
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
-
         # 按权重加和特征
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] *mv_feats
-
-        # merged_min = torch.min(merged_feats)
-
-        # merged_max = torch.max(merged_feats)
-
-        # print("merged_feats range: [{}, {}]".format(merged_min.item(), merged_max.item()))
-
+        merged_feats = weights[0] * image_feats + weights[1] * res_feats
+        cls_feat, text_feats = self.encode_text(text, return_token)
 
         return merged_feats, mv_feats, cls_feat, text_feats, self.logit_scale.exp()
 
