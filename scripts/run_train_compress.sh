@@ -7,6 +7,7 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-python -m torch.distributed.launch --master_port 1237 --nproc_per_node=6 \
+export CUDA_VISIBLE_DEVICES=0
+python -m torch.distributed.launch --master_port 1237 --nproc_per_node=1 \
          train_compress.py  --config ${config} --log_time $now
          
