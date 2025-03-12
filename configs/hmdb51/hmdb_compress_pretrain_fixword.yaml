@@ -11,14 +11,14 @@ data:
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/home/NAS_netmedia/Videodataset/hmdb51/mpeg4_videos'
-    val_root: '/home/NAS_netmedia/Videodataset/hmdb51/mpeg4_videos'
+    train_root: '/datasets/hmdb51/mpeg4_videos'
+    val_root: '/datasets/hmdb51/mpeg4_videos'
     train_list: 'lists/hmdb51/train_rgb_split_1.txt'
     val_list: 'lists/hmdb51/val_rgb_split_1.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'
     input_size: 224
     random_shift: True
-    output_path: /home/NAS_netmedia/gmk/BIKE/exps
+    output_path: exps
     GOP_SIZE: 12
 network:
     arch: ViT-L/14
