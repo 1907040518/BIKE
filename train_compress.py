@@ -13,7 +13,7 @@ import torch.backends.cudnn as cudnn
 from torch.cuda.amp import GradScaler
 import torchvision
 import numpy as np
-
+from thop import profile
 from utils.utils import init_distributed_mode, epoch_saving, best_saving, AverageMeter, reduce_tensor, accuracy, create_logits, gen_label, gather_labels
 from utils.logger import setup_logger
 import clip
@@ -34,8 +34,8 @@ from utils.solver import _optimizer, _lr_scheduler
 from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
-from X_CLIP.models.prompt import VideoSpecificPrompt
-from X_CLIP.models.prompt import Video_Prompt
+
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -177,7 +177,7 @@ def main(args):
         config.network.interaction,
         clip_state_dict)
     
-    video_prompt = Video_Prompt(clip_state_dict)
+
 
 
     if args.precision == "amp" or args.precision == "fp32":
@@ -322,7 +322,7 @@ def main(args):
 
     if args.distributed:
         model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
-        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
+        
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
@@ -361,8 +361,10 @@ def main(args):
             train_loader.sampler.set_epoch(epoch)        
 
         # print(model)
+        # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+        #       epoch, device, lr_scheduler, config, classes, logger)
         train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-              epoch, device, lr_scheduler, config, classes, logger, video_prompt)
+              epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
@@ -383,10 +385,89 @@ def main(args):
                     if save_score:
                         save_sims(output_list, labels_list)
 
+def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+                 epoch, device, lr_scheduler, config, classes, logger):
+    """增强版模型分析函数，支持分层统计"""
+    
+    def analyze_module(module, name, inputs):
+        """分析单个模块的详细指标"""
+        try:
+            flops, params = profile(module, inputs=inputs, verbose=False)
+            return flops, params
+        except Exception as e:
+            logger.warning(f"无法分析 {name}: {str(e)}")
+            return 0, 0
 
+    def print_hierarchy(module, prefix="", depth=0):
+        """递归打印模块结构"""
+        if depth > 3:  # 限制递归深度
+            return
+        for name, child in module.named_children():
+            params = sum(p.numel() for p in child.parameters())
+            logger.info(f"{prefix}├─ {name} [{type(child).__name__}] Params: {params/1e6:.2f}M")
+            print_hierarchy(child, prefix + "│   ", depth+1)
+
+    # 获取样本数据（保持与原始代码一致）
+    sample = next(iter(train_loader))
+    images, mvs, residuals, list_id = sample
+    
+    # 数据预处理（与train函数保持完全一致）
+    images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
+    mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
+    residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
+    
+    # 调整维度
+    b, t, c_i, h, w = images.size()
+    images = images.view(-1, c_i, h, w).to(device)
+    mvs = mvs.view(-1, mvs.shape[2], h, w).to(device)
+    residuals = residuals.view(-1, residuals.shape[2], h, w).to(device)
+    texts = classes[list_id].to(device)
+
+    # 主模型分析
+    logger.info("\n===== 主模型结构分析 =====")
+    print_hierarchy(model)
+    
+    # 分模块计算
+    components = [
+        (model, "Main Model", (images, mvs, residuals, texts, False)),
+        (video_head, "Video Head", (torch.randn(1,16,768).to(device), None, None)), # 示例输入
+        (mv_head, "MV Head", (torch.randn(1,16,768).to(device), None, None))
+    ]
+
+    total_flops = 0
+    total_params = 0
+    tunable_params = 0
+
+    for module, name, inputs in components:
+        # 计算FLOPs和Params
+        flops, params = analyze_module(module, name, inputs)
+        
+        # 统计参数
+        mod_tunable = sum(p.numel() for p in module.parameters() if p.requires_grad)
+        mod_total = sum(p.numel() for p in module.parameters())
+        
+        # 累计总量
+        total_flops += flops
+        total_params += mod_total
+        tunable_params += mod_tunable
+
+        # 打印模块信息
+        logger.info(f"\n** {name} ​**")
+        logger.info(f"FLOPs: {flops/1e9:.2f}G")
+        logger.info(f"Params: {mod_total/1e6:.2f}M (Tunable: {mod_tunable/1e6:.2f}M)")
+        logger.info(f"Parameter占比: {mod_tunable/mod_total:.1%}")
+
+    # 全局统计
+    logger.info("\n===== 全局统计 =====")
+    logger.info(f"总计算量: {total_flops/1e9:.2f} GFLOPs")
+    logger.info(f"总参数量: {total_params/1e6:.2f}M")
+    logger.info(f"可训练参数占比: {tunable_params/total_params:.1%}")
+
+    # 立即退出
+    import sys; sys.exit(0)
 
 def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-          epoch, device, lr_scheduler, config, classes, logger, video_prompt):
+          epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -397,11 +478,10 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
     model.train()
     video_head.train()
     mv_head.train()
-    video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     first_iteration = True
-    for i,(images, mvs, residuals,list_id) in enumerate(train_loader):
+    for i,(images, mvs, residuals, list_id) in enumerate(train_loader):
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -441,11 +521,7 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
-                if config.network.video_prompt:
-                    cls_embedding = cls_embedding.unsqueeze(1) 
-                    cls_embedding = cls_embedding + video_prompt(cls_embedding, image_embedding)
-                    cls_embedding = cls_embedding.squeeze()
-                    print("cls_embedding-video_prompt")
+
                 
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
                 # print("The shape of logits:", logits.shape)  # 打印 logits 的形状
