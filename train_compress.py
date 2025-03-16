@@ -494,19 +494,18 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
         mvs = mvs.view((-1, config.data.num_segments, 2)+ mvs.size()[-2:])  # Adjust if necessary
-        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
+
         b, t, c_i, h, w = images.size()
         b, t, c_m, h, w = mvs.size()
         images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
         mvs = mvs.view(-1, c_m, h, w)  # Flatten mvs similarly
-        residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
 
         texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
+                image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, texts, return_token=True)
                 # exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
@@ -654,21 +653,17 @@ def validate(epoch, val_loader, classes, device, model, video_head, mv_head, con
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
             mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
-            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
             b, t, c_m, h, w = mv.size()
 
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
             mv_input = mv.to(device).view(-1, c_m, h, w)
-            residual_input = residual.to(device).view(-1, c_i, h, w)
-            image_features, mv_features, res_features = model.module.encode_image(image_input, mv_input, residual_input)
-            weights = F.softmax(model.module.beta, dim=0)  # 计算权重，确保数值范围正常
-            # 按权重加和特征
-            merged_feats = weights[0] * image_features + weights[1] * res_features
-            merged_feats = merged_feats.view(b, t, -1)
+            image_features, mv_features, res_features = model.module.encode_image(image_input, mv_input)
+
+            image_features = image_features.view(b, t, -1)
             mv_features = mv_features.view(b, t, -1)
-            similarity = video_head(merged_feats, text_features, cls_feature)
+            similarity = video_head(image_features, text_features, cls_feature)
             similarity_mv = mv_head(mv_features, text_features, cls_feature)
 
             combined_similarity = 0.8 * similarity + 0.2 * similarity_mv

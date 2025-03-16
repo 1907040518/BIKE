@@ -805,12 +805,11 @@ class CLIP(nn.Module):
     def dtype(self):
         return self.visual.conv1.weight.dtype
 
-    def encode_image(self, images, mvs, res):
+    def encode_image(self, images, mvs):
         image_feat = self.visual(images.type(self.dtype))
         mvs_feat = self.visual(mvs.type(self.dtype))
-        res_feat = self.visual(res.type(self.dtype))
 
-        return image_feat, mvs_feat, res_feat
+        return image_feat, mvs_feat
 
 
     def encode_text(self, text, return_token=False):
@@ -837,14 +836,11 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, mv, residual, text, return_token=False):
-        image_feats, mv_feats, res_feats= self.encode_image(image, mv, residual)
-        weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
-        # 按权重加和特征
-        merged_feats = weights[0] * image_feats + weights[1] * res_feats
+    def forward(self, image, mv, text, return_token=False):
+        image_feats, mv_feats= self.encode_image(image, mv)
         cls_feat, text_feats = self.encode_text(text, return_token)
 
-        return merged_feats, mv_feats, cls_feat, text_feats, self.logit_scale.exp()
+        return image_feats, mv_feats, cls_feat, text_feats, self.logit_scale.exp()
 
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""
