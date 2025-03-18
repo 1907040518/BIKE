@@ -659,7 +659,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, mv_head, con
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
             mv_input = mv.to(device).view(-1, c_m, h, w)
-            image_features, mv_features, res_features = model.module.encode_image(image_input, mv_input)
+            image_features, mv_features = model.module.encode_image(image_input, mv_input)
 
             image_features = image_features.view(b, t, -1)
             mv_features = mv_features.view(b, t, -1)
