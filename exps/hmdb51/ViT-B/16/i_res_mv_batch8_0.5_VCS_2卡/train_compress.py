@@ -168,13 +168,13 @@ def main(args):
 
     video_head = video_header(
         config.network.sim_header,
-        config.network.S_Align,
+        config.network.interaction,
         clip_state_dict)
 
 
     mv_head = video_header(
         config.network.sim_header,
-        config.network.M_Align,
+        config.network.interaction,
         clip_state_dict)
     
 
@@ -269,7 +269,7 @@ def main(args):
         raise NotImplementedError
 
     start_epoch = config.solver.start_epoch
-    # 加载K400预训练
+    
     if config.pretrain:
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
@@ -361,9 +361,6 @@ def main(args):
             train_loader.sampler.set_epoch(epoch)        
 
         # print(model)
-        # print(video_head)
-        # print(mv_head)
-        # exit()
         # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
         train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
@@ -532,8 +529,8 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
                 # print("The shape of logits_mv:", logits_mv.shape)  # 打印 logits_mv 的形状
                 # print("The content of logits_mv:", logits_mv)  # 打印 logits_mv 的内容
-                weight_logits = 0.9
-                weight_logits_mv = 0.1
+                weight_logits = 0.5
+                weight_logits_mv = 0.5
                 weighted_logits = logits * weight_logits
                 weighted_logits_mv = logits_mv * weight_logits_mv
                 combined_logits = weighted_logits + weighted_logits_mv  # 结合加权后的 logits 和 logits_mv
@@ -675,7 +672,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, mv_head, con
             similarity = video_head(merged_feats, text_features, cls_feature)
             similarity_mv = mv_head(mv_features, text_features, cls_feature)
 
-            combined_similarity = 0.9 * similarity + 0.1 * similarity_mv
+            combined_similarity = 0.5 * similarity + 0.5 * similarity_mv
             final_similarity = combined_similarity
             final_similarity = final_similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
             final_similarity = final_similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
@@ -750,7 +747,7 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head,
             mv_similarity = mv_head(mv_features, text_features, cls_feature)
 
             # 融合两种相似度 (可以根据需求选择不同的融合方式)
-            combined_similarity = 0.4 * video_similarity + 0.6 * mv_similarity  # 加权平均，如果有不同的权重需求，可以调整
+            combined_similarity = 0.8 * video_similarity + 0.2 * mv_similarity  # 加权平均，如果有不同的权重需求，可以调整
 
             # 处理相似度并计算mAP
             combined_similarity = combined_similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]

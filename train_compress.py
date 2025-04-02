@@ -168,15 +168,15 @@ def main(args):
 
     video_head = video_header(
         config.network.sim_header,
-        config.network.interaction,
+        config.network.S_Align,
         clip_state_dict)
 
 
     mv_head = video_header(
         config.network.sim_header,
-        config.network.interaction,
+        config.network.M_Align,
         clip_state_dict)
-    
+
 
 
 
@@ -269,7 +269,7 @@ def main(args):
         raise NotImplementedError
 
     start_epoch = config.solver.start_epoch
-    
+    # 加载K400预训练
     if config.pretrain:
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
@@ -317,7 +317,7 @@ def main(args):
     # for name, param in model.named_parameters():
     #     logger.info('{}: {}'.format(name, param.requires_grad))
 
-    optimizer = _optimizer(config, model, video_head, mv_head)
+    optimizer = _optimizer(config, model, video_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
@@ -361,6 +361,9 @@ def main(args):
             train_loader.sampler.set_epoch(epoch)        
 
         # print(model)
+        # print(video_head)
+        # print(mv_head)
+        # exit()
         # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
         train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,

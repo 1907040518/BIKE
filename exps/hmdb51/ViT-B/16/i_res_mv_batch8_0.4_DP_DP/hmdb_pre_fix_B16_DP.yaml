@@ -1,5 +1,4 @@
-# pretrain: exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
-pretrain:
+pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
 resume:
 seed: 1024
 data:
@@ -7,32 +6,34 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 2
+    batch_size: 8
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/home/NAS/Videodataset/hmdb51/mpeg4_videos'
-    val_root: '/home/NAS/Videodataset/hmdb51/mpeg4_videos'
+    train_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
+    val_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
     train_list: 'lists/hmdb51/train_rgb_split_1.txt'
     val_list: 'lists/hmdb51/val_rgb_split_1.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'
     input_size: 224
     random_shift: True
-    output_path: /home/NAS_netmedia/gmk/BIKE/exps
+    output_path: exps
     GOP_SIZE: 12
 network:
-    arch: ViT-L/14
+    arch: ViT-B/16
     init: True 
     tm: False
     drop_out: 0.0 
     emb_dropout: 0.0 
     sim_header: Transf
+    S_Align: DP
+    M_Align: DP
     interaction: VCS
     video_prompt: False
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: True  
+    fix_video: True 
     Block: Origin
     use_text_prompt_learning: False
 solver:
@@ -41,7 +42,7 @@ solver:
     start_epoch: 0
     optim: adamw
     lr: 5.e-5
-    mv_lr_ratio: 0.1  # mv_head学习率
+    mv_lr_ratio: 1  # mv_head学习率
     lr_warmup_step: 5
     weight_decay: 0.2
     loss_type: NCE

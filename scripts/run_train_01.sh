@@ -5,9 +5,8 @@ else
   echo "need a config file"
   exit
 fi
-
+export CUDA_VISIBLE_DEVICES=0,1
 now=$(date +"%Y%m%d_%H%M%S")
-export CUDA_VISIBLE_DEVICES=0
-python -m torch.distributed.launch --master_port 1237 --nproc_per_node=1 \
+python -m torch.distributed.launch --master_port 1242 --nproc_per_node=2 \
          train_compress.py  --config ${config} --log_time $now
          

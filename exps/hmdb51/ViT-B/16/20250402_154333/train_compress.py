@@ -172,12 +172,6 @@ def main(args):
         clip_state_dict)
 
 
-    mv_head = video_header(
-        config.network.sim_header,
-        config.network.M_Align,
-        clip_state_dict)
-    
-
 
 
     if args.precision == "amp" or args.precision == "fp32":
@@ -276,7 +270,6 @@ def main(args):
             checkpoint = torch.load(config.pretrain, map_location='cpu')
             model.load_state_dict(checkpoint['model_state_dict'], False)
             video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
-            mv_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
             del checkpoint
         else:
             logger.info("=> no pretrain checkpoint found at '{}'".format(config.resume))
@@ -317,7 +310,7 @@ def main(args):
     # for name, param in model.named_parameters():
     #     logger.info('{}: {}'.format(name, param.requires_grad))
 
-    optimizer = _optimizer(config, model, video_head, mv_head)
+    optimizer = _optimizer(config, model, video_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
@@ -326,12 +319,10 @@ def main(args):
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
-            mv_head_nomodule = mv_head
+
         else:
             video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
-            mv_head = DistributedDataParallel(mv_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
             video_head_nomodule = video_head.module
-            mv_head_nomodule = mv_head
         
 
     scaler = GradScaler() if args.precision == "amp" else None
@@ -344,12 +335,12 @@ def main(args):
             prec1, output_list, labels_list = validate_mAP(
                 start_epoch,
                 val_loader, classes, device,
-                model, video_head, mv_head, config, n_class, logger)
+                model, video_head, config, n_class, logger)
         else:
             prec1, output_list, labels_list = validate(
                 start_epoch,
                 val_loader, classes, device,
-                model, video_head, mv_head, config, n_class, logger)
+                model, video_head, config, n_class, logger)
         return
 
     #############
@@ -366,14 +357,14 @@ def main(args):
         # exit()
         # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
-        train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+        train(model, video_head, train_loader, optimizer, criterion, scaler,
               epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
-                prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -382,9 +373,9 @@ def main(args):
                 logger.info('Saving:')
                 filename = "{}/last_model.pt".format(working_dir)
 
-                epoch_saving(epoch, model.module, video_head_nomodule, mv_head_nomodule, optimizer, filename)
+                epoch_saving(epoch, model.module, video_head_nomodule, optimizer, filename)
                 if is_best:
-                    best_saving(working_dir, epoch, model.module, video_head_nomodule, mv_head_nomodule, optimizer)
+                    best_saving(working_dir, epoch, model.module, video_head_nomodule, optimizer)
                     if save_score:
                         save_sims(output_list, labels_list)
 
@@ -469,7 +460,7 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
     # 立即退出
     import sys; sys.exit(0)
 
-def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+def train(model, video_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
@@ -480,11 +471,11 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
 
     model.train()
     video_head.train()
-    mv_head.train()
+
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     first_iteration = True
-    for i,(images, mvs, residuals, list_id) in enumerate(train_loader):
+    for i,(images, residuals, list_id) in enumerate(train_loader):
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -496,19 +487,16 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
         data_time.update(time.time() - end)
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
-        mvs = mvs.view((-1, config.data.num_segments, 2)+ mvs.size()[-2:])  # Adjust if necessary
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
-        b, t, c_m, h, w = mvs.size()
         images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
-        mvs = mvs.view(-1, c_m, h, w)  # Flatten mvs similarly
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
         texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
                 # exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
@@ -516,10 +504,8 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 # logit_scale== tensor(95.5525, device='cuda:0', grad_fn=<ExpBackward>)
                 # image_embedding.view.shape== torch.Size([2, 16, 768])
                 image_embedding = image_embedding.view(b,t,-1)
-                mv_embedding = mv_embedding.view(b,t,-1)
                 # gather
                 image_embedding = allgather(image_embedding)
-                mv_embedding = allgather(mv_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
@@ -529,14 +515,9 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 # print("The shape of logits:", logits.shape)  # 打印 logits 的形状
                 # print("The content of logits:", logits)  # 打印 logits 的内容
 
-                logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
                 # print("The shape of logits_mv:", logits_mv.shape)  # 打印 logits_mv 的形状
                 # print("The content of logits_mv:", logits_mv)  # 打印 logits_mv 的内容
-                weight_logits = 0.9
-                weight_logits_mv = 0.1
-                weighted_logits = logits * weight_logits
-                weighted_logits_mv = logits_mv * weight_logits_mv
-                combined_logits = weighted_logits + weighted_logits_mv  # 结合加权后的 logits 和 logits_mv
+                combined_logits = logits  # 结合加权后的 logits 和 logits_mv
                 # print("The shape of combined_logits:", combined_logits.shape)  # 打印 logits_mv 的形状
                 # print("The content of combined_logits:", combined_logits)  # 打印 logits_mv 的内容
                 
@@ -642,41 +623,40 @@ def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion,
 
 
 
-def validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
+def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, return_sim=False):
     top1 = AverageMeter()
     top5 = AverageMeter()
     sims_list = []
     labels_list = []
     model.eval()
     video_head.eval()
-    mv_head.eval()
+
     with torch.no_grad():
         text_inputs = classes.to(device)  # [n_cls, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
-        for i,(image, mv, residual, class_id) in enumerate(val_loader):
+        for i,(image, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
-            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
-            b, t, c_m, h, w = mv.size()
+
 
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
-            mv_input = mv.to(device).view(-1, c_m, h, w)
+
             residual_input = residual.to(device).view(-1, c_i, h, w)
-            image_features, mv_features ,res_features = model.module.encode_image(image_input, mv_input, residual_input)
+            image_features,res_features = model.module.encode_image(image_input, residual_input)
             weights = F.softmax(model.module.beta, dim=0)  # 计算权重，确保数值范围正常
             # 按权重加和特征
             merged_feats = weights[0] * image_features + weights[1] * res_features
 
-            mv_features = mv_features.view(b, t, -1)
+
             merged_feats = merged_feats.view(b, t, -1)
             
             similarity = video_head(merged_feats, text_features, cls_feature)
-            similarity_mv = mv_head(mv_features, text_features, cls_feature)
 
-            combined_similarity = 0.9 * similarity + 0.1 * similarity_mv
-            final_similarity = combined_similarity
+            # combined_similarity = 1 * similarity + 0.6 * similarity_mv
+            final_similarity = similarity
             final_similarity = final_similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
             final_similarity = final_similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
 
