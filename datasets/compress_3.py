@@ -275,7 +275,7 @@ class Video_compress_dataset(data.Dataset):
                 label = video_record.label
                 num_frames = video_record.num_frames
             else:
-                video_path = os.path.join(self.root_path, video_record[index].path)
+                video_path = os.path.join(self.root_path, self.video_list[index].path)
                 label = self.video_list[index].label
                 num_frames = self.video_list[index].num_frames
 
