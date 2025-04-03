@@ -652,8 +652,10 @@ class CLIP(nn.Module):
     def dtype(self):
         return self.visual.conv1.weight.dtype
 
-    def encode_image(self, images):
-        return self.visual(images.type(self.dtype))
+    def encode_image(self, images, res):
+        image_feat = self.visual(images.type(self.dtype))
+        res_feat = self.visual(res.type(self.dtype))
+        return image_feat, res_feat
 
 
     def encode_text(self, text, return_token=False):
@@ -680,11 +682,8 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, mv, residual, text, return_token=False):
-        image_feats = self.encode_image(image)
-        with torch.no_grad():
-            mv_feats = self.encode_image(mv)
-            residual_feats = self.encode_image(residual)
+    def forward(self, image, residual, text, return_token=False):
+        image_feats, residual_feats = self.encode_image(image, residual)
         cls_feat, text_feats = self.encode_text(text, return_token)
         # print(f"image_feats shape: {image_feats.shape}")
         # print(f"mv_feats shape: {mv_feats.shape}")

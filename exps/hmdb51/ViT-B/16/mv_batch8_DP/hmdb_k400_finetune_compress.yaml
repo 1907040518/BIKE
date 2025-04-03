@@ -3,7 +3,7 @@ resume:
 seed: 1024
 data:
     dataset: hmdb51
-    modality: residual
+    modality: mv
     num_segments: 16
     seg_length: 1
     batch_size: 8
@@ -28,7 +28,7 @@ network:
     sim_header: Transf
     S_Align: DP
     M_Align: VCS
-    interaction: VCS
+    interaction: DP
     video_prompt: False
     joint_st: False
     drop: 0      

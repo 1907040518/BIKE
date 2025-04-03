@@ -391,12 +391,12 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         data_time.update(time.time() - end)
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
-
+        mvs = mvs.view((-1, config.data.num_segments, 2)+ mvs.size()[-2:])  # Adjust if necessary
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
-
+        b, t, c_m, h, w = mvs.size()
         images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
-
+        mvs = mvs.view(-1, c_m, h, w)  # Flatten mvs similarly
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
 
         texts = classes # n_cls 77
@@ -404,7 +404,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, mvs, residuals, texts, return_token=True)
                 # exit()
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
@@ -540,15 +540,12 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
 
             # mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
-
-            image_features, res_features = model.module.encode_image(image_input, residual_input)
-            weights = F.softmax(model.module.beta, dim=0)  # 计算权重，确保数值范围正常
-            # 按权重加和特征
-            merged_feats = weights[0] * image_features + weights[1] * res_features
-
-            merged_feats = merged_feats.view(b, t, -1)
-
-            similarity = video_head(merged_feats, text_features, cls_feature)
+            image_features = model.module.encode_image(image_input).view(b, t, -1)
+            residual_features = model.module.encode_image(residual_input).view(b, t, -1)
+            # mv_features = model.module.encode_image(mv_input).view(b, t, -1)
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_features = weights[0]* image_features + weights[1]* residual_features
+            similarity = video_head(merged_features, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
             similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
