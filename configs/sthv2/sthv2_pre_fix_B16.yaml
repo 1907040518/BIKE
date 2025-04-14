@@ -7,7 +7,7 @@ data:
     modality: residual
     num_segments: 8
     seg_length: 1
-    batch_size: 8
+    batch_size: 64
     workers: 4
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'
@@ -27,6 +27,8 @@ network:
     drop_out: 0.0 
     emb_dropout: 0.0 
     sim_header: Transf
+    S_Align: VCS
+    M_Align: VCS
     interaction: VCS
     video_prompt: False
     joint_st: False
