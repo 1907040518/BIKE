@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+if [ -f $1 ]; then
+  config=$1
+else
+  echo "need a config file"
+  exit
+fi
+
+now=$(date +"%Y%m%d_%H%M%S")
+export CUDA_VISIBLE_DEVICES=4,5
+python -m torch.distributed.launch --master_port 1245 --nproc_per_node=2 \
+         train_compress.py  --config ${config} --log_time $now
+         
