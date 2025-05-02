@@ -154,40 +154,6 @@ def main(args):
         pretrain=config.network.init,
         joint_st = config.network.joint_st,
         residual_layers_to_use=residual_layers) # Must set jit=False for training  ViT-B/32
-    
-        # 在train.py中
-
-    # 假设您已经加载了CLIP模型
-    # model = CLIP(...) 
-    # model.load_state_dict(torch.load('pretrained_clip.pth'))
-
-    # 获取VisualTransformer的配置参数
-    # vision_width = model.visual.width if hasattr(model.visual, 'width') else model.visual.conv1.weight.shape[0]
-    # patch_size = model.visual.conv1.weight.shape[2]  # 假设是方形patch
-    # input_resolution = model.visual.input_resolution
-
-    # # 创建两个PatchEmbedding实例，分别用于2通道和3通道输入
-    # patch_embed_mv = PatchEmbedding(
-    #     input_resolution=input_resolution,
-    #     patch_size=patch_size,
-    #     width=vision_width,
-    #     in_channels=2,
-    #     emb_dropout=0.1  # 可以根据需要调整
-    # )
-
-    # patch_embed_res = PatchEmbedding(
-    #     input_resolution=input_resolution,
-    #     patch_size=patch_size,
-    #     width=vision_width,
-    #     in_channels=3,
-    #     emb_dropout=0.1
-    # )
-
-    # # 从CLIP模型加载权重
-    # patch_embed_mv.load_clip_visual_weights(model, mode='average')
-    # patch_embed_res.load_clip_visual_weights(model)
-
-
     print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
         transform_train = get_compress_augmentation(True, config)
@@ -401,7 +367,7 @@ def main(args):
 
 
 
-def train(model,video_head, train_loader, optimizer, criterion, scaler,
+def train(model, video_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger, video_prompt):
     """ train a epoch """
     batch_time = AverageMeter()
@@ -427,26 +393,14 @@ def train(model,video_head, train_loader, optimizer, criterion, scaler,
         data_time.update(time.time() - end)
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
-        ## 处理MV
-        # mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
-        # b, t, c_m, h, w = mvs.size()
-        # mvs = mvs.view(-1, c_m, h, w)
+
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
 
         images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
 
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
-        # Embedding MV RES
-        # print("mvs.shape", mvs.shape)
-        # embedded_mv = patch_embed_mv(mvs)
-        # print("embedded.mvs.shape", embedded_mv.shape)
 
-        # print("res.shape", residuals.shape)
-        # embedded_res = patch_embed_res(residuals)
-        # print("embeddedres.shape", embedded_res.shape)
-
-        # print("images.shape", images.shape)
         texts = classes # n_cls 77
 
         with autocast():
@@ -454,22 +408,6 @@ def train(model,video_head, train_loader, optimizer, criterion, scaler,
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
                 image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
                 # exit()
-                # embedding ，将prompt加在image前
-                # num_prompts = 3  # 添加的prompt tokens数量
-                
-                # # 原始形状是[b*t, feature_dim]，需要重新计算调整后的维度
-                # new_feature_dim = image_embedding.size(1) // t
-                # if image_embedding.size(0) != b*t:  # 如果大小不匹配
-                #     # 首先获取有效的embedding形状
-                #     total_tokens = image_embedding.size(0) // b
-                #     image_embedding = image_embedding.view(b, total_tokens, -1)
-                #     # 舍弃prompt tokens（假设放在开头）
-                #     image_embedding = image_embedding[:, num_prompts:, :].contiguous()
-                #     # 重新整形为[b, t, -1]
-                #     image_embedding = image_embedding.view(b, t, -1)
-                # else:
-                #     # 正常重塑
-                #     image_embedding = image_embedding.view(b, t, -1)
                 # image_embedding.shape== torch.Size([32, 768])
                 # cls_embedding.shape== torch.Size([2, 768])
                 # text_embedding.shape== torch.Size([2, 77, 768])
@@ -584,7 +522,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
 
     with torch.no_grad():
         text_inputs = classes.to(device)  # [n_cls, 77]
-        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]  [cla,77,featdim512]
+        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
             # mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary

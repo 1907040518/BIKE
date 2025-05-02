@@ -1,4 +1,4 @@
-# pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
 resume:
 seed: 1024
 data:
@@ -36,7 +36,7 @@ network:
     fix_video: True 
     Block: Origin
     use_text_prompt_learning: False
-    residual_layers_to_use: [0, 4, 11]
+    residual_layers_to_use: [0, 11]
 solver:
     type: cosine
     epochs: 20

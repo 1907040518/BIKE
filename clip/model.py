@@ -500,10 +500,7 @@ class VisualTransformer(nn.Module):
         self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
 
     def forward(self, x: torch.Tensor):
-        if x.shape[1] == 2:
-            conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
-            conv_2to3 = conv_2to3.to(x.device)  # 将卷积层移动到输入数据所在设备
-            x = conv_2to3(x)
+
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
@@ -527,7 +524,6 @@ class VisualTransformer(nn.Module):
         x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.transformer(x)
         x = x.permute(1, 0, 2)  # LND -> NLD
-
         x = self.ln_post(x[:, 0, :])
 
         if self.proj is not None:
@@ -535,6 +531,75 @@ class VisualTransformer(nn.Module):
         return x
 
 
+
+
+class ResidualEncoder(nn.Module):
+    def __init__(self, visual_encoder, layers_to_use=None):
+        """
+        残差帧的轻量级编码器
+        Args:
+            visual_encoder: 原始的视觉编码器（VisualTransformer实例）
+            layers_to_use: 使用原视觉编码器的哪几层，例如[0, 1]表示使用前两层
+        """
+        super().__init__()
+        # 复制必要的组件
+        self.input_resolution = visual_encoder.input_resolution
+        self.output_dim = visual_encoder.output_dim
+        # 共享卷积层参数
+        self.conv1 = visual_encoder.conv1
+        
+        # 共享嵌入层参数
+        self.class_embedding = visual_encoder.class_embedding
+        self.positional_embedding = visual_encoder.positional_embedding
+        self.dropout = visual_encoder.dropout
+        self.ln_pre = visual_encoder.ln_pre
+        self.emb_dropout = visual_encoder.emb_dropout
+        # 仅使用指定的transformer层
+        # if layers_to_use is None:
+        #     layers_to_use = [0, 1]  # 默认使用前两层
+            
+        # 创建一个更小的transformer，只包含选定的层
+        selected_blocks = [visual_encoder.transformer.resblocks[i] for i in layers_to_use]
+        self.transformer = nn.Sequential(*selected_blocks)
+        
+        # 共享最终的层归一化和投影层
+        self.ln_post = visual_encoder.ln_post
+        self.proj = visual_encoder.proj
+    
+    def forward(self, x: torch.Tensor):
+        if x.shape[1] == 2:
+            conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
+            conv_2to3 = conv_2to3.to(x.device)
+            x = conv_2to3(x)
+            
+        x = self.conv1(x)  # shape = [*, width, grid, grid]
+        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], 
+                                                                      dtype=x.dtype, device=x.device), x], 
+                      dim=1)  # shape = [*, grid ** 2 + 1, width]
+        x = x + self.positional_embedding.to(x.dtype)
+        
+        if self.emb_dropout > 0:
+            x = self.dropout(x)
+        x = self.ln_pre(x)
+        
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        # 使用轻量级transformer
+        for block in self.transformer:
+            if hasattr(block, 'grad_checkpointing') and block.grad_checkpointing and not torch.jit.is_scripting():
+                x = checkpoint(block, x)
+            else:
+                x = block(x)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        
+        x = self.ln_post(x[:, 0, :])
+        
+        if self.proj is not None:
+            x = x @ self.proj
+        return x
+    
+    
 class CLIP(nn.Module):
     def __init__(self,
                  embed_dim: int,
@@ -551,13 +616,16 @@ class CLIP(nn.Module):
                  transformer_layers: int,
                  joint=False,
                  tm=None, Block = "Origin", T=8,dropout = 0., emb_dropout = 0.,
-                 ):
+                 residual_layers_to_use=None  # 新增参数：指定使用哪几层 
+                ):
         super().__init__()
         self.context_length = context_length
         if dropout > 0.:
             dpr = [x.item() for x in torch.linspace(0, dropout, vision_layers)]  # stochastic depth decay rule
         else:
             dpr = None
+        if residual_layers_to_use is None:
+            residual_layers_to_use = [0, 1]  # 默认使用前两层
 
         if isinstance(vision_layers, (tuple, list)):
             vision_heads = vision_width * 32 // 64
@@ -568,6 +636,8 @@ class CLIP(nn.Module):
                 input_resolution=image_resolution,
                 width=vision_width
             )
+            # 为ResNet创建一个轻量级的残差编码器
+            self.residual_encoder = None  # 需要单独实现ResNet的轻量版本
 
 
         else:
@@ -585,7 +655,11 @@ class CLIP(nn.Module):
                 Block=Block,
                 T=T,
             )
-
+            # 创建残差编码器，使用原视觉编码器的部分层
+            self.residual_encoder = ResidualEncoder(
+                visual_encoder=self.visual,
+                layers_to_use=residual_layers_to_use
+            )
 
         self.transformer = Transformer(
             width=transformer_width,
@@ -654,7 +728,11 @@ class CLIP(nn.Module):
 
     def encode_image(self, images, res):
         image_feat = self.visual(images.type(self.dtype))
-        res_feat = self.visual(res.type(self.dtype))
+        if self.residual_encoder is not None:
+            res_feat = self.residual_encoder(res.type(self.dtype))
+        else:
+        # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            res_feat = self.visual(res.type(self.dtype))
         return image_feat, res_feat
 
 
@@ -685,29 +763,11 @@ class CLIP(nn.Module):
     def forward(self, image, residual, text, return_token=False):
         image_feats, residual_feats = self.encode_image(image, residual)
         cls_feat, text_feats = self.encode_text(text, return_token)
-        # print(f"image_feats shape: {image_feats.shape}")
-        # print(f"mv_feats shape: {mv_feats.shape}")
-        # image_min = torch.min(image_feats)
-
-        # image_max = torch.max(image_feats)
-
-        # print("image_feats range: [{}, {}]".format(image_min.item(), image_max.item()))
-        # mv_min = torch.min(mv_feats)
-
-        # mv_max = torch.max(mv_feats)
-
-        # print("mv_feats range: [{}, {}]".format(mv_min.item(), mv_max.item()))
         # 使用可学习的beta参数，并确保它参与反向传播
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
-        # 按权重加和特征
         merged_feats = weights[0] * image_feats + weights[1] * residual_feats
 
-        # merged_min = torch.min(merged_feats)
-
-        # merged_max = torch.max(merged_feats)
-
-        # print("merged_feats range: [{}, {}]".format(merged_min.item(), merged_max.item()))
 
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
@@ -736,7 +796,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True):
+def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -766,7 +826,7 @@ def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joi
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,Block=Block,
+        dropout=dropout, emb_dropout=emb_dropout,Block=Block,residual_layers_to_use=residual_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:
@@ -786,13 +846,6 @@ def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joi
             # 获取模型的当前 state_dict 中的键
             loaded_keys = [key for key in state_dict.keys() if key not in missing_keys]
 
-            # 输出信息
-            # print("Loaded keys:", loaded_keys)
-            # print("Missing keys:", missing_keys)
-            # print("Unexpected keys:", unexpected_keys)
-
-            # model.load_state_dict(state_dict, strict=False)   # 加载时忽略不匹配的键
-            # model.load_state_dict(state_dict)   # 加载时不匹配的键报错
     else:
         print('not using full clip pretrained model, only visual!')
         
@@ -803,30 +856,7 @@ def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joi
         model.load_state_dict(state_dict,strict=False)
 
 
-    # # 输出测试
-    # # 获取当前模型的 state_dict
-    # model_state_dict = model.state_dict()
-    # # 找出匹配成功的键
-    # matched_keys = [key for key in state_dict.keys() if key in model_state_dict]
-
-    # # 找出未匹配的键（在state_dict中但在model中不存在）
-    # unmatched_keys = [key for key in state_dict.keys() if key not in model_state_dict]
-
-    # # 打印匹配和未匹配的键
-    # print("Matched Keys:")   # 512
-    # for key in matched_keys:
-    #     print(key)
-
-    # print("\nUnmatched Keys (ignored by strict=False):")   # 960
-    # for key in unmatched_keys:
-    #     print(key)
-
-    # # 可选：打印加载的参数名和形状
-    # print("\nLoaded Parameters (Matched Keys):")
-    # for key in matched_keys:
-    #     print(f"{key}: {model_state_dict[key].shape}")
-
-    # # 输出打印
+ 
     return model.eval()
 
 

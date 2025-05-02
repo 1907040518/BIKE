@@ -36,7 +36,7 @@ network:
     fix_video: True 
     Block: Origin
     use_text_prompt_learning: False
-    residual_layers_to_use: [0, 4, 11]
+    residual_layers_to_use: [0, 1]
 solver:
     type: cosine
     epochs: 20
