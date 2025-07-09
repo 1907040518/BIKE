@@ -308,15 +308,18 @@ class CrossFramelAttentionBlock(nn.Module):
             x = x + self.drop_path(self.mlp(self.ln_2(x)))
         # x = x + self.drop_path(self.mlp(self.ln_2(x)))
         return x
-
+        
 class ResidualAttentionBlock(nn.Module):
     def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, dropout = 0.):
         super().__init__()
 
-        self.attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout)
+        self.attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout if dropout is not None else 0.)
         self.ln_1 = LayerNorm(d_model)
         
-        self.drop_path = DropPath(dropout) if dropout > 0. else nn.Identity()
+        # 修复：确保dropout不为None
+        dropout_rate = dropout if dropout is not None else 0.
+        self.drop_path = DropPath(dropout_rate) if dropout_rate > 0. else nn.Identity()
+        
         self.mlp = nn.Sequential(OrderedDict([
             ("c_fc", nn.Linear(d_model, d_model * 4)),
             ("gelu", QuickGELU()),
@@ -344,7 +347,8 @@ class ResidualAttentionBlock(nn.Module):
             x = x + self.drop_path(mlp_out)
         else:
             x = x + self.drop_path(self.mlp(self.ln_2(x)))
-        return x
+        
+        return x  # 添加return语句
 
 # 可以进行识别，加入Cross条件的transformer
 class V_Transformer(nn.Module):
@@ -628,47 +632,70 @@ class VisualTransformer(nn.Module):
             x = x @ self.proj
         return x
 
-
-
-
 class ResidualEncoder(nn.Module):
-    def __init__(self, visual_encoder, layers_to_use=None):
+    def __init__(self, input_resolution, patch_size, width, layers_to_use, heads, output_dim, dropout=None, emb_dropout=0.):
         """
-        残差帧的轻量级编码器
+        独立的残差帧编码器，不共享参数
         Args:
-            visual_encoder: 原始的视觉编码器（VisualTransformer实例）
-            layers_to_use: 使用原视觉编码器的哪几层，例如[0, 1]表示使用前两层
+            input_resolution: 输入分辨率
+            patch_size: patch大小
+            width: 特征维度
+            layers_to_use: 要使用的层数列表，例如[0, 1]
+            heads: 注意力头数
+            output_dim: 输出维度
+            dropout: dropout率列表或None
+            emb_dropout: embedding dropout率
         """
         super().__init__()
-        # 复制必要的组件
-        self.input_resolution = visual_encoder.input_resolution
-        self.output_dim = visual_encoder.output_dim
-        # 共享卷积层参数
-        self.conv1 = visual_encoder.conv1
+        self.input_resolution = input_resolution
+        self.output_dim = output_dim
+        self.layers_to_use = layers_to_use
+        # 处理dropout=None的情况
+        if dropout is None:
+            # 为每一层创建0.0的dropout
+            dropout = [0.0] * len(layers_to_use)
+        elif not isinstance(dropout, (list, tuple)):
+            # 如果是单个值，转换为列表
+            dropout = [dropout] * len(layers_to_use)
+        # 独立的卷积层
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
         
-        # 共享嵌入层参数
-        self.class_embedding = visual_encoder.class_embedding
-        self.positional_embedding = visual_encoder.positional_embedding
-        self.dropout = visual_encoder.dropout
-        self.ln_pre = visual_encoder.ln_pre
-        self.emb_dropout = visual_encoder.emb_dropout
-        # 仅使用指定的transformer层
-        # if layers_to_use is None:
-        #     layers_to_use = [0, 1]  # 默认使用前两层
+        # 独立的嵌入层
+        scale = width ** -0.5
+        self.class_embedding = nn.Parameter(scale * torch.randn(width))
+        self.positional_embedding = nn.Parameter(scale * torch.randn((input_resolution // patch_size) ** 2 + 1, width))
+        self.dropout = nn.Dropout(emb_dropout)
+        self.ln_pre = LayerNorm(width)
+        self.emb_dropout = emb_dropout
+        
+        # 独立的transformer层 - 只创建指定数量的层
+        num_layers = len(layers_to_use)
+        self.transformer_blocks = nn.ModuleList()
+        
+        for i in range(num_layers):
+            # 处理dropout参数
+            if dropout is not None and isinstance(dropout, (list, tuple)) and i < len(dropout):
+                block_dropout = dropout[i]
+            elif dropout is not None and not isinstance(dropout, (list, tuple)):
+                block_dropout = dropout
+            else:
+                block_dropout = 0.
             
-        # 创建一个更小的transformer，只包含选定的层
-        selected_blocks = [visual_encoder.transformer.resblocks[i] for i in layers_to_use]
-        self.transformer = nn.Sequential(*selected_blocks)
+            self.transformer_blocks.append(
+                ResidualAttentionBlock(width, heads, dropout=block_dropout)
+            )
         
-        # 共享最终的层归一化和投影层
-        self.ln_post = visual_encoder.ln_post
-        self.proj = visual_encoder.proj
+        # 独立的最终层
+        self.ln_post = LayerNorm(width)
+        self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
+        
+        # 用于2通道到3通道的转换
+        self.conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
     
     def forward(self, x: torch.Tensor):
+        # 处理2通道输入
         if x.shape[1] == 2:
-            conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
-            conv_2to3 = conv_2to3.to(x.device)
-            x = conv_2to3(x)
+            x = self.conv_2to3(x)
             
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
@@ -683,12 +710,14 @@ class ResidualEncoder(nn.Module):
         x = self.ln_pre(x)
         
         x = x.permute(1, 0, 2)  # NLD -> LND
-        # 使用轻量级transformer
-        for block in self.transformer:
+        
+        # 使用独立的transformer层
+        for block in self.transformer_blocks:
             if hasattr(block, 'grad_checkpointing') and block.grad_checkpointing and not torch.jit.is_scripting():
                 x = checkpoint(block, x)
             else:
                 x = block(x)
+                
         x = x.permute(1, 0, 2)  # LND -> NLD
         
         x = self.ln_post(x[:, 0, :])
@@ -696,8 +725,105 @@ class ResidualEncoder(nn.Module):
         if self.proj is not None:
             x = x @ self.proj
         return x
+
+class MVSEncoder(nn.Module):
+    def __init__(self, input_resolution, patch_size, width, layers_to_use, heads, output_dim, dropout=None, emb_dropout=0.):
+        """
+        独立的MVS编码器，不共享参数
+        Args:
+            input_resolution: 输入分辨率
+            patch_size: patch大小
+            width: 特征维度
+            layers_to_use: 要使用的层数列表，例如[0, 1]
+            heads: 注意力头数
+            output_dim: 输出维度
+            dropout: dropout率列表或None
+            emb_dropout: embedding dropout率
+        """
+        super().__init__()
+        self.input_resolution = input_resolution
+        self.output_dim = output_dim
+        self.layers_to_use = layers_to_use
+        
+        # 处理dropout=None的情况
+        if dropout is None:
+            # 为每一层创建0.0的dropout
+            dropout = [0.0] * len(layers_to_use)
+        elif not isinstance(dropout, (list, tuple)):
+            # 如果是单个值，转换为列表
+            dropout = [dropout] * len(layers_to_use)
+        
+        # 独立的卷积层
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
+        
+        # 独立的嵌入层
+        scale = width ** -0.5
+        self.class_embedding = nn.Parameter(scale * torch.randn(width))
+        self.positional_embedding = nn.Parameter(scale * torch.randn((input_resolution // patch_size) ** 2 + 1, width))
+        self.dropout = nn.Dropout(emb_dropout)
+        self.ln_pre = LayerNorm(width)
+        self.emb_dropout = emb_dropout
+        
+        # 独立的transformer层 - 只创建指定数量的层
+        num_layers = len(layers_to_use)
+        self.transformer_blocks = nn.ModuleList()
+        
+        for i in range(num_layers):
+            # 处理dropout参数
+            if dropout is not None and isinstance(dropout, (list, tuple)) and i < len(dropout):
+                block_dropout = dropout[i]
+            elif dropout is not None and not isinstance(dropout, (list, tuple)):
+                block_dropout = dropout
+            else:
+                block_dropout = 0.
+            
+            self.transformer_blocks.append(
+                ResidualAttentionBlock(width, heads, dropout=block_dropout)
+            )
+        
+        # 独立的最终层
+        self.ln_post = LayerNorm(width)
+        self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
+        
+        # 用于2通道到3通道的转换 (如果MVS也是2通道的话)
+        self.conv_2to3 = nn.Conv2d(2, 3, kernel_size=1, bias=True)
     
-    
+    def forward(self, x: torch.Tensor):
+
+        # 处理2通道输入 (如果MVS是2通道的话)
+        if x.shape[1] == 2:
+            x = self.conv_2to3(x)
+            
+        x = self.conv1(x)  # shape = [*, width, grid, grid]
+        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], 
+                                                                      dtype=x.dtype, device=x.device), x], 
+                      dim=1)  # shape = [*, grid ** 2 + 1, width]
+        x = x + self.positional_embedding.to(x.dtype)
+        
+        if self.emb_dropout > 0:
+            x = self.dropout(x)
+        x = self.ln_pre(x)
+        
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        
+        # 使用独立的transformer层
+        for block in self.transformer_blocks:
+            if hasattr(block, 'grad_checkpointing') and block.grad_checkpointing and not torch.jit.is_scripting():
+                x = checkpoint(block, x)
+            else:
+                x = block(x)
+                
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        
+        x = self.ln_post(x[:, 0, :])
+        
+        if self.proj is not None:
+            x = x @ self.proj
+        return x
+
+
 class CLIP(nn.Module):
     def __init__(self,
                  embed_dim: int,
@@ -714,7 +840,8 @@ class CLIP(nn.Module):
                  transformer_layers: int,
                  joint=False,
                  tm=None, Block = "Origin", T=8,dropout = 0., emb_dropout = 0.,
-                 residual_layers_to_use=None  # 新增参数：指定使用哪几层 
+                 residual_layers_to_use=None,  # 新增参数：指定使用哪几层 
+                 mvs_layers_to_use=None  # 新增MVS层参数
                 ):
         super().__init__()
         self.context_length = context_length
@@ -724,6 +851,9 @@ class CLIP(nn.Module):
             dpr = None
         if residual_layers_to_use is None:
             residual_layers_to_use = [0, 1]  # 默认使用前两层
+
+        if mvs_layers_to_use is None:
+            mvs_layers_to_use = [0, 1]  # 默认也使用前两层
 
         if isinstance(vision_layers, (tuple, list)):
             vision_heads = vision_width * 32 // 64
@@ -736,6 +866,7 @@ class CLIP(nn.Module):
             )
             # 为ResNet创建一个轻量级的残差编码器
             self.residual_encoder = None  # 需要单独实现ResNet的轻量版本
+            self.mvs_encoder = None
 
 
         else:
@@ -753,10 +884,47 @@ class CLIP(nn.Module):
                 Block=Block,
                 T=T,
             )
-            # 创建残差编码器，使用原视觉编码器的部分层
+            # 创建独立的残差编码器
+            residual_dropout = None
+            if dpr is not None and residual_layers_to_use is not None:
+                # 只取指定层的dropout率，确保索引有效
+                residual_dropout = []
+                for layer_idx in residual_layers_to_use:
+                    if layer_idx < len(dpr):
+                        residual_dropout.append(dpr[layer_idx])
+                    else:
+                        residual_dropout.append(0.)  # 默认值
+            
             self.residual_encoder = ResidualEncoder(
-                visual_encoder=self.visual,
-                layers_to_use=residual_layers_to_use
+                input_resolution=image_resolution,
+                patch_size=vision_patch_size,
+                width=vision_width,
+                layers_to_use=residual_layers_to_use,
+                heads=vision_heads,
+                output_dim=embed_dim,
+                dropout=residual_dropout,
+                emb_dropout=emb_dropout
+            )
+        
+            # 创建独立的MVS编码器
+            mvs_dropout = None
+            if dpr is not None and mvs_layers_to_use is not None:
+                mvs_dropout = []
+                for layer_idx in mvs_layers_to_use:
+                    if layer_idx < len(dpr):
+                        mvs_dropout.append(dpr[layer_idx])
+                    else:
+                        mvs_dropout.append(0.)
+            
+            self.mvs_encoder = MVSEncoder(
+                input_resolution=image_resolution,
+                patch_size=vision_patch_size,
+                width=vision_width,
+                layers_to_use=mvs_layers_to_use,
+                heads=vision_heads,
+                output_dim=embed_dim,
+                dropout=mvs_dropout,
+                emb_dropout=emb_dropout
             )
 
         self.transformer = Transformer(
@@ -824,14 +992,26 @@ class CLIP(nn.Module):
     def dtype(self):
         return self.visual.conv1.weight.dtype
 
-    def encode_image(self, images, res):
+
+    def encode_image(self, images, res, mvs):
+        # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
+        
+        # 编码残差信息
         if self.residual_encoder is not None:
             res_feat = self.residual_encoder(res.type(self.dtype))
         else:
-        # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
             res_feat = self.visual(res.type(self.dtype))
-        return image_feat, res_feat
+        
+        # 编码MVS信息
+        if self.mvs_encoder is not None:
+            mvs_feat = self.mvs_encoder(mvs.type(self.dtype))
+        else:
+            # 如果没有专门的MVS编码器，则回退到使用完整的编码器
+            mvs_feat = self.visual(mvs.type(self.dtype))
+        
+        return image_feat, res_feat, mvs_feat
 
 
     def encode_text(self, text, return_token=False):
@@ -859,12 +1039,12 @@ class CLIP(nn.Module):
 
 
     def forward(self, image, residual, mv, text, return_token=False):
-        image_feats, residual_feats = self.encode_image(image, residual)
+        image_feats, residual_feats, mv_feats = self.encode_image(image, residual, mv)
         cls_feat, text_feats = self.encode_text(text, return_token)
         # 使用可学习的beta参数，并确保它参与反向传播
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + 0.1 * mv_feats
 
 
 
@@ -894,7 +1074,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None):
+def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -924,7 +1104,7 @@ def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joi
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,Block=Block,residual_layers_to_use=residual_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,Block=Block,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:
