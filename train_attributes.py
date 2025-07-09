@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 from torch.cuda.amp import GradScaler
 import torchvision
 import numpy as np
-
+from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 from utils.utils import init_distributed_mode, epoch_saving, best_saving, AverageMeter, reduce_tensor, accuracy, create_logits, gen_label, gather_labels
 from utils.logger import setup_logger
 import clip
@@ -118,7 +118,7 @@ def main(args):
     logger.info("storing name: {}".format(working_dir))
 
 
-    # 将 config 字典转换为 DotMap 对象
+
     config = DotMap(config)
 
     device = "cpu"
@@ -142,15 +142,18 @@ def main(args):
         emb_dropout=config.network.emb_dropout,
         pretrain=config.network.init,
         joint_st = config.network.joint_st) # Must set jit=False for training  ViT-B/32
+    
+    if config.data.modality in ['mv', 'residual', 'iframe']:
+        transform_train = get_compress_augmentation(True, config)
+        transform_val = get_compress_augmentation(False, config)
+    else :
+        transform_train = get_augmentation(True, config)
+        transform_val = get_augmentation(False, config)
 
-    transform_train = get_augmentation(True, config)   # 数据增强配置
-    transform_val = get_augmentation(False, config)
 
-    # 日志记录数据增强配置
     logger.info('train transforms: {}'.format(transform_train.transforms))
     logger.info('val transforms: {}'.format(transform_val.transforms))
 
-    # 创建文本的头部网络
     sentence_head = sentence_text_logit(clip_state_dict)
 
 
@@ -222,8 +225,7 @@ def main(args):
         else:
             logger.info("=> no checkpoint found at '{}'".format(config.pretrain))
 
-    classes = text_prompt(train_data)
-    n_class = classes.size(0)
+    classes,n_class = text_prompt(train_data, config) 
 
 
     for name, param in model.named_parameters():
@@ -245,9 +247,9 @@ def main(args):
     best_prec1 = 0.0
     if config.solver.evaluate:
         logger.info(("===========evaluate==========="))
-        prec1, output_list, labels_list = validate_text(start_epoch, val_loader, classes, device, model, sentence_head, config, n_class, logger)
+        prec1, output_list, labels_list, sample_paths_list  = validate_text(start_epoch, val_loader, classes, device, model, sentence_head, config, n_class, logger)
         if dist.get_rank() == 0:
-            save_sims(output_list, labels_list)
+            save_sims(output_list, labels_list, sample_paths_list)
         return
 
 
@@ -260,8 +262,8 @@ def main(args):
                        epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:  # and epoch>0
-            prec1, output_list, labels_list = validate_text(start_epoch, val_loader, classes, device, model, sentence_head, config, n_class,logger)
-            if dist.get_rank() == 0:   # 主进程
+            prec1, output_list, labels_list, sample_paths_list  = validate_text(start_epoch, val_loader, classes, device, model, sentence_head, config, n_class,logger)
+            if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
                 best_prec1 = max(prec1, best_prec1)
                 logger.info('Testing: {}/{}'.format(prec1,best_prec1))
@@ -270,7 +272,7 @@ def main(args):
 
                 epoch_saving(epoch, model.module, sentence_head_nomodule, optimizer, filename)
                 if is_best:
-                    save_sims(output_list, labels_list)
+                    save_sims(output_list, labels_list, sample_paths_list)
                     best_saving(working_dir, epoch, model.module, sentence_head_nomodule, optimizer)
 
 
@@ -284,7 +286,7 @@ def train_sentence(model, fusion_model, train_loader, optimizer, criterion, scal
     fusion_model.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i, (classname_sentence, classname_sentence_mask, class_id) in enumerate(train_loader):
+    for i, (classname_sentence, classname_sentence_mask, class_id,sample_paths) in enumerate(train_loader):
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
@@ -301,10 +303,45 @@ def train_sentence(model, fusion_model, train_loader, optimizer, criterion, scal
             if config.solver.loss_type in ['NCE', 'DS']:
                 batch_texts = texts[class_id]
                 batch_texts = batch_texts.to(device)
+                # print("classname_sentence",classname_sentence)
                 classname_sentence_features_cls, classname_sentence_features = model.module.encode_text(classname_sentence, return_token=True)
                 classname_sentence_features = classname_sentence_features / classname_sentence_features.norm(dim=-1,keepdim=True)
                 classname_sentence_features_cls = classname_sentence_features_cls / classname_sentence_features_cls.norm(dim=-1,keepdim=True)
+                # print("batch_texts",batch_texts)
 
+
+                # print(f"batch_texts 形状: {batch_texts.shape}")
+                # print(f"classname_sentence 形状: {classname_sentence.shape}")
+                # print(f"batch_texts 数据类型: {batch_texts.dtype}")
+                # print(f"classname_sentence 数据类型: {classname_sentence.dtype}")
+
+                # 形状检查
+                # if batch_texts.shape != classname_sentence.shape:
+                #     print("❌ 形状不同")
+                # else:
+                #     # 使用 torch.equal 进行精确比较
+                #     if torch.equal(batch_texts, classname_sentence):
+                #         print("✓ 张量完全相等")
+                #     else:
+                #         print("✗ 张量不相等")
+                        
+                #         # 显示不同元素的数量
+                #         diff_mask = batch_texts != classname_sentence
+                #         num_diff = diff_mask.sum().item()
+                #         total_elements = batch_texts.numel()
+                #         print(f"不同元素数量: {num_diff}/{total_elements}")
+                        
+                #         # 如果是文本token，显示前几个不同的位置
+                #         if num_diff > 0 and len(batch_texts.shape) <= 2:
+                #             diff_indices = torch.where(diff_mask)
+                #             for i in range(min(5, len(diff_indices[0]))):  # 显示前5个不同的位置
+                #                 if len(diff_indices) == 1:
+                #                     idx = diff_indices[0][i].item()
+                #                     print(f"  位置 {idx}: {batch_texts[idx].item()} != {classname_sentence[idx].item()}")
+                #                 else:
+                #                     row, col = diff_indices[0][i].item(), diff_indices[1][i].item()
+                #                     print(f"  位置 ({row},{col}): {batch_texts[row,col].item()} != {classname_sentence[row,col].item()}")
+                # exit()
                 text_cls_features, text_features = model.module.encode_text(batch_texts, return_token=True)
                 text_features = text_features / text_features.norm(dim=-1,keepdim=True)
                 text_cls_features = text_cls_features / text_cls_features.norm(dim=-1, keepdim=True)
@@ -375,12 +412,13 @@ def validate_text(epoch, val_loader, classes, device, model, fusion_model, confi
     with torch.no_grad():
         output_list = []
         labels_list = []
+        sample_paths_list = []  # 新增：保存样本路径
         text_inputs = classes.to(device)
         text_cls_features, text_features = model.module.encode_text(text_inputs, return_token=True)
         text_cls_features = text_cls_features / text_cls_features.norm(dim=-1, keepdim=True)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
-        for i, (classname_sentence, classname_sentence_mask,class_id) in enumerate(val_loader):
+        for i, (classname_sentence, classname_sentence_mask,class_id,sample_paths) in enumerate(val_loader):
             classname_sentence = classname_sentence.reshape(-1,classname_sentence.shape[-1])
             b,num_token = classname_sentence.size()
             class_id = class_id.to(device)
@@ -395,8 +433,11 @@ def validate_text(epoch, val_loader, classes, device, model, fusion_model, confi
 
             output = allgather(similarity)
             labels = gather_labels(class_id)
+            # 收集样本路径信息
+            gathered_paths = gather_sample_paths(sample_paths)
             output_list.append(output)
             labels_list.append(labels)
+            sample_paths_list.extend(gathered_paths)  # 添加路径信息
 
             prec = accuracy(similarity, class_id, topk=(1, 5))
             prec1 = reduce_tensor(prec[0])
@@ -413,17 +454,69 @@ def validate_text(epoch, val_loader, classes, device, model, fusion_model, confi
                         i, len(val_loader), top1=top1, top5=top5)))
     logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
                  .format(top1=top1, top5=top5)))
-    return top1.avg, output_list, labels_list
+    return top1.avg, output_list, labels_list, sample_paths_list
 
-def save_sims(output_list, labels_list):
+
+def gather_sample_paths(sample_paths):
+    """收集所有GPU上的样本路径"""
+    if not dist.is_initialized():
+        return list(sample_paths)
+    
+    # 将路径列表转换为可以在GPU间传输的格式
+    world_size = dist.get_world_size()
+    gathered_paths = [None] * world_size
+    dist.all_gather_object(gathered_paths, list(sample_paths))
+    
+    # 展平列表
+    all_paths = []
+    for paths in gathered_paths:
+        all_paths.extend(paths)
+    
+    return all_paths
+
+def save_sims(output_list, labels_list, sample_paths_list=None):
     outputs_sim = torch.cat(output_list, dim=0)
     labels_list_res = torch.cat(labels_list, dim=0)
     prec = accuracy(outputs_sim, labels_list_res, topk=(1, 5))
-    torch.save(outputs_sim, 'video_sentence_fusion/k400_sentence_sims.pt')
-    torch.save(labels_list_res,'video_sentence_fusion/k400_sentence_labels.pt')
-    # print('outputs_sim.shape==',outputs_sim.shape)
-    # print('labels_list_res.shape===',labels_list_res.shape)
-    # print('top1====',prec[0].item())
+    
+    # 保存原有文件
+    torch.save(outputs_sim, 'video_sentence_fusion/hmdb51_sentence_sims.pt')
+    torch.save(labels_list_res,'video_sentence_fusion/hmdb51_sentence_labels.pt')
+    
+    # 保存样本顺序信息
+    if sample_paths_list is not None:
+        save_sample_order(sample_paths_list, labels_list_res, outputs_sim)
+    
+    print('outputs_sim.shape==', outputs_sim.shape)
+    print('labels_list_res.shape===', labels_list_res.shape)
+    print('top1====', prec[0].item())
+
+def save_sample_order(sample_paths, labels, predictions):
+    """保存样本顺序信息到txt文件"""
+    os.makedirs('video_sentence_fusion', exist_ok=True)
+    
+    with open('video_sentence_fusion/hmdb51_validation_sample_order.txt', 'w') as f:
+        f.write("# 验证集样本顺序信息\n")
+        f.write("# 格式: 索引 样本路径 真实标签 预测标签 预测置信度\n")
+        f.write("# " + "="*80 + "\n\n")
+        
+        for idx, (path, true_label, pred_vector) in enumerate(zip(sample_paths, labels, predictions)):
+            pred_label = torch.argmax(pred_vector).item()
+            pred_confidence = torch.max(pred_vector).item()
+            
+            f.write(f"{idx:6d} {path:60s} {true_label.item():3d} {pred_label:3d} {pred_confidence:.6f}\n")
+    
+    # 额外保存一个简化版本，只包含路径和标签
+    with open('video_sentence_fusion/hmdb51_validation_paths_labels.txt', 'w') as f:
+        f.write("# 验证集路径和标签对应关系\n")
+        f.write("# 格式: 样本路径 真实标签\n")
+        f.write("# " + "="*50 + "\n\n")
+        
+        for path, true_label in zip(sample_paths, labels):
+            f.write(f"{path} {true_label.item()}\n")
+    
+    print(f"样本顺序信息已保存到: video_sentence_fusion/hmdb51_validation_sample_order.txt")
+    print(f"路径标签对应关系已保存到: video_sentence_fusion/hmdb51_validation_paths_labels.txt")
 
 if __name__ == '__main__':
     args = get_parser() 

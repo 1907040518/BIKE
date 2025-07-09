@@ -1,4 +1,5 @@
 # pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+pretrain: 
 resume:
 seed: 1024
 data:
@@ -6,12 +7,12 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 8
+    batch_size: 64
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
-    val_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
+    train_root: '/mnt/data/hmdb51/mpeg4_videos'
+    val_root: '/mnt/data/hmdb51/mpeg4_videos'
     train_list: 'lists/hmdb51/train_rgb_split_1.txt'
     val_list: 'lists/hmdb51/val_rgb_split_1.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'
@@ -19,6 +20,9 @@ data:
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
+    select_topk_attributes: 10
+    attributes_val_path: lists/hmdb51/mul_caption_test.json
+    attributes_train_path: lists/hmdb51/mul_caption_train.json
 network:
     arch: ViT-B/16
     init: True 
@@ -27,8 +31,8 @@ network:
     emb_dropout: 0.0 
     sim_header: Transf
     S_Align: DP
-    M_Align: VCS
-    interaction: VCS
+    M_Align: DP
+    interaction: DP
     video_prompt: False
     joint_st: False
     drop: 0      
@@ -36,10 +40,10 @@ network:
     fix_video: True 
     Block: Origin
     use_text_prompt_learning: False
-    residual_layers_to_use: [0, 4, 11]
+    residual_layers_to_use: [0, 11]
 solver:
     type: cosine
-    epochs: 20
+    epochs: 30
     start_epoch: 0
     optim: adamw
     lr: 5.e-5

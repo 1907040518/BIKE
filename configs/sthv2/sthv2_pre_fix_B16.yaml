@@ -4,10 +4,10 @@ resume:
 seed: 1024
 data:
     dataset: sthv2
-    modality: residual
+    modality: iframe
     num_segments: 8
     seg_length: 1
-    batch_size: 16
+    batch_size: 128
     workers: 4
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'
@@ -20,6 +20,10 @@ data:
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
+prompt:
+    n_ctx: 2
+    ctx_init: "This is a video about"
+    prompt_depth: 9
 network:
     arch: ViT-B/16
     init: True 
@@ -39,7 +43,7 @@ network:
     use_text_prompt_learning: False
 solver:
     type: cosine
-    epochs: 20
+    epochs: 30
     start_epoch: 0
     optim: adamw
     lr: 5.e-5

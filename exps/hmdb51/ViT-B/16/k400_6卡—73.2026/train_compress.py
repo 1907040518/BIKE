@@ -397,7 +397,7 @@ def main(args):
 
 
 
-def train(model, video_head, train_loader, optimizer, criterion, scaler,
+def train(model,video_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
@@ -411,9 +411,6 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     for i,(images, mvs, residuals,list_id) in enumerate(train_loader):
-        print("images : ",images.shape)
-        print("mvs : ",mvs.shape)
-        print("residuals : ",residuals.shape)        
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -426,13 +423,13 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
         ## 处理MV
-        mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
-        b, t, c_m, h, w = mvs.size()
-        mvs = mvs.view(-1, c_m, h, w)
+        # mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
+        # b, t, c_m, h, w = mvs.size()
+        # mvs = mvs.view(-1, c_m, h, w)
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
 
-        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps  b*t c h w 
+        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
 
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
         # Embedding MV RES
@@ -450,7 +447,8 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
+                # exit()
                 # embedding ，将prompt加在image前
                 # num_prompts = 3  # 添加的prompt tokens数量
                 

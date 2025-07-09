@@ -1,5 +1,4 @@
 pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
-# pretrain: 
 resume:
 seed: 1024
 data:
@@ -7,7 +6,7 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 8
+    batch_size: 16
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
@@ -20,6 +19,9 @@ data:
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
+    select_topk_attributes: 1
+    attributes_val_path: lists/hmdb51/hmdb51_val_descriptions.json
+    attributes_train_path: lists/hmdb51/hmdb51_train_descriptions.json
 network:
     arch: ViT-B/16
     init: True 
@@ -27,9 +29,9 @@ network:
     drop_out: 0.0 
     emb_dropout: 0.0 
     sim_header: Transf
-    S_Align: DP
-    M_Align: DP
-    interaction: DP
+    S_Align: VCS
+    M_Align: VCS
+    interaction: VCS
     video_prompt: False
     joint_st: False
     drop: 0      

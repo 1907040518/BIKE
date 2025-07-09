@@ -469,7 +469,107 @@ class Transformer(nn.Module):
 
         return x
 
+class CMFMPlus(nn.Module):
+    def __init__(self, feature_dim=768, text_dim=512):
+        super().__init__()
+        self.feature_dim = feature_dim
+        
+        # 三种视觉特征的投影层
+        self.iframe_proj = nn.Linear(feature_dim, feature_dim)
+        self.residual_proj = nn.Linear(feature_dim, feature_dim)
+        self.motion_proj = nn.Linear(feature_dim, feature_dim)
 
+        # 融合前学习模态权重
+        self.modality_weight = nn.Sequential(
+            nn.Linear(3 * feature_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 3)
+        )
+
+        # 特征融合注意力机制
+        self.cross_attention = nn.MultiheadAttention(
+            embed_dim=feature_dim,
+            num_heads=8,
+            batch_first=True
+        )
+        
+        # 时空建模
+        self.temporal_fusion = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(
+                d_model=feature_dim,
+                nhead=8,
+                dim_feedforward=2048,
+                batch_first=True
+            ),
+            num_layers=2
+        )
+
+        # 注意力池化层（代替mean pooling）
+        self.pool_query = nn.Parameter(torch.randn(1, 1, feature_dim))
+
+        # 视频到文本空间对齐
+        self.video_text_proj = nn.Linear(feature_dim, text_dim)
+
+    def forward(self, f_iframe, f_res, f_mv, text_feat=None):
+        """
+        参数:
+            f_iframe: (B, T, D)
+            f_res:    (B, T, D)
+            f_mv:     (B, T, D)
+            text_feat: (B, text_dim), 可选，用于文本引导
+        返回:
+            video_embed: (B, text_dim)
+        """
+        B, T, D = f_iframe.shape
+
+        # 特征投影 + 归一化
+        iframe_feat = F.normalize(self.iframe_proj(f_iframe), dim=-1)
+        residual_feat = F.normalize(self.residual_proj(f_res), dim=-1)
+        motion_feat = F.normalize(self.motion_proj(f_mv), dim=-1)
+
+        # 计算模态权重
+        stacked_feats = torch.cat([
+            iframe_feat.mean(dim=1), 
+            residual_feat.mean(dim=1), 
+            motion_feat.mean(dim=1)
+        ], dim=-1)  # (B, 3*D)
+        weights = torch.softmax(self.modality_weight(stacked_feats), dim=-1)  # (B, 3)
+
+        # 加权融合
+        weights = weights.unsqueeze(-1).unsqueeze(-1)  # (B, 3, 1, 1)
+        weighted_feats = (
+            weights[:, 0] * iframe_feat +
+            weights[:, 1] * residual_feat +
+            weights[:, 2] * motion_feat
+        )  # (B, T, D)
+
+        # 自注意力融合
+        attn_output, _ = self.cross_attention(
+            weighted_feats, weighted_feats, weighted_feats
+        )
+
+        # 时序建模
+        temporal_output = self.temporal_fusion(attn_output)  # (B, T, D)
+
+        # 可学习注意力池化
+        # query = self.pool_query.expand(B, -1, -1)  # (B, 1, D)
+        # attn_weights = torch.softmax(torch.matmul(query, temporal_output.transpose(1, 2)), dim=-1)  # (B, 1, T)
+        # video_repr = torch.bmm(attn_weights, temporal_output).squeeze(1)  # (B, D)
+        query = self.pool_query.expand(B, T, -1)  # (B, T, D)
+        attn_weights = torch.softmax(torch.sum(query * temporal_output, dim=-1, keepdim=True), dim=1)  # (B, T, 1)
+        video_repr = temporal_output * attn_weights  # (B, T, D)
+
+        # 可选：引入文本引导调整
+        if text_feat is not None:
+            text_feat = F.normalize(text_feat, dim=-1)
+            video_repr = video_repr + torch.matmul(video_repr, text_feat.unsqueeze(-1)).squeeze(-1).unsqueeze(-1) * text_feat
+
+        # 投影到文本空间
+        video_embed = self.video_text_proj(video_repr)
+       
+        video_embed = F.normalize(video_embed, dim=-1)
+
+        return video_embed
 
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0., Block = "Origin", T=8):
@@ -500,13 +600,12 @@ class VisualTransformer(nn.Module):
         self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
 
     def forward(self, x: torch.Tensor):
-
+        
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
         x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         x = x + self.positional_embedding.to(x.dtype)
-       
         if self.joint:
             from einops import rearrange
             B = x.shape[0] // self.T
@@ -516,7 +615,6 @@ class VisualTransformer(nn.Module):
             x = x + self.time_embedding.to(x.dtype)   # temporal pos emb
             x = rearrange(x, '(b n) t c -> b (n t) c',b=B,t=self.T)
             x = torch.cat((cls_tokens, x), dim=1)
-
         if self.emb_dropout > 0:
             x = self.dropout(x)
         x = self.ln_pre(x)
@@ -760,7 +858,7 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, residual, text, return_token=False):
+    def forward(self, image, residual, mv, text, return_token=False):
         image_feats, residual_feats = self.encode_image(image, residual)
         cls_feat, text_feats = self.encode_text(text, return_token)
         # 使用可学习的beta参数，并确保它参与反向传播

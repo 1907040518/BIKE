@@ -13,7 +13,7 @@ from PIL import Image
 import math
 import copy
 from clip.simple_tokenizer import SimpleTokenizer as ClipTokenizer
-
+import clip
 class VideoRecord(object):
     def __init__(self, row):
         self._data = row
@@ -179,36 +179,36 @@ class Video_dataset(data.Dataset):
             return None
         
         return container
-
+    
     def __getitem__(self, index):
-        # decode frames to video_list
-        if self.modality == 'video':
-            _num_retries = 10
-            for i_try in range(_num_retries):
-                record = copy.deepcopy(self.video_list[index])
-                directory = os.path.join(self.root_path, record.path)
-                video_list = self._decord_decode(directory)
-                # video_list = self._decord_pyav(directory)
-                if video_list is None:
-                    print("Failed to decode video idx {} from {}; trial {}".format(
-                        index, directory, i_try)
-                    )
-                    index = random.randint(0, len(self.video_list))
-                    continue
-                break
-        else:
-            record = self.video_list[index]
-            video_list = os.listdir(os.path.join(self.root_path, record.path))
-
-
+        record = self.video_list[index]
         if self.train_video == True:
-            if not self.test_mode: # train/val
+            # 需要处理视频时才获取video_list
+            if self.modality == 'video':
+                _num_retries = 10
+                for i_try in range(_num_retries):
+                    record = copy.deepcopy(self.video_list[index])
+                    directory = os.path.join(self.root_path, record.path)
+                    video_list = self._decord_decode(directory)
+                    if video_list is None:
+                        print("Failed to decode video idx {} from {}; trial {}".format(
+                            index, directory, i_try)
+                        )
+                        index = random.randint(0, len(self.video_list))
+                        continue
+                    break
+            else:
+                video_list = os.listdir(os.path.join(self.root_path, record.path))
+            
+            if not self.test_mode:
                 segment_indices = self._sample_indices(video_list) if self.random_shift else self._get_val_indices(video_list)
-            else: # test
+            else:
                 segment_indices = self._get_test_indices(video_list)
-
+            
             return self.get(record, video_list, segment_indices)
         else:
+            # 只处理属性，不需要video_list
+            
             return self.get_attributes(record)
 
 
@@ -247,17 +247,32 @@ class Video_dataset(data.Dataset):
     def get_attributes(self, record):
         video_path_name = record.path
         label_id = record.label
-        generate_attributes_split_dict = self.generate_attributes_split_data[video_path_name]
-        generate_attributes = generate_attributes_split_dict["classname_topk"]
-        attributes = generate_attributes[0:self.select_topk_attributes]
-        attributes = ','.join(attributes)
-        k = 1
-        pairs_text = np.zeros((k, self.max_words), dtype=np.long)
-        pairs_mask = np.zeros((k, self.max_words), dtype=np.long)
-        sentence = "This is a video about " + attributes
-        for i in range(k):
-            words = self.tokenizer.tokenize(sentence)
 
+        generate_attributes_split_dict = self.generate_attributes_split_data[video_path_name]
+
+        generate_attributes = generate_attributes_split_dict["semantic_description"]
+        # attributes_list = generate_attributes[0:self.select_topk_attributes]
+        attributes = generate_attributes
+        # 或者如果你想限制长度，按单词切分：
+        words_list = generate_attributes.split()
+        selected_words = words_list[:self.select_topk_attributes]  # 取前k个单词
+        attributes = ' '.join(selected_words)
+        # attributes = ','.join(attributes_list)
+        # 在get_attributes方法中添加调试代码
+        # print("选择的属性:", attributes_list)
+        # print("连接前的属性:", attributes_list[0:self.select_topk_attributes])
+
+        k = 1
+        pairs_text = np.zeros((k, self.max_words), dtype=np.int_)
+        pairs_mask = np.zeros((k, self.max_words), dtype=np.int_)
+
+        sentence = attributes
+        # print("sentence ",sentence)
+        for i in range(k):
+
+            text_aug = '{}'
+            classs = [clip.tokenize(text_aug.format(sentence))]
+            words = self.tokenizer.tokenize(sentence)
             words = [self.SPECIAL_TOKEN["CLS_TOKEN"]] + words
             total_length_with_CLS = self.max_words - 1
             if len(words) > total_length_with_CLS:
@@ -273,6 +288,6 @@ class Video_dataset(data.Dataset):
             assert len(input_mask) == self.max_words
             pairs_text[i] = np.array(input_ids)
             pairs_mask[i] = np.array(input_mask)
-        return pairs_text, pairs_mask,label_id
+        return pairs_text, pairs_mask, label_id, video_path_name
     def __len__(self):
         return len(self.video_list)

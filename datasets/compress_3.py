@@ -275,10 +275,11 @@ class Video_compress_dataset(data.Dataset):
                 label = video_record.label
                 num_frames = video_record.num_frames
             else:
-                video_path = os.path.join(self.root_path, video_record[index].path)
-                label = self.video_list[index].label
-                num_frames = self.video_list[index].num_frames
-
+                # 修复：正确获取测试模式下的video_record
+                video_record = self.video_list[index]  # 移除了[index]的重复使用
+                video_path = os.path.join(self.root_path, video_record.path)
+                label = video_record.label
+                num_frames = video_record.num_frames
             frames = []
             frames_iframe = []
             frames_mv = []

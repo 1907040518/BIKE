@@ -34,6 +34,8 @@ from utils.solver import _optimizer, _lr_scheduler
 from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
+from X_CLIP.models.prompt import VideoSpecificPrompt
+from X_CLIP.models.prompt import Video_Prompt
 
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -205,6 +207,8 @@ def main(args):
         config.network.interaction,
         clip_state_dict)
 
+    video_prompt = Video_Prompt(clip_state_dict)
+
 
     if args.precision == "amp" or args.precision == "fp32":
         model = model.float()
@@ -253,7 +257,6 @@ def main(args):
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            test_mode=True,
             image_tmpl=config.data.image_tmpl,
             transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
 
@@ -338,6 +341,7 @@ def main(args):
 
     if args.distributed:
         model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
+        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
@@ -374,7 +378,7 @@ def main(args):
 
         # print(model)
         train(model, video_head, train_loader, optimizer, criterion, scaler,
-              epoch, device, lr_scheduler, config, classes, logger)
+              epoch, device, lr_scheduler, config, classes, logger, video_prompt)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
@@ -397,8 +401,8 @@ def main(args):
 
 
 
-def train(model, video_head, train_loader, optimizer, criterion, scaler,
-          epoch, device, lr_scheduler, config, classes, logger):
+def train(model,video_head, train_loader, optimizer, criterion, scaler,
+          epoch, device, lr_scheduler, config, classes, logger, video_prompt):
     """ train a epoch """
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -408,12 +412,10 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
     model.train()
     video_head.train()
+    video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     for i,(images, mvs, residuals,list_id) in enumerate(train_loader):
-        print("images : ",images.shape)
-        print("mvs : ",mvs.shape)
-        print("residuals : ",residuals.shape)        
         # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
         # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
         # exit()
@@ -426,13 +428,13 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
         ## 处理MV
-        mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
-        b, t, c_m, h, w = mvs.size()
-        mvs = mvs.view(-1, c_m, h, w)
+        # mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
+        # b, t, c_m, h, w = mvs.size()
+        # mvs = mvs.view(-1, c_m, h, w)
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
 
-        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps  b*t c h w 
+        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps
 
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
         # Embedding MV RES
@@ -450,7 +452,8 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
+                # exit()
                 # embedding ，将prompt加在image前
                 # num_prompts = 3  # 添加的prompt tokens数量
                 
@@ -478,6 +481,11 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
+                if config.network.video_prompt:
+                    cls_embedding = cls_embedding.unsqueeze(1) 
+                    cls_embedding = cls_embedding + video_prompt(cls_embedding, image_embedding)
+                    cls_embedding = cls_embedding.squeeze()
+                    print("cls_embedding-video_prompt")
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
                 list_id = gather_labels(list_id.to(device))  # bs -> n_gpu * bs
@@ -683,8 +691,8 @@ def save_sims(output_list, labels_list):
     outputs_sim = torch.cat(output_list, dim=0)
     labels_list_res = torch.cat(labels_list, dim=0)
     prec = accuracy(outputs_sim, labels_list_res, topk=(1, 5))
-    torch.save(outputs_sim, 'video_sentence_fusion/hmdb51_video_sims.pt')
-    torch.save(labels_list_res, 'video_sentence_fusion/hmdb51_video_labels.pt')
+    torch.save(outputs_sim, 'video_sentence_fusion/k400_video_sims.pt')
+    torch.save(labels_list_res, 'video_sentence_fusion/k400_video_labels.pt')
     # print('outputs_sim.shape==', outputs_sim.shape)
     # print('labels_list_res.shape===', labels_list_res.shape)
     # print('top1====', prec[0].item())

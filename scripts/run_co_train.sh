@@ -7,9 +7,8 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-python -m torch.distributed.launch --master_port 1236 --nproc_per_node=8 \
-         train.py  --config ${config} --log_time $now;
+
 now=$(date +"%Y%m%d_%H%M%S")
-python -m torch.distributed.launch --master_port 1236 --nproc_per_node=8 \
+python -m torch.distributed.launch --master_port 1236 --nproc_per_node=6 \
          train_attributes.py  --config ${config} --log_time $now;
 
