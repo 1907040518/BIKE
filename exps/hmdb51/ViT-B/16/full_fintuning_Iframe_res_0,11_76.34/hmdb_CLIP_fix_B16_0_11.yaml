@@ -38,7 +38,6 @@ network:
     Block: Origin
     use_text_prompt_learning: False
     residual_layers_to_use: [0, 11]
-    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
 solver:
     type: cosine
     epochs: 30

@@ -138,7 +138,6 @@ def main(args):
 
     # 检查配置中是否存在residual_layers_to_use参数
     residual_layers = config.network.get('residual_layers_to_use', None)  # 如果不存在则为None
-    mvs_layers_to_use = config.network.get('mvs_layers_to_use', None)  # 如果不存在则为None   
     # get fp16 model and weight
     # model: 这将是一个可用于前向推理或继续训练的 CLIP 模型实例。你可以使用这个模型输入图像和文本进行特征提取、相似度计算等任务。
     # clip_state_dict: 包含了模型当前的权重和偏置，你可以使用这个字典在训练过程中更新模型的参数，或者在保存和加载模型时使用。
@@ -297,7 +296,7 @@ def main(args):
         raise NotImplementedError
 
     start_epoch = config.solver.start_epoch
-            
+        
     if config.pretrain:
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
@@ -307,11 +306,16 @@ def main(args):
             model.load_state_dict(checkpoint['model_state_dict'], False)
             video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
             
-            # 为ResidualEncoder和MVSEncoder加载预训练权重
-            if hasattr(model, 'residual_encoder') and model.residual_encoder is not None:
+            # 为ResidualEncoder加载预训练权重 - 简化版本
+            if hasattr(model, 'residual_encoder'):
                 try:
-                    # ResidualEncoder权重加载
-                    residual_layers_to_use = getattr(config, 'residual_layers_to_use', [0, 1])
+                    # 直接使用visual encoder的权重来初始化residual encoder
+                    visual_state_dict = {k.replace('visual.', 'residual_encoder.'): v 
+                                    for k, v in checkpoint['model_state_dict'].items() 
+                                    if k.startswith('visual.')}
+                    
+                    # 处理transformer层的映射 - 假设使用层[0, 11]
+                    layers_to_use = [0, 11]  # 根据你的实际配置修改
                     residual_dict = {}
                     
                     # 复制基础层
@@ -323,7 +327,7 @@ def main(args):
                             residual_dict[target_key] = checkpoint['model_state_dict'][source_key]
                     
                     # 复制指定的transformer层
-                    for target_idx, source_idx in enumerate(residual_layers_to_use):
+                    for target_idx, source_idx in enumerate(layers_to_use):
                         for param in ['attn.in_proj_weight', 'attn.in_proj_bias', 'attn.out_proj.weight', 'attn.out_proj.bias',
                                     'ln_1.weight', 'ln_1.bias', 'ln_2.weight', 'ln_2.bias',
                                     'mlp.c_fc.weight', 'mlp.c_fc.bias', 'mlp.c_proj.weight', 'mlp.c_proj.bias']:
@@ -334,47 +338,14 @@ def main(args):
                     
                     # 加载到模型
                     model.load_state_dict(residual_dict, strict=False)
-                    logger.info(f"=> loaded pretrained weights for ResidualEncoder from layers {residual_layers_to_use}")
+                    logger.info(f"=> loaded pretrained weights for ResidualEncoder from layers {layers_to_use}")
                     
                 except Exception as e:
                     logger.warning(f"=> failed to load ResidualEncoder weights: {e}")
             
-            # 为MVSEncoder加载预训练权重
-            if hasattr(model, 'mvs_encoder') and model.mvs_encoder is not None:
-                try:
-                    # MVSEncoder权重加载
-                    mvs_layers_to_use = getattr(config, 'mvs_layers_to_use', [0, 1])
-                    mvs_dict = {}
-                    
-                    # 复制基础层
-                    for key in ['conv1.weight', 'class_embedding', 'positional_embedding', 
-                            'ln_pre.weight', 'ln_pre.bias', 'ln_post.weight', 'ln_post.bias', 'proj']:
-                        source_key = f'visual.{key}'
-                        target_key = f'mvs_encoder.{key}'
-                        if source_key in checkpoint['model_state_dict']:
-                            mvs_dict[target_key] = checkpoint['model_state_dict'][source_key]
-                    
-                    # 复制指定的transformer层
-                    for target_idx, source_idx in enumerate(mvs_layers_to_use):
-                        for param in ['attn.in_proj_weight', 'attn.in_proj_bias', 'attn.out_proj.weight', 'attn.out_proj.bias',
-                                    'ln_1.weight', 'ln_1.bias', 'ln_2.weight', 'ln_2.bias',
-                                    'mlp.c_fc.weight', 'mlp.c_fc.bias', 'mlp.c_proj.weight', 'mlp.c_proj.bias']:
-                            source_key = f'visual.transformer.resblocks.{source_idx}.{param}'
-                            target_key = f'mvs_encoder.transformer_blocks.{target_idx}.{param}'
-                            if source_key in checkpoint['model_state_dict']:
-                                mvs_dict[target_key] = checkpoint['model_state_dict'][source_key]
-                    
-                    # 加载到模型
-                    model.load_state_dict(mvs_dict, strict=False)
-                    logger.info(f"=> loaded pretrained weights for MVSEncoder from layers {mvs_layers_to_use}")
-                    
-                except Exception as e:
-                    logger.warning(f"=> failed to load MVSEncoder weights: {e}")
-            
             del checkpoint
         else:
             logger.info("=> no pretrain checkpoint found at '{}'".format(config.pretrain))
-
 
 
     classes,n_class = text_prompt(train_data, config)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
@@ -382,7 +353,7 @@ def main(args):
 
     if config.network.fix_text:
         for name, param in model.named_parameters():
-            if "visual" not in name and "logit_scale" not in name and "beta" not in name:
+            if "visual" not in name and "logit_scale" not in name:
                 param.requires_grad_(False)
   
     if config.network.fix_video:
@@ -453,6 +424,7 @@ def main(args):
                         save_sims(output_list, labels_list)
 
 
+
 def train(model, video_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
@@ -474,17 +446,19 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
         # lr_scheduler.step()
+
         data_time.update(time.time() - end)
         # b t3 h w
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
         ## 处理MV
-        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])  # b t 3 h w
-        # print("mvs.dataloader ",mvs.shape)
-        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
-        b, t, c_i, h, w = images.size()
+        mvs = images.view((-1, config.data.num_segments, 2) + images.size()[-2:])  # b t 3 h w
         b, t, c_m, h, w = mvs.size()
         mvs = mvs.view(-1, c_m, h, w)
+        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
+        b, t, c_i, h, w = images.size()
+
         images = images.view(-1, c_i, h, w)  # Flatten batch and time steps  b*t c h w 
+
         residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
         # Embedding MV RES
         # print("mvs.shape", mvs.shape)
@@ -501,7 +475,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
                 # embedding ，将prompt加在image前
                 # num_prompts = 3  # 添加的prompt tokens数量
                 
@@ -630,10 +604,10 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]  [cla,77,featdim512]
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
-            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            # mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
-            b, t, c_m, h, w = mv.size()
+            # b, t, c_m, h, w = mv.size()
 
             # if image.shape[2] == 2:
             #     image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
@@ -645,7 +619,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
 
-            mv_input = mv.to(device).view(-1, c_m, h, w)
+            # mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
             image_features, res_features = model.module.encode_image(image_input, residual_input)

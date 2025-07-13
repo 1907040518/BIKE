@@ -501,7 +501,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, texts, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
                 # embedding ，将prompt加在image前
                 # num_prompts = 3  # 添加的prompt tokens数量
                 
@@ -648,10 +648,10 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
-            image_features, res_features = model.module.encode_image(image_input, residual_input)
+            image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
             weights = F.softmax(model.module.beta, dim=0)  # 计算权重，确保数值范围正常
             # 按权重加和特征
-            merged_feats = weights[0] * image_features + weights[1] * res_features
+            merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
 
             merged_feats = merged_feats.view(b, t, -1)
 

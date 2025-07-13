@@ -939,7 +939,8 @@ class CLIP(nn.Module):
         self.token_embedding = nn.Embedding(vocab_size, transformer_width)
         self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
         self.ln_final = LayerNorm(transformer_width)
-        self.beta = nn.Parameter(torch.tensor([1., 1.], dtype=torch.float), requires_grad=True)
+        self.beta = nn.Parameter(torch.tensor([1.0, 1.0], dtype=torch.float), requires_grad=True)
+
         self.dropout = nn.Dropout(emb_dropout)
         self.emb_dropout = emb_dropout
         
@@ -993,7 +994,7 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res, mvs):
+    def encode_image(self, images, res):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
         
@@ -1004,14 +1005,8 @@ class CLIP(nn.Module):
             # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
             res_feat = self.visual(res.type(self.dtype))
         
-        # 编码MVS信息
-        if self.mvs_encoder is not None:
-            mvs_feat = self.mvs_encoder(mvs.type(self.dtype))
-        else:
-            # 如果没有专门的MVS编码器，则回退到使用完整的编码器
-            mvs_feat = self.visual(mvs.type(self.dtype))
         
-        return image_feat, res_feat, mvs_feat
+        return image_feat, res_feat
 
 
     def encode_text(self, text, return_token=False):
@@ -1038,13 +1033,13 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, residual, mv, text, return_token=False):
-        image_feats, residual_feats, mv_feats = self.encode_image(image, residual, mv)
+    def forward(self, image, residual,text, return_token=False):
+        image_feats, residual_feats= self.encode_image(image, residual)
         cls_feat, text_feats = self.encode_text(text, return_token)
         # 使用可学习的beta参数，并确保它参与反向传播
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + 0.1 * mv_feats
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats
 
 
 
