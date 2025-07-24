@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import time
@@ -36,7 +35,7 @@ from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
-from validation import validate_performance_fixed
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -77,7 +76,7 @@ def get_parser():
     parser.add_argument(
         "--precision",
         choices=["amp", "fp16", "fp32"],
-        default="amp",
+        default="fp32",
         help="Floating point precition."
     )        
     parser.add_argument('--no-accumulation', action='store_true',
@@ -365,8 +364,8 @@ def main(args):
         # print(video_head)
         # print(mv_head)
         # exit()
-        # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-        #       epoch, device, lr_scheduler, config, classes, logger)
+        analyze_model_complete(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+              epoch, device, lr_scheduler, config, classes, logger)
         # train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
 
@@ -374,7 +373,7 @@ def main(args):
             if config.data.dataset == 'charades':
                 prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate_performance_fixed(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -651,6 +650,311 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
     import sys; sys.exit(0)
 
 
+import time
+import torch
+import numpy as np
+from contextlib import suppress
+from thop import profile
+
+def analyze_model_complete(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+                          epoch, device, lr_scheduler, config, classes, logger):
+    """完整版模型分析器 - 包含数据加载和完整训练流程时间统计"""
+    
+    def analyze_module_safe(module, name, inputs):
+        """安全的模块分析"""
+        try:
+            flops, params = profile(module, inputs=inputs, verbose=False)
+            return flops, params
+        except Exception as e:
+            logger.warning(f"FLOPs分析失败 {name}: {str(e)}")
+            return 0, sum(p.numel() for p in module.parameters())
+
+    def benchmark_forward_pass(module, inputs, name, warmup_runs=3, benchmark_runs=10):
+        """基准测试纯前向传播时间"""
+        module.eval()
+        
+        # 预热
+        with torch.no_grad():
+            for _ in range(warmup_runs):
+                try:
+                    _ = module(*inputs)
+                except:
+                    logger.warning(f"预热失败 {name}")
+                    return 0, 0, 0
+        
+        # 同步GPU
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        
+        # 基准测试
+        times = []
+        with torch.no_grad():
+            for _ in range(benchmark_runs):
+                start_time = time.perf_counter()
+                try:
+                    output = module(*inputs)
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    end_time = time.perf_counter()
+                    times.append((end_time - start_time) * 1000)  # 转换为毫秒
+                except Exception as e:
+                    logger.warning(f"基准测试失败 {name}: {e}")
+                    return 0, 0, 0
+        
+        if times:
+            avg_time = np.mean(times)
+            std_time = np.std(times)
+            min_time = np.min(times)
+            return avg_time, std_time, min_time
+        else:
+            return 0, 0, 0
+
+    def benchmark_complete_training_step(model, video_head, mv_head, sample_data, 
+                                       criterion, device, config, classes, runs=5):
+        """基准测试完整训练步骤时间"""
+        model.train()
+        video_head.train() 
+        mv_head.train()
+        
+        autocast = torch.cuda.amp.autocast if hasattr(args, 'precision') and args.precision == 'amp' else suppress
+        
+        times = {
+            'data_prep': [],
+            'forward': [],
+            'loss_calc': [],
+            'backward': [],
+            'total_step': []
+        }
+        
+        for run in range(runs):
+            # 重新获取数据模拟数据加载
+            images, mvs, residuals, list_id = sample_data
+            
+            # === 1. 数据准备时间 ===
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+            data_prep_start = time.perf_counter()
+            
+            # 完全复制训练函数的数据预处理
+            images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
+            mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
+            residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
+            
+            b, t, c_i, h, w = images.size()
+            b, t, c_m, h, w = mvs.size()
+            images = images.view(-1, c_i, h, w).to(device)
+            mvs = mvs.view(-1, c_m, h, w).to(device)
+            residuals = residuals.view(-1, c_i, h, w).to(device)
+            texts = classes[list_id].to(device)
+            
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+            data_prep_end = time.perf_counter()
+            times['data_prep'].append((data_prep_end - data_prep_start) * 1000)
+            
+            # === 2. 前向传播时间 ===
+            forward_start = time.perf_counter()
+            
+            with autocast():
+                try:
+                    # 主模型前向传播
+                    image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(
+                        images, mvs, residuals, texts, return_token=True
+                    )
+                    
+                    # 重塑维度
+                    image_embedding = image_embedding.view(b, t, -1)
+                    mv_embedding = mv_embedding.view(b, t, -1)
+                    
+                    # Head前向传播
+                    logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
+                    logits_mv = logit_scale * mv_head(mv_embedding, text_embedding, cls_embedding)
+                    
+                    # 加权组合
+                    weight_logits = 0.4
+                    weight_logits_mv = 0.6
+                    combined_logits = logits * weight_logits + logits_mv * weight_logits_mv
+                    
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    forward_end = time.perf_counter()
+                    times['forward'].append((forward_end - forward_start) * 1000)
+                    
+                    # === 3. 损失计算时间 ===
+                    loss_start = time.perf_counter()
+                    
+                    # 模拟损失计算（简化版）
+                    batch_size = combined_logits.size(0)
+                    ground_truth = torch.arange(batch_size, dtype=combined_logits.dtype, device=device)
+                    loss_imgs = criterion(combined_logits, ground_truth)
+                    loss_texts = criterion(combined_logits.T, ground_truth)
+                    loss = (loss_imgs + loss_texts) / 2
+                    
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    loss_end = time.perf_counter()
+                    times['loss_calc'].append((loss_end - loss_start) * 1000)
+                    
+                    # === 4. 反向传播时间 ===
+                    backward_start = time.perf_counter()
+                    
+                    # 模拟反向传播（不实际更新参数）
+                    loss.backward()
+                    
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    backward_end = time.perf_counter()
+                    times['backward'].append((backward_end - backward_start) * 1000)
+                    
+                    # 清除梯度
+                    model.zero_grad()
+                    video_head.zero_grad()
+                    mv_head.zero_grad()
+                    
+                except Exception as e:
+                    logger.warning(f"完整训练步骤基准测试失败: {e}")
+                    return None
+            
+            # 总时间
+            total_time = times['data_prep'][-1] + times['forward'][-1] + times['loss_calc'][-1] + times['backward'][-1]
+            times['total_step'].append(total_time)
+        
+        # 计算统计信息
+        stats = {}
+        for key, time_list in times.items():
+            if time_list:
+                stats[key] = {
+                    'avg': np.mean(time_list),
+                    'std': np.std(time_list),
+                    'min': np.min(time_list),
+                    'max': np.max(time_list)
+                }
+            else:
+                stats[key] = {'avg': 0, 'std': 0, 'min': 0, 'max': 0}
+        
+        return stats
+
+    # === 开始分析 ===
+    logger.info("\n🔍 开始完整模型分析...")
+    
+    # 获取样本数据
+    sample = next(iter(train_loader))
+    images, mvs, residuals, list_id = sample
+    
+    # 数据预处理（用于FLOPs分析）
+    images_processed = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
+    mvs_processed = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
+    residuals_processed = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
+    
+    b, t, c_i, h, w = images_processed.size()
+    images_flat = images_processed.view(-1, c_i, h, w).to(device)
+    mvs_flat = mvs_processed.view(-1, mvs_processed.shape[2], h, w).to(device)
+    residuals_flat = residuals_processed.view(-1, residuals_processed.shape[2], h, w).to(device)
+    texts = classes[list_id].to(device)
+    
+    logger.info(f"📊 数据维度: Images{images_flat.shape}, MVs{mvs_flat.shape}, Batch={b}, Time={t}")
+    
+    # === 1. FLOPs和参数分析 ===
+    logger.info("\n===== FLOPs和参数分析 =====")
+    
+    model.eval()
+    video_head.eval()
+    mv_head.eval()
+    
+    with torch.no_grad():
+        try:
+            image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(
+                images_flat, mvs_flat, residuals_flat, texts, return_token=True
+            )
+            image_embedding = image_embedding.view(b, t, -1)
+            mv_embedding = mv_embedding.view(b, t, -1)
+        except Exception as e:
+            logger.error(f"获取特征失败: {e}")
+            feature_dim = 768
+            image_embedding = torch.randn(b, t, feature_dim).to(device)
+            mv_embedding = torch.randn(b, t, feature_dim).to(device)
+            cls_embedding = torch.randn(b, feature_dim).to(device)
+            text_embedding = torch.randn(b, 77, feature_dim).to(device)
+    
+    components = [
+        (model, "Main Model", (images_flat, mvs_flat, residuals_flat, texts, False)),
+        (video_head, "Video Head", (image_embedding, text_embedding, cls_embedding)),
+        (mv_head, "MV Head", (mv_embedding, text_embedding, cls_embedding))
+    ]
+    
+    total_flops = 0
+    total_params = 0
+    tunable_params = 0
+    
+    for module, name, inputs in components:
+        flops, params = analyze_module_safe(module, name, inputs)
+        mod_tunable = sum(p.numel() for p in module.parameters() if p.requires_grad)
+        mod_total = sum(p.numel() for p in module.parameters())
+        
+        total_flops += flops
+        total_params += mod_total
+        tunable_params += mod_tunable
+        
+        # 纯前向传播时间
+        avg_time, std_time, min_time = benchmark_forward_pass(module, inputs, name)
+        
+        logger.info(f"\n** {name} **")
+        logger.info(f"FLOPs: {flops/1e9:.2f}G")
+        logger.info(f"Params: {mod_total/1e6:.2f}M (Tunable: {mod_tunable/1e6:.2f}M)")
+        logger.info(f"⏱️  纯前向时间: {avg_time:.2f}±{std_time:.2f}ms")
+        
+        if flops > 0 and avg_time > 0:
+            throughput = flops / (avg_time / 1000) / 1e9
+            logger.info(f"🚀 计算吞吐量: {throughput:.2f} GFLOPs/s")
+    
+    # === 2. 完整训练步骤时间分析 ===
+    logger.info("\n===== 完整训练步骤时间分析 =====")
+    
+    step_stats = benchmark_complete_training_step(
+        model, video_head, mv_head, sample, criterion, device, config, classes
+    )
+    
+    if step_stats:
+        logger.info("📊 训练步骤时间分解:")
+        logger.info(f"   📥 数据准备: {step_stats['data_prep']['avg']:.2f}±{step_stats['data_prep']['std']:.2f}ms")
+        logger.info(f"   🔄 前向传播: {step_stats['forward']['avg']:.2f}±{step_stats['forward']['std']:.2f}ms")
+        logger.info(f"   📊 损失计算: {step_stats['loss_calc']['avg']:.2f}±{step_stats['loss_calc']['std']:.2f}ms")
+        logger.info(f"   🔙 反向传播: {step_stats['backward']['avg']:.2f}±{step_stats['backward']['std']:.2f}ms")
+        logger.info(f"   ⏱️  总计时间: {step_stats['total_step']['avg']:.2f}±{step_stats['total_step']['std']:.2f}ms")
+        
+        # 时间占比分析
+        total_avg = step_stats['total_step']['avg']
+        if total_avg > 0:
+            logger.info("\n📈 时间占比分析:")
+            logger.info(f"   数据准备: {step_stats['data_prep']['avg']/total_avg*100:.1f}%")
+            logger.info(f"   前向传播: {step_stats['forward']['avg']/total_avg*100:.1f}%")
+            logger.info(f"   损失计算: {step_stats['loss_calc']['avg']/total_avg*100:.1f}%")
+            logger.info(f"   反向传播: {step_stats['backward']['avg']/total_avg*100:.1f}%")
+        
+        # 吞吐量和预估
+        if total_avg > 0:
+            samples_per_sec = b / (total_avg / 1000)
+            logger.info(f"\n🚀 实际训练吞吐量: {samples_per_sec:.1f} samples/s")
+            
+            if hasattr(train_loader, '__len__'):
+                epoch_time_min = len(train_loader) * total_avg / 1000 / 60
+                logger.info(f"⏰ 预估epoch时间: {epoch_time_min:.1f}分钟")
+    
+    # === 3. 全局统计 ===
+    logger.info("\n===== 全局统计 =====")
+    logger.info(f"总计算量: {total_flops/1e9:.2f} GFLOPs")
+    logger.info(f"总参数量: {total_params/1e6:.2f}M")
+    logger.info(f"可训练参数: {tunable_params/1e6:.2f}M ({tunable_params/total_params*100:.2f}%)")
+    
+    # GPU内存分析
+    if torch.cuda.is_available():
+        current_memory = torch.cuda.memory_allocated() / 1024**3
+        max_memory = torch.cuda.max_memory_allocated() / 1024**3
+        logger.info(f"💾 GPU内存: {current_memory:.2f}GB (峰值: {max_memory:.2f}GB)")
+    
+    logger.info("\n✅ 完整模型分析完成！")
+    import sys; sys.exit(0)
+
 def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
@@ -821,25 +1125,6 @@ def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion,
         texts = classes # n_cls 77
 
 
-# 1. 导入性能测试函数
-from performance_validation import validate_with_timing, benchmark_data_loading
-
-def validate_performance(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
-    """完全使用性能测试函数"""
-    logger.info("🚀 Using performance validation...")
-    
-    # 直接使用性能测试函数
-    top1, sims_list, labels_list, timing_stats = validate_with_timing(
-        epoch, val_loader, classes, device,
-        model, video_head, mv_head, config, n_class, logger,
-        return_sim=return_sim
-    )
-    
-    # 保存性能报告
-    with open(f'performance_report_epoch_{epoch}.json', 'w') as f:
-        json.dump({'timing_stats': timing_stats, 'accuracy': {'top1': top1}}, f, indent=2)
-    
-    return top1, sims_list, labels_list
 
 
 

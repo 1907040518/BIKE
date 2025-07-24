@@ -1,0 +1,226 @@
+[07/18 16:00:01] BIKE INFO: ------------------------------------
+[07/18 16:00:01] BIKE INFO: Environment Versions:
+[07/18 16:00:01] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[07/18 16:00:01] BIKE INFO: - PyTorch: 1.12.1
+[07/18 16:00:01] BIKE INFO: - TorchVison: 0.13.1
+[07/18 16:00:01] BIKE INFO: ------------------------------------
+[07/18 16:00:01] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 1,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'Block': 'Origin',
+                   'M_Align': 'VCS',
+                   'S_Align': 'VCS',
+                   'arch': 'ViT-B/16',
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': True,
+                   'init': True,
+                   'interaction': 'VCS',
+                   'joint_st': False,
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'use_text_prompt_learning': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 20,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'mv_lr_ratio': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/18 16:00:01] BIKE INFO: ------------------------------------
+[07/18 16:00:01] BIKE INFO: storing name: exps/hmdb51/ViT-B/16/20250718_155958
+[07/18 16:00:03] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7bb77c0e78e0>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7bb77c0e7dc0>]
+[07/18 16:00:03] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7bb7700762b0>, <Coviar.transforms.GroupCenterCrop object at 0x7bb75c3e5eb0>]
+[07/18 16:00:04] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/18 16:00:07] BIKE INFO: 
+===== 主模型结构分析 =====
+[07/18 16:00:07] BIKE INFO: ├─ 🔓 module [CLIP] Params: 149.62M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   ├─ 🔒 visual [VisualTransformer] Params: 86.19M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 conv1 [Conv2d] Params: 0.59M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 dropout [Dropout] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 ln_pre [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 transformer [V_Transformer] Params: 85.05M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 resblocks [Sequential] Params: 85.05M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 ln_post [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   ├─ 🔒 transformer [Transformer] Params: 37.83M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   ├─ 🔒 resblocks [ModuleList] Params: 37.83M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 0 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 1 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 2 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 3 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 4 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 5 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 6 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 7 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 8 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 9 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 10 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   │   │   ├─ 🔒 11 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   ├─ 🔒 token_embedding [Embedding] Params: 25.30M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   ├─ 🔒 ln_final [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:00:07] BIKE INFO: │   ├─ 🔒 dropout [Dropout] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:00:09] BIKE WARNING: 使用模拟特征进行Head分析
+[07/18 16:00:09] BIKE INFO: 
+** Main Model **
+[07/18 16:00:09] BIKE INFO: FLOPs: 542.91G ✅
+[07/18 16:00:09] BIKE INFO: Params: 149.62M (Tunable: 0.00M)
+[07/18 16:00:09] BIKE INFO: Parameter占比: 0.0%
+[07/18 16:00:09] BIKE INFO: 主要层结构:
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.conv1: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.3.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.3.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.3.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.4.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.4.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.4.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.5.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.5.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.5.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.6.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.6.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.6.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.7.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.7.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.7.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.8.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.8.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.8.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.9.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.9.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.9.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.10.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.10.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.10.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.11.attn.out_proj: 0.59M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.11.mlp.c_fc: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.visual.transformer.resblocks.11.mlp.c_proj: 2.36M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.0.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.0.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.0.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.1.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.1.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.1.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.2.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.2.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.2.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.3.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.3.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.3.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.4.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.4.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.4.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.5.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.5.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.5.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.6.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.6.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.6.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.7.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.7.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.7.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.8.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.8.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.8.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.9.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.9.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.9.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.10.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.10.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.10.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.11.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.11.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.transformer.resblocks.11.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔒 module.token_embedding: 25.30M
+[07/18 16:00:09] BIKE WARNING: FLOPs分析失败 Video Head: forward() missing 2 required positional arguments: 'text_emb' and 'cls_emb'
+[07/18 16:00:09] BIKE INFO: 
+** Video Head **
+[07/18 16:00:09] BIKE INFO: FLOPs: 0.00G ⚠️ (无法计算)
+[07/18 16:00:09] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 16:00:09] BIKE INFO: Parameter占比: 100.0%
+[07/18 16:00:09] BIKE INFO: 主要层结构:
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE WARNING: FLOPs分析失败 MV Head: forward() missing 2 required positional arguments: 'text_emb' and 'cls_emb'
+[07/18 16:00:09] BIKE INFO: 
+** MV Head **
+[07/18 16:00:09] BIKE INFO: FLOPs: 0.00G ⚠️ (无法计算)
+[07/18 16:00:09] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 16:00:09] BIKE INFO: Parameter占比: 100.0%
+[07/18 16:00:09] BIKE INFO: 主要层结构:
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.3.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.4.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.attn.out_proj: 0.26M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.mlp.c_fc: 1.05M
+[07/18 16:00:09] BIKE INFO:   🔓 module.transformer.resblocks.5.mlp.c_proj: 1.05M
+[07/18 16:00:09] BIKE INFO: 
+===== 全局统计 =====
+[07/18 16:00:09] BIKE INFO: 总计算量: 542.91 GFLOPs
+[07/18 16:00:09] BIKE INFO: 总参数量: 187.53M
+[07/18 16:00:09] BIKE INFO: 可训练参数: 37.91M
+[07/18 16:00:09] BIKE INFO: 可训练参数占比: 20.21%
+[07/18 16:00:09] BIKE INFO: PEFT效率: ❌ 低效 (20.21%)

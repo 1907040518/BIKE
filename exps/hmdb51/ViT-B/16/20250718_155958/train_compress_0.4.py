@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import time
@@ -36,7 +35,7 @@ from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
-from validation import validate_performance_fixed
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -77,7 +76,7 @@ def get_parser():
     parser.add_argument(
         "--precision",
         choices=["amp", "fp16", "fp32"],
-        default="amp",
+        default="fp32",
         help="Floating point precition."
     )        
     parser.add_argument('--no-accumulation', action='store_true',
@@ -365,8 +364,8 @@ def main(args):
         # print(video_head)
         # print(mv_head)
         # exit()
-        # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-        #       epoch, device, lr_scheduler, config, classes, logger)
+        analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+              epoch, device, lr_scheduler, config, classes, logger)
         # train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
 
@@ -374,7 +373,7 @@ def main(args):
             if config.data.dataset == 'charades':
                 prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate_performance_fixed(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -389,15 +388,9 @@ def main(args):
                     if save_score:
                         save_sims(output_list, labels_list)
 
-import time
-import torch
-import numpy as np
-from contextlib import suppress
-from thop import profile
-
 def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-                          epoch, device, lr_scheduler, config, classes, logger):
-    """完善版模型分析函数 - 基于真实训练流程"""
+                       epoch, device, lr_scheduler, config, classes, logger):
+    """修复版本的模型分析函数"""
     
     def analyze_module_safe(module, name, inputs):
         """安全的模块分析"""
@@ -406,6 +399,7 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
             return flops, params
         except Exception as e:
             logger.warning(f"FLOPs分析失败 {name}: {str(e)}")
+            # 返回0，但仍然可以统计参数
             return 0, sum(p.numel() for p in module.parameters())
 
     def print_hierarchy(module, prefix="", depth=0):
@@ -420,164 +414,80 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
                        f"Params: {params/1e6:.2f}M (Tunable: {tunable/1e6:.2f}M)")
             print_hierarchy(child, prefix + "│   ", depth+1)
 
-    def benchmark_forward_pass(module, inputs, name, warmup_runs=3, benchmark_runs=10):
-        """基准测试前向传播时间"""
-        module.eval()
-        
-        # 预热
-        with torch.no_grad():
-            for _ in range(warmup_runs):
-                try:
-                    _ = module(*inputs)
-                except:
-                    logger.warning(f"预热失败 {name}")
-                    return 0, 0, 0
-        
-        # 同步GPU
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-        
-        # 基准测试
-        times = []
-        with torch.no_grad():
-            for _ in range(benchmark_runs):
-                start_time = time.perf_counter()
-                try:
-                    output = module(*inputs)
-                    if torch.cuda.is_available():
-                        torch.cuda.synchronize()
-                    end_time = time.perf_counter()
-                    times.append((end_time - start_time) * 1000)  # 转换为毫秒
-                except Exception as e:
-                    logger.warning(f"基准测试失败 {name}: {e}")
-                    return 0, 0, 0
-        
-        if times:
-            avg_time = np.mean(times)
-            std_time = np.std(times)
-            min_time = np.min(times)
-            return avg_time, std_time, min_time
-        else:
-            return 0, 0, 0
-
-    # 获取样本数据 - 完全按照训练函数的预处理流程
-    logger.info("\n🔍 获取样本数据进行分析...")
+    # 获取样本数据
     sample = next(iter(train_loader))
     images, mvs, residuals, list_id = sample
     
-    # === 完全复制训练函数的数据预处理流程 ===
-    images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
-    mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])  # b t 2 h w
-    residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])  # b t 3 h w
+    # 数据预处理（与原始代码保持一致）
+    images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
+    mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
+    residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
     
     b, t, c_i, h, w = images.size()
-    b, t, c_m, h, w = mvs.size()
-    
-    # 展平处理
-    images = images.view(-1, c_i, h, w).to(device)  # (b*t, 3, h, w)
-    mvs = mvs.view(-1, c_m, h, w).to(device)       # (b*t, 2, h, w)
-    residuals = residuals.view(-1, c_i, h, w).to(device)  # (b*t, 3, h, w)
-    texts = classes[list_id].to(device)  # (bs, 77)
-    
-    logger.info(f"📊 数据维度:")
-    logger.info(f"   Images: {images.shape}")
-    logger.info(f"   MVs: {mvs.shape}")
-    logger.info(f"   Residuals: {residuals.shape}")
-    logger.info(f"   Texts: {texts.shape}")
-    logger.info(f"   Batch size: {b}, Time steps: {t}")
+    print("image shape:", images.shape)
+    images = images.view(-1, c_i, h, w).to(device)
+    mvs = mvs.view(-1, mvs.shape[2], h, w).to(device)
+    residuals = residuals.view(-1, residuals.shape[2], h, w).to(device)
+    texts = classes[list_id].to(device)
 
     # 主模型结构分析
     logger.info("\n===== 主模型结构分析 =====")
     print_hierarchy(model)
     
-    # === 获取真实的中间特征 - 按照训练流程 ===
-    logger.info("\n🔧 获取真实的中间特征...")
+    # 🔧 关键修复：获取真实的中间特征
     model.eval()
-    video_head.eval()
-    mv_head.eval()
-    
-    # 使用与训练相同的autocast设置
-    autocast = torch.cuda.amp.autocast if hasattr(args, 'precision') and args.precision == 'amp' else suppress
-    
-    with torch.no_grad(), autocast():
+    with torch.no_grad():
         try:
-            # 完全按照训练函数的forward流程
-            image_embedding, mv_embedding, cls_embedding, text_embedding, logit_scale = model(
-                images, mvs, residuals, texts, return_token=True
-            )
-            
-            # 按照训练函数重塑维度
-            image_embedding = image_embedding.view(b, t, -1)  # (b, t, 768)
-            mv_embedding = mv_embedding.view(b, t, -1)        # (b, t, 768)
-            
-            logger.info(f"✅ 成功获取真实特征:")
-            logger.info(f"   Image embedding: {image_embedding.shape}")
-            logger.info(f"   MV embedding: {mv_embedding.shape}")
-            logger.info(f"   CLS embedding: {cls_embedding.shape}")
-            logger.info(f"   Text embedding: {text_embedding.shape if text_embedding is not None else 'None'}")
-            logger.info(f"   Logit scale: {logit_scale.item():.4f}")
-            
+            # 尝试获取模型的中间特征
+            # 这里需要根据您的模型结构调整
+            if hasattr(model, 'get_features'):
+                features = model.get_features(images, mvs, residuals, texts)
+            else:
+                # 通过forward获取特征（可能需要修改模型返回特征）
+                output = model(images, mvs, residuals, texts, False)
+                # 假设模型输出是logits，我们需要特征
+                # 创建合理的特征维度
+                batch_size = images.shape[0]
+                features = torch.randn(batch_size, 512).to(device)  # 假设特征维度是512
+                logger.warning("使用模拟特征进行Head分析")
         except Exception as e:
-            logger.error(f"❌ 获取真实特征失败: {e}")
-            # 创建模拟特征
-            feature_dim = 768  # 根据您的模型调整
-            image_embedding = torch.randn(b, t, feature_dim).to(device)
-            mv_embedding = torch.randn(b, t, feature_dim).to(device)
-            cls_embedding = torch.randn(b, feature_dim).to(device)
-            text_embedding = torch.randn(b, 77, feature_dim).to(device)
-            logit_scale = torch.tensor(4.6052).to(device)  # ln(100)
-            logger.warning("使用模拟特征进行分析")
+            logger.warning(f"无法获取真实特征: {e}")
+            batch_size = images.shape[0]
+            features = torch.randn(batch_size, 512).to(device)
 
-    # === 组件定义 - 使用真实的输入格式 ===
+    # 🔧 修复后的组件定义
     components = [
         (model, "Main Model", (images, mvs, residuals, texts, False)),
-        (video_head, "Video Head", (image_embedding, text_embedding, cls_embedding)),
-        (mv_head, "MV Head", (mv_embedding, text_embedding, cls_embedding))
+        (video_head, "Video Head", (features,)),  # ✅ 只传递特征，移除None
+        (mv_head, "MV Head", (features,))         # ✅ 只传递特征，移除None
     ]
 
-    # === 综合分析 ===
     total_flops = 0
     total_params = 0
     tunable_params = 0
-    total_forward_time = 0
-    
-    logger.info("\n===== 模块详细分析 =====")
-    
+
     for module, name, inputs in components:
-        logger.info(f"\n🔍 分析 {name}...")
-        
-        # 1. 计算FLOPs和Params
+        # 计算FLOPs和Params（安全版本）
         flops, params = analyze_module_safe(module, name, inputs)
         
-        # 2. 统计参数
+        # 统计参数
         mod_tunable = sum(p.numel() for p in module.parameters() if p.requires_grad)
         mod_total = sum(p.numel() for p in module.parameters())
-        
-        # 3. 前向传播时间基准测试
-        avg_time, std_time, min_time = benchmark_forward_pass(module, inputs, name)
         
         # 累计总量
         total_flops += flops
         total_params += mod_total
         tunable_params += mod_tunable
-        total_forward_time += avg_time
 
         # 打印模块信息
         logger.info(f"\n** {name} **")
         logger.info(f"FLOPs: {flops/1e9:.2f}G {'✅' if flops > 0 else '⚠️ (无法计算)'}")
         logger.info(f"Params: {mod_total/1e6:.2f}M (Tunable: {mod_tunable/1e6:.2f}M)")
         logger.info(f"Parameter占比: {mod_tunable/mod_total*100:.1f}%")
-        logger.info(f"⏱️  前向传播时间: {avg_time:.2f}±{std_time:.2f}ms (最快: {min_time:.2f}ms)")
         
-        # 计算效率指标
-        if flops > 0 and avg_time > 0:
-            throughput = flops / (avg_time / 1000) / 1e9  # GFLOPs/s
-            logger.info(f"🚀 计算吞吐量: {throughput:.2f} GFLOPs/s")
-        
-        # 显示主要层结构（只对大模块）
-        if mod_total > 1e6:
+        # 🆕 额外信息：显示模块的主要层
+        if mod_total > 1e6:  # 只对大模块显示详细信息
             logger.info("主要层结构:")
-            layer_count = 0
             for layer_name, layer in module.named_modules():
                 if len(list(layer.children())) == 0:  # 叶子节点
                     layer_params = sum(p.numel() for p in layer.parameters())
@@ -585,20 +495,15 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
                         layer_tunable = sum(p.numel() for p in layer.parameters() if p.requires_grad)
                         status = "🔓" if layer_tunable > 0 else "🔒"
                         logger.info(f"  {status} {layer_name}: {layer_params/1e6:.2f}M")
-                        layer_count += 1
-                        if layer_count >= 10:  # 限制显示数量
-                            logger.info("  ... (更多层)")
-                            break
 
-    # === 全局统计和性能分析 ===
+    # 全局统计
     logger.info("\n===== 全局统计 =====")
     logger.info(f"总计算量: {total_flops/1e9:.2f} GFLOPs")
     logger.info(f"总参数量: {total_params/1e6:.2f}M")
     logger.info(f"可训练参数: {tunable_params/1e6:.2f}M")
     logger.info(f"可训练参数占比: {tunable_params/total_params*100:.2f}%")
-    logger.info(f"⏱️  总前向传播时间: {total_forward_time:.2f}ms")
     
-    # PEFT效率评估
+    # 🆕 PEFT效率评估
     peft_ratio = tunable_params/total_params*100
     if peft_ratio < 1:
         efficiency = "🏆 极高效"
@@ -610,46 +515,9 @@ def analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion
         efficiency = "❌ 低效"
     
     logger.info(f"PEFT效率: {efficiency} ({peft_ratio:.2f}%)")
-    
-    # === 性能预估 ===
-    logger.info("\n===== 性能预估 =====")
-    if total_forward_time > 0:
-        # 预估训练时间（考虑前向+反向+优化器步骤）
-        estimated_backward_time = total_forward_time * 2  # 反向传播通常是前向的2倍
-        estimated_step_time = total_forward_time + estimated_backward_time + 5  # +5ms优化器开销
-        
-        logger.info(f"📊 单步训练时间预估:")
-        logger.info(f"   前向传播: {total_forward_time:.2f}ms")
-        logger.info(f"   反向传播: {estimated_backward_time:.2f}ms (估算)")
-        logger.info(f"   总计: {estimated_step_time:.2f}ms")
-        
-        # 预估吞吐量
-        batch_throughput = b / (estimated_step_time / 1000)  # samples/s
-        logger.info(f"🚀 训练吞吐量: {batch_throughput:.1f} samples/s")
-        
-        # 预估epoch时间
-        if hasattr(train_loader, '__len__'):
-            epoch_time_min = len(train_loader) * estimated_step_time / 1000 / 60
-            logger.info(f"⏰ 预估epoch时间: {epoch_time_min:.1f}分钟")
 
-    # === 内存使用分析 ===
-    logger.info("\n===== 内存使用分析 =====")
-    if torch.cuda.is_available():
-        # 获取当前GPU内存使用
-        current_memory = torch.cuda.memory_allocated() / 1024**3  # GB
-        max_memory = torch.cuda.max_memory_allocated() / 1024**3  # GB
-        logger.info(f"💾 当前GPU内存: {current_memory:.2f}GB")
-        logger.info(f"💾 峰值GPU内存: {max_memory:.2f}GB")
-        
-        # 预估模型内存占用
-        param_memory = total_params * 4 / 1024**3  # 假设float32，4字节
-        logger.info(f"💾 模型参数内存: {param_memory:.2f}GB")
-
-    logger.info("\n✅ 模型分析完成！")
-    
     # 立即退出
     import sys; sys.exit(0)
-
 
 def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
@@ -821,25 +689,6 @@ def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion,
         texts = classes # n_cls 77
 
 
-# 1. 导入性能测试函数
-from performance_validation import validate_with_timing, benchmark_data_loading
-
-def validate_performance(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
-    """完全使用性能测试函数"""
-    logger.info("🚀 Using performance validation...")
-    
-    # 直接使用性能测试函数
-    top1, sims_list, labels_list, timing_stats = validate_with_timing(
-        epoch, val_loader, classes, device,
-        model, video_head, mv_head, config, n_class, logger,
-        return_sim=return_sim
-    )
-    
-    # 保存性能报告
-    with open(f'performance_report_epoch_{epoch}.json', 'w') as f:
-        json.dump({'timing_stats': timing_stats, 'accuracy': {'top1': top1}}, f, indent=2)
-    
-    return top1, sims_list, labels_list
 
 
 

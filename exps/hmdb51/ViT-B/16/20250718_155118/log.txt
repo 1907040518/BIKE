@@ -1,0 +1,110 @@
+[07/18 15:51:21] BIKE INFO: ------------------------------------
+[07/18 15:51:21] BIKE INFO: Environment Versions:
+[07/18 15:51:21] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[07/18 15:51:21] BIKE INFO: - PyTorch: 1.12.1
+[07/18 15:51:21] BIKE INFO: - TorchVison: 0.13.1
+[07/18 15:51:21] BIKE INFO: ------------------------------------
+[07/18 15:51:21] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 8,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'Block': 'Origin',
+                   'M_Align': 'VCS',
+                   'S_Align': 'VCS',
+                   'arch': 'ViT-B/16',
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': True,
+                   'init': True,
+                   'interaction': 'VCS',
+                   'joint_st': False,
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'use_text_prompt_learning': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 20,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'mv_lr_ratio': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/18 15:51:21] BIKE INFO: ------------------------------------
+[07/18 15:51:21] BIKE INFO: storing name: exps/hmdb51/ViT-B/16/20250718_155118
+[07/18 15:51:24] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7a8f45a5b850>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7a8f45a5bd30>]
+[07/18 15:51:24] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7a8f35f15220>, <Coviar.transforms.GroupCenterCrop object at 0x7a8f35ba4f70>]
+[07/18 15:51:24] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/18 15:51:30] BIKE INFO: 
+===== 主模型结构分析 =====
+[07/18 15:51:30] BIKE INFO: ├─ module [CLIP] Params: 149.62M
+[07/18 15:51:30] BIKE INFO: │   ├─ visual [VisualTransformer] Params: 86.19M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ conv1 [Conv2d] Params: 0.59M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ dropout [Dropout] Params: 0.00M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ ln_pre [LayerNorm] Params: 0.00M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ transformer [V_Transformer] Params: 85.05M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ resblocks [Sequential] Params: 85.05M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ ln_post [LayerNorm] Params: 0.00M
+[07/18 15:51:30] BIKE INFO: │   ├─ transformer [Transformer] Params: 37.83M
+[07/18 15:51:30] BIKE INFO: │   │   ├─ resblocks [ModuleList] Params: 37.83M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 0 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 1 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 2 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 3 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 4 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 5 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 6 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 7 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 8 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 9 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 10 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   │   │   ├─ 11 [ResidualAttentionBlock] Params: 3.15M
+[07/18 15:51:30] BIKE INFO: │   ├─ token_embedding [Embedding] Params: 25.30M
+[07/18 15:51:30] BIKE INFO: │   ├─ ln_final [LayerNorm] Params: 0.00M
+[07/18 15:51:30] BIKE INFO: │   ├─ dropout [Dropout] Params: 0.00M
+[07/18 15:51:33] BIKE INFO: 
+** Main Model ​**
+[07/18 15:51:33] BIKE INFO: FLOPs: 4343.32G
+[07/18 15:51:33] BIKE INFO: Params: 149.62M (Tunable: 0.00M)
+[07/18 15:51:33] BIKE INFO: Parameter占比: 0.0%
+[07/18 15:51:33] BIKE WARNING: 无法分析 Video Head: 'NoneType' object has no attribute 'norm'
+[07/18 15:51:33] BIKE INFO: 
+** Video Head ​**
+[07/18 15:51:33] BIKE INFO: FLOPs: 0.00G
+[07/18 15:51:33] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 15:51:33] BIKE INFO: Parameter占比: 100.0%
+[07/18 15:51:33] BIKE WARNING: 无法分析 MV Head: 'NoneType' object has no attribute 'norm'
+[07/18 15:51:33] BIKE INFO: 
+** MV Head ​**
+[07/18 15:51:33] BIKE INFO: FLOPs: 0.00G
+[07/18 15:51:33] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 15:51:33] BIKE INFO: Parameter占比: 100.0%
+[07/18 15:51:33] BIKE INFO: 
+===== 全局统计 =====
+[07/18 15:51:33] BIKE INFO: 总计算量: 4343.32 GFLOPs
+[07/18 15:51:33] BIKE INFO: 总参数量: 187.53M
+[07/18 15:51:33] BIKE INFO: 可训练参数占比: 20.2%

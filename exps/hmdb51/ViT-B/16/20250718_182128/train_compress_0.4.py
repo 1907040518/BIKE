@@ -36,7 +36,7 @@ from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
-from validation import validate_performance_fixed
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -77,7 +77,7 @@ def get_parser():
     parser.add_argument(
         "--precision",
         choices=["amp", "fp16", "fp32"],
-        default="amp",
+        default="fp32",
         help="Floating point precition."
     )        
     parser.add_argument('--no-accumulation', action='store_true',
@@ -374,7 +374,7 @@ def main(args):
             if config.data.dataset == 'charades':
                 prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate_performance_fixed(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate_performance(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1

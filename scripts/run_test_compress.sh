@@ -7,6 +7,6 @@ else
 fi
 
 weight=$2
-export CUDA_VISIBLE_DEVICES=5,6
+export CUDA_VISIBLE_DEVICES=0,1
 python -m torch.distributed.launch --master_port 1239 --nproc_per_node=2 \
-    test_compress.py --config ${config} --weights ${weight} ${@:3}
+    test_modified.py --config ${config} --weights ${weight} ${@:3}

@@ -1,0 +1,461 @@
+[07/20 21:10:09] BIKE INFO: ------------------------------------
+[07/20 21:10:09] BIKE INFO: Environment Versions:
+[07/20 21:10:09] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[07/20 21:10:09] BIKE INFO: - PyTorch: 1.12.1
+[07/20 21:10:09] BIKE INFO: - TorchVison: 0.13.1
+[07/20 21:10:09] BIKE INFO: ------------------------------------
+[07/20 21:10:09] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 8,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'Block': 'Origin',
+                   'M_Align': 'VCS',
+                   'S_Align': 'VCS',
+                   'arch': 'ViT-B/16',
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'VCS',
+                   'joint_st': False,
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'use_text_prompt_learning': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 20,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'mv_lr_ratio': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/20 21:10:09] BIKE INFO: ------------------------------------
+[07/20 21:10:09] BIKE INFO: storing name: exps/hmdb51/ViT-B/16/20250720_211006
+[07/20 21:10:12] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7370e11ec790>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7370e11ecf70>]
+[07/20 21:10:12] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7370e11ecfd0>, <Coviar.transforms.GroupCenterCrop object at 0x7370e11ecf10>]
+[07/20 21:10:13] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/20 21:10:14] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:10:14] BIKE INFO: 🔤 Text encoding time: 0.1626s
+[07/20 21:10:19] BIKE INFO: Test: [0/96]	Prec@1 37.500 (37.500)	Prec@5 68.750 (68.750)	DataLoad 2.5276s (2.5276s)	Inference 2.1301s (2.1301s)	FPS 0.47
+[07/20 21:10:25] BIKE INFO: Test: [10/96]	Prec@1 12.500 (24.432)	Prec@5 68.750 (60.227)	DataLoad 0.0452s (0.2601s)	Inference 0.2921s (0.4582s)	FPS 2.18
+[07/20 21:10:31] BIKE INFO: Test: [20/96]	Prec@1 25.000 (28.274)	Prec@5 75.000 (59.226)	DataLoad 0.0304s (0.1524s)	Inference 0.2884s (0.3790s)	FPS 2.64
+[07/20 21:10:37] BIKE INFO: Test: [30/96]	Prec@1 31.250 (28.831)	Prec@5 56.250 (60.081)	DataLoad 0.0235s (0.1124s)	Inference 0.2937s (0.3504s)	FPS 2.85
+[07/20 21:10:43] BIKE INFO: Test: [40/96]	Prec@1 31.250 (29.268)	Prec@5 62.500 (60.061)	DataLoad 0.0331s (0.0921s)	Inference 0.2861s (0.3360s)	FPS 2.98
+[07/20 21:10:49] BIKE INFO: Test: [50/96]	Prec@1 31.250 (31.127)	Prec@5 81.250 (62.377)	DataLoad 0.0225s (0.0792s)	Inference 0.2866s (0.3274s)	FPS 3.05
+[07/20 21:10:55] BIKE INFO: Test: [60/96]	Prec@1 43.750 (30.123)	Prec@5 81.250 (62.090)	DataLoad 0.0294s (0.0706s)	Inference 0.2955s (0.3220s)	FPS 3.11
+[07/20 21:11:01] BIKE INFO: Test: [70/96]	Prec@1 18.750 (30.106)	Prec@5 68.750 (62.236)	DataLoad 0.0221s (0.0644s)	Inference 0.2957s (0.3183s)	FPS 3.14
+[07/20 21:11:07] BIKE INFO: Test: [80/96]	Prec@1 25.000 (30.247)	Prec@5 62.500 (62.346)	DataLoad 0.0293s (0.0595s)	Inference 0.2957s (0.3153s)	FPS 3.17
+[07/20 21:11:13] BIKE INFO: Test: [90/96]	Prec@1 25.000 (29.945)	Prec@5 68.750 (61.813)	DataLoad 0.0228s (0.0558s)	Inference 0.2958s (0.3130s)	FPS 3.20
+[07/20 21:11:16] BIKE INFO: 
+================================================================================
+[07/20 21:11:16] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:11:16] BIKE INFO: ================================================================================
+[07/20 21:11:16] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:11:16] BIKE INFO:    • Top-1 Accuracy: 30.000%
+[07/20 21:11:16] BIKE INFO:    • Top-5 Accuracy: 61.699%
+[07/20 21:11:16] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:11:16] BIKE INFO:    • Total Test Time: 62.20s
+[07/20 21:11:16] BIKE INFO:    • Average Data Loading Time: 54.12ms per batch
+[07/20 21:11:16] BIKE INFO:    • Average Inference Time: 311.01ms per batch
+[07/20 21:11:16] BIKE INFO:    • Average Feature Extraction Time: 209.68ms per batch
+[07/20 21:11:16] BIKE INFO:    • Average Similarity Computation Time: 66.30ms per batch
+[07/20 21:11:16] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:11:16] BIKE INFO:    • Inference FPS: 3.22 batches/second
+[07/20 21:11:16] BIKE INFO:    • Throughput: 12.35 samples/second
+[07/20 21:11:16] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:11:16] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:11:16] BIKE INFO:    • Data Loading Time per Video: 6.77ms
+[07/20 21:11:16] BIKE INFO:    • Inference Time per Video: 38.88ms
+[07/20 21:11:16] BIKE INFO:    • Total Processing Time per Video: 45.64ms
+[07/20 21:11:16] BIKE INFO: ================================================================================
+[07/20 21:11:16] BIKE INFO: Testing Results: Prec@1 30.000 Prec@5 61.699
+[07/20 21:11:16] BIKE INFO: Testing: 30.0/30.0
+[07/20 21:11:16] BIKE INFO: Saving:
+[07/20 21:11:18] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:11:18] BIKE INFO: 🔤 Text encoding time: 0.0137s
+[07/20 21:11:21] BIKE INFO: Test: [0/96]	Prec@1 18.750 (18.750)	Prec@5 31.250 (31.250)	DataLoad 2.4013s (2.4013s)	Inference 0.3002s (0.3002s)	FPS 3.33
+[07/20 21:11:27] BIKE INFO: Test: [10/96]	Prec@1 43.750 (27.841)	Prec@5 75.000 (61.932)	DataLoad 0.0292s (0.2455s)	Inference 0.2864s (0.2892s)	FPS 3.46
+[07/20 21:11:33] BIKE INFO: Test: [20/96]	Prec@1 18.750 (28.571)	Prec@5 62.500 (62.798)	DataLoad 0.0232s (0.1411s)	Inference 0.2882s (0.2878s)	FPS 3.47
+[07/20 21:11:38] BIKE INFO: Test: [30/96]	Prec@1 12.500 (28.427)	Prec@5 50.000 (62.097)	DataLoad 0.0242s (0.1036s)	Inference 0.2875s (0.2874s)	FPS 3.48
+[07/20 21:11:44] BIKE INFO: Test: [40/96]	Prec@1 37.500 (28.811)	Prec@5 56.250 (61.890)	DataLoad 0.0223s (0.0843s)	Inference 0.2873s (0.2878s)	FPS 3.47
+[07/20 21:11:50] BIKE INFO: Test: [50/96]	Prec@1 43.750 (28.309)	Prec@5 68.750 (60.539)	DataLoad 0.0231s (0.0724s)	Inference 0.2887s (0.2878s)	FPS 3.47
+[07/20 21:11:56] BIKE INFO: Test: [60/96]	Prec@1 25.000 (28.381)	Prec@5 81.250 (60.758)	DataLoad 0.0243s (0.0645s)	Inference 0.2874s (0.2878s)	FPS 3.47
+[07/20 21:12:02] BIKE INFO: Test: [70/96]	Prec@1 25.000 (28.081)	Prec@5 56.250 (60.915)	DataLoad 0.0259s (0.0589s)	Inference 0.2975s (0.2881s)	FPS 3.47
+[07/20 21:12:08] BIKE INFO: Test: [80/96]	Prec@1 43.750 (29.167)	Prec@5 62.500 (60.802)	DataLoad 0.0255s (0.0549s)	Inference 0.2912s (0.2885s)	FPS 3.47
+[07/20 21:12:15] BIKE INFO: Test: [90/96]	Prec@1 37.500 (29.258)	Prec@5 62.500 (61.126)	DataLoad 0.0248s (0.0516s)	Inference 0.2877s (0.2886s)	FPS 3.47
+[07/20 21:12:18] BIKE INFO: 
+================================================================================
+[07/20 21:12:18] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:12:18] BIKE INFO: ================================================================================
+[07/20 21:12:18] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:12:18] BIKE INFO:    • Top-1 Accuracy: 29.346%
+[07/20 21:12:18] BIKE INFO:    • Top-5 Accuracy: 61.111%
+[07/20 21:12:18] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:12:18] BIKE INFO:    • Total Test Time: 59.90s
+[07/20 21:12:18] BIKE INFO:    • Average Data Loading Time: 50.22ms per batch
+[07/20 21:12:18] BIKE INFO:    • Average Inference Time: 287.28ms per batch
+[07/20 21:12:18] BIKE INFO:    • Average Feature Extraction Time: 193.81ms per batch
+[07/20 21:12:18] BIKE INFO:    • Average Similarity Computation Time: 64.38ms per batch
+[07/20 21:12:18] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:12:18] BIKE INFO:    • Inference FPS: 3.48 batches/second
+[07/20 21:12:18] BIKE INFO:    • Throughput: 12.82 samples/second
+[07/20 21:12:18] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:12:18] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:12:18] BIKE INFO:    • Data Loading Time per Video: 6.28ms
+[07/20 21:12:18] BIKE INFO:    • Inference Time per Video: 35.91ms
+[07/20 21:12:18] BIKE INFO:    • Total Processing Time per Video: 42.19ms
+[07/20 21:12:18] BIKE INFO: ================================================================================
+[07/20 21:12:18] BIKE INFO: Testing Results: Prec@1 29.346 Prec@5 61.111
+[07/20 21:12:18] BIKE INFO: Testing: 29.34640522875817/30.0
+[07/20 21:12:18] BIKE INFO: Saving:
+[07/20 21:12:20] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:12:20] BIKE INFO: 🔤 Text encoding time: 0.0145s
+[07/20 21:12:23] BIKE INFO: Test: [0/96]	Prec@1 25.000 (25.000)	Prec@5 62.500 (62.500)	DataLoad 2.4664s (2.4664s)	Inference 0.3005s (0.3005s)	FPS 3.33
+[07/20 21:12:30] BIKE INFO: Test: [10/96]	Prec@1 37.500 (29.545)	Prec@5 56.250 (59.659)	DataLoad 0.0219s (0.2502s)	Inference 0.2869s (0.2896s)	FPS 3.45
+[07/20 21:12:37] BIKE INFO: Test: [20/96]	Prec@1 25.000 (30.357)	Prec@5 62.500 (61.905)	DataLoad 0.0244s (0.1426s)	Inference 0.2945s (0.2893s)	FPS 3.46
+[07/20 21:12:44] BIKE INFO: Test: [30/96]	Prec@1 18.750 (27.419)	Prec@5 50.000 (60.887)	DataLoad 0.0225s (0.1045s)	Inference 0.2921s (0.2891s)	FPS 3.46
+[07/20 21:12:52] BIKE INFO: Test: [40/96]	Prec@1 37.500 (28.049)	Prec@5 62.500 (61.738)	DataLoad 0.0242s (0.0848s)	Inference 0.2881s (0.2889s)	FPS 3.46
+[07/20 21:12:59] BIKE INFO: Test: [50/96]	Prec@1 25.000 (28.064)	Prec@5 37.500 (62.255)	DataLoad 0.0246s (0.0729s)	Inference 0.2889s (0.2891s)	FPS 3.46
+[07/20 21:13:06] BIKE INFO: Test: [60/96]	Prec@1 50.000 (28.586)	Prec@5 81.250 (61.168)	DataLoad 0.0241s (0.0650s)	Inference 0.2887s (0.2890s)	FPS 3.46
+[07/20 21:13:13] BIKE INFO: Test: [70/96]	Prec@1 37.500 (29.665)	Prec@5 62.500 (61.532)	DataLoad 0.0262s (0.0593s)	Inference 0.2879s (0.2893s)	FPS 3.46
+[07/20 21:13:20] BIKE INFO: Test: [80/96]	Prec@1 25.000 (30.015)	Prec@5 50.000 (61.883)	DataLoad 0.0236s (0.0549s)	Inference 0.2873s (0.2891s)	FPS 3.46
+[07/20 21:13:27] BIKE INFO: Test: [90/96]	Prec@1 25.000 (30.769)	Prec@5 68.750 (62.363)	DataLoad 0.0215s (0.0515s)	Inference 0.2861s (0.2890s)	FPS 3.46
+[07/20 21:13:31] BIKE INFO: 
+================================================================================
+[07/20 21:13:31] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:13:31] BIKE INFO: ================================================================================
+[07/20 21:13:31] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:13:31] BIKE INFO:    • Top-1 Accuracy: 30.654%
+[07/20 21:13:31] BIKE INFO:    • Top-5 Accuracy: 62.484%
+[07/20 21:13:31] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:13:31] BIKE INFO:    • Total Test Time: 70.71s
+[07/20 21:13:31] BIKE INFO:    • Average Data Loading Time: 50.01ms per batch
+[07/20 21:13:31] BIKE INFO:    • Average Inference Time: 287.82ms per batch
+[07/20 21:13:31] BIKE INFO:    • Average Feature Extraction Time: 193.63ms per batch
+[07/20 21:13:31] BIKE INFO:    • Average Similarity Computation Time: 64.19ms per batch
+[07/20 21:13:31] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:13:31] BIKE INFO:    • Inference FPS: 3.47 batches/second
+[07/20 21:13:31] BIKE INFO:    • Throughput: 10.86 samples/second
+[07/20 21:13:31] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:13:31] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:13:31] BIKE INFO:    • Data Loading Time per Video: 6.25ms
+[07/20 21:13:31] BIKE INFO:    • Inference Time per Video: 35.98ms
+[07/20 21:13:31] BIKE INFO:    • Total Processing Time per Video: 42.23ms
+[07/20 21:13:31] BIKE INFO: ================================================================================
+[07/20 21:13:31] BIKE INFO: Testing Results: Prec@1 30.654 Prec@5 62.484
+[07/20 21:13:31] BIKE INFO: Testing: 30.65359477124183/30.65359477124183
+[07/20 21:13:31] BIKE INFO: Saving:
+[07/20 21:13:36] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:13:36] BIKE INFO: 🔤 Text encoding time: 0.0149s
+[07/20 21:13:39] BIKE INFO: Test: [0/96]	Prec@1 43.750 (43.750)	Prec@5 81.250 (81.250)	DataLoad 2.5920s (2.5920s)	Inference 0.3002s (0.3002s)	FPS 3.33
+[07/20 21:13:46] BIKE INFO: Test: [10/96]	Prec@1 25.000 (26.705)	Prec@5 56.250 (56.818)	DataLoad 0.0225s (0.2599s)	Inference 0.2884s (0.2902s)	FPS 3.45
+[07/20 21:13:53] BIKE INFO: Test: [20/96]	Prec@1 50.000 (29.464)	Prec@5 81.250 (57.440)	DataLoad 0.0234s (0.1478s)	Inference 0.2896s (0.2893s)	FPS 3.46
+[07/20 21:14:00] BIKE INFO: Test: [30/96]	Prec@1 37.500 (29.435)	Prec@5 56.250 (59.073)	DataLoad 0.0286s (0.1082s)	Inference 0.2883s (0.2893s)	FPS 3.46
+[07/20 21:14:08] BIKE INFO: Test: [40/96]	Prec@1 31.250 (30.183)	Prec@5 50.000 (58.994)	DataLoad 0.0240s (0.0878s)	Inference 0.3001s (0.2898s)	FPS 3.45
+[07/20 21:14:15] BIKE INFO: Test: [50/96]	Prec@1 31.250 (29.657)	Prec@5 56.250 (58.578)	DataLoad 0.0281s (0.0755s)	Inference 0.2908s (0.2912s)	FPS 3.43
+[07/20 21:14:22] BIKE INFO: Test: [60/96]	Prec@1 31.250 (28.586)	Prec@5 75.000 (59.119)	DataLoad 0.0255s (0.0672s)	Inference 0.2902s (0.2911s)	FPS 3.43
+[07/20 21:14:29] BIKE INFO: Test: [70/96]	Prec@1 37.500 (28.697)	Prec@5 62.500 (59.419)	DataLoad 0.0287s (0.0612s)	Inference 0.2902s (0.2911s)	FPS 3.44
+[07/20 21:14:37] BIKE INFO: Test: [80/96]	Prec@1 37.500 (29.861)	Prec@5 68.750 (60.108)	DataLoad 0.0259s (0.0569s)	Inference 0.2975s (0.2911s)	FPS 3.43
+[07/20 21:14:44] BIKE INFO: Test: [90/96]	Prec@1 25.000 (30.151)	Prec@5 81.250 (60.783)	DataLoad 0.0275s (0.0539s)	Inference 0.2931s (0.2913s)	FPS 3.43
+[07/20 21:14:47] BIKE INFO: 
+================================================================================
+[07/20 21:14:47] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:14:47] BIKE INFO: ================================================================================
+[07/20 21:14:47] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:14:47] BIKE INFO:    • Top-1 Accuracy: 29.935%
+[07/20 21:14:47] BIKE INFO:    • Top-5 Accuracy: 60.850%
+[07/20 21:14:47] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:14:47] BIKE INFO:    • Total Test Time: 71.76s
+[07/20 21:14:47] BIKE INFO:    • Average Data Loading Time: 52.53ms per batch
+[07/20 21:14:47] BIKE INFO:    • Average Inference Time: 289.96ms per batch
+[07/20 21:14:47] BIKE INFO:    • Average Feature Extraction Time: 193.54ms per batch
+[07/20 21:14:47] BIKE INFO:    • Average Similarity Computation Time: 64.19ms per batch
+[07/20 21:14:47] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:14:47] BIKE INFO:    • Inference FPS: 3.45 batches/second
+[07/20 21:14:47] BIKE INFO:    • Throughput: 10.70 samples/second
+[07/20 21:14:47] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:14:47] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:14:47] BIKE INFO:    • Data Loading Time per Video: 6.57ms
+[07/20 21:14:47] BIKE INFO:    • Inference Time per Video: 36.25ms
+[07/20 21:14:47] BIKE INFO:    • Total Processing Time per Video: 42.81ms
+[07/20 21:14:47] BIKE INFO: ================================================================================
+[07/20 21:14:47] BIKE INFO: Testing Results: Prec@1 29.935 Prec@5 60.850
+[07/20 21:14:47] BIKE INFO: Testing: 29.934640522875817/30.65359477124183
+[07/20 21:14:47] BIKE INFO: Saving:
+[07/20 21:14:50] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:14:50] BIKE INFO: 🔤 Text encoding time: 0.0141s
+[07/20 21:14:53] BIKE INFO: Test: [0/96]	Prec@1 31.250 (31.250)	Prec@5 75.000 (75.000)	DataLoad 2.5740s (2.5740s)	Inference 0.3020s (0.3020s)	FPS 3.31
+[07/20 21:15:00] BIKE INFO: Test: [10/96]	Prec@1 12.500 (30.682)	Prec@5 56.250 (64.205)	DataLoad 0.0311s (0.2704s)	Inference 0.3038s (0.2970s)	FPS 3.37
+[07/20 21:15:07] BIKE INFO: Test: [20/96]	Prec@1 12.500 (28.869)	Prec@5 56.250 (61.905)	DataLoad 0.0274s (0.1564s)	Inference 0.2912s (0.2958s)	FPS 3.38
+[07/20 21:15:14] BIKE INFO: Test: [30/96]	Prec@1 43.750 (30.645)	Prec@5 87.500 (61.895)	DataLoad 0.0267s (0.1151s)	Inference 0.2951s (0.2954s)	FPS 3.39
+[07/20 21:15:22] BIKE INFO: Test: [40/96]	Prec@1 50.000 (30.793)	Prec@5 75.000 (61.585)	DataLoad 0.0268s (0.0938s)	Inference 0.2911s (0.2947s)	FPS 3.39
+[07/20 21:15:29] BIKE INFO: Test: [50/96]	Prec@1 25.000 (31.618)	Prec@5 50.000 (62.010)	DataLoad 0.0274s (0.0807s)	Inference 0.2913s (0.2943s)	FPS 3.40
+[07/20 21:15:36] BIKE INFO: Test: [60/96]	Prec@1 25.000 (31.557)	Prec@5 62.500 (62.602)	DataLoad 0.0286s (0.0719s)	Inference 0.2908s (0.2941s)	FPS 3.40
+[07/20 21:15:43] BIKE INFO: Test: [70/96]	Prec@1 6.250 (30.722)	Prec@5 31.250 (61.356)	DataLoad 0.0257s (0.0662s)	Inference 0.2989s (0.2947s)	FPS 3.39
+[07/20 21:15:50] BIKE INFO: Test: [80/96]	Prec@1 12.500 (30.170)	Prec@5 68.750 (61.420)	DataLoad 0.0256s (0.0620s)	Inference 0.2965s (0.2955s)	FPS 3.38
+[07/20 21:15:58] BIKE INFO: Test: [90/96]	Prec@1 37.500 (30.014)	Prec@5 68.750 (61.264)	DataLoad 0.0309s (0.0586s)	Inference 0.2929s (0.2955s)	FPS 3.38
+[07/20 21:16:01] BIKE INFO: 
+================================================================================
+[07/20 21:16:01] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:16:01] BIKE INFO: ================================================================================
+[07/20 21:16:01] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:16:01] BIKE INFO:    • Top-1 Accuracy: 29.935%
+[07/20 21:16:01] BIKE INFO:    • Top-5 Accuracy: 60.980%
+[07/20 21:16:01] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:16:01] BIKE INFO:    • Total Test Time: 71.38s
+[07/20 21:16:01] BIKE INFO:    • Average Data Loading Time: 57.12ms per batch
+[07/20 21:16:01] BIKE INFO:    • Average Inference Time: 294.01ms per batch
+[07/20 21:16:01] BIKE INFO:    • Average Feature Extraction Time: 194.40ms per batch
+[07/20 21:16:01] BIKE INFO:    • Average Similarity Computation Time: 63.56ms per batch
+[07/20 21:16:01] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:16:01] BIKE INFO:    • Inference FPS: 3.40 batches/second
+[07/20 21:16:01] BIKE INFO:    • Throughput: 10.76 samples/second
+[07/20 21:16:01] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:16:01] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:16:01] BIKE INFO:    • Data Loading Time per Video: 7.14ms
+[07/20 21:16:01] BIKE INFO:    • Inference Time per Video: 36.75ms
+[07/20 21:16:01] BIKE INFO:    • Total Processing Time per Video: 43.89ms
+[07/20 21:16:01] BIKE INFO: ================================================================================
+[07/20 21:16:01] BIKE INFO: Testing Results: Prec@1 29.935 Prec@5 60.980
+[07/20 21:16:01] BIKE INFO: Testing: 29.934640522875817/30.65359477124183
+[07/20 21:16:01] BIKE INFO: Saving:
+[07/20 21:16:04] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:16:04] BIKE INFO: 🔤 Text encoding time: 0.0138s
+[07/20 21:16:07] BIKE INFO: Test: [0/96]	Prec@1 25.000 (25.000)	Prec@5 50.000 (50.000)	DataLoad 2.6529s (2.6529s)	Inference 0.3043s (0.3043s)	FPS 3.29
+[07/20 21:16:14] BIKE INFO: Test: [10/96]	Prec@1 50.000 (27.841)	Prec@5 62.500 (55.114)	DataLoad 0.0268s (0.2727s)	Inference 0.2932s (0.2968s)	FPS 3.37
+[07/20 21:16:21] BIKE INFO: Test: [20/96]	Prec@1 25.000 (27.083)	Prec@5 56.250 (55.952)	DataLoad 0.0313s (0.1600s)	Inference 0.2940s (0.2957s)	FPS 3.38
+[07/20 21:16:29] BIKE INFO: Test: [30/96]	Prec@1 18.750 (28.629)	Prec@5 75.000 (60.282)	DataLoad 0.0303s (0.1183s)	Inference 0.2924s (0.2953s)	FPS 3.39
+[07/20 21:16:36] BIKE INFO: Test: [40/96]	Prec@1 25.000 (29.268)	Prec@5 50.000 (59.756)	DataLoad 0.0275s (0.0968s)	Inference 0.2943s (0.2960s)	FPS 3.38
+[07/20 21:16:43] BIKE INFO: Test: [50/96]	Prec@1 12.500 (28.799)	Prec@5 31.250 (59.436)	DataLoad 0.0292s (0.0842s)	Inference 0.3028s (0.2966s)	FPS 3.37
+[07/20 21:16:50] BIKE INFO: Test: [60/96]	Prec@1 43.750 (28.689)	Prec@5 68.750 (59.221)	DataLoad 0.0300s (0.0756s)	Inference 0.2978s (0.2968s)	FPS 3.37
+[07/20 21:16:57] BIKE INFO: Test: [70/96]	Prec@1 25.000 (28.609)	Prec@5 68.750 (58.979)	DataLoad 0.0297s (0.0695s)	Inference 0.2949s (0.2967s)	FPS 3.37
+[07/20 21:17:05] BIKE INFO: Test: [80/96]	Prec@1 31.250 (29.090)	Prec@5 81.250 (59.799)	DataLoad 0.0295s (0.0648s)	Inference 0.2929s (0.2964s)	FPS 3.37
+[07/20 21:17:12] BIKE INFO: Test: [90/96]	Prec@1 37.500 (28.984)	Prec@5 62.500 (60.165)	DataLoad 0.0259s (0.0608s)	Inference 0.2893s (0.2960s)	FPS 3.38
+[07/20 21:17:15] BIKE INFO: 
+================================================================================
+[07/20 21:17:15] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:17:15] BIKE INFO: ================================================================================
+[07/20 21:17:15] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:17:15] BIKE INFO:    • Top-1 Accuracy: 28.758%
+[07/20 21:17:15] BIKE INFO:    • Top-5 Accuracy: 60.000%
+[07/20 21:17:15] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:17:15] BIKE INFO:    • Total Test Time: 71.88s
+[07/20 21:17:15] BIKE INFO:    • Average Data Loading Time: 59.14ms per batch
+[07/20 21:17:15] BIKE INFO:    • Average Inference Time: 294.62ms per batch
+[07/20 21:17:15] BIKE INFO:    • Average Feature Extraction Time: 194.20ms per batch
+[07/20 21:17:15] BIKE INFO:    • Average Similarity Computation Time: 63.80ms per batch
+[07/20 21:17:15] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:17:15] BIKE INFO:    • Inference FPS: 3.39 batches/second
+[07/20 21:17:15] BIKE INFO:    • Throughput: 10.69 samples/second
+[07/20 21:17:15] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:17:15] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:17:15] BIKE INFO:    • Data Loading Time per Video: 7.39ms
+[07/20 21:17:15] BIKE INFO:    • Inference Time per Video: 36.83ms
+[07/20 21:17:15] BIKE INFO:    • Total Processing Time per Video: 44.22ms
+[07/20 21:17:15] BIKE INFO: ================================================================================
+[07/20 21:17:15] BIKE INFO: Testing Results: Prec@1 28.758 Prec@5 60.000
+[07/20 21:17:15] BIKE INFO: Testing: 28.758169934640524/30.65359477124183
+[07/20 21:17:15] BIKE INFO: Saving:
+[07/20 21:17:18] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:17:18] BIKE INFO: 🔤 Text encoding time: 0.0139s
+[07/20 21:17:21] BIKE INFO: Test: [0/96]	Prec@1 31.250 (31.250)	Prec@5 68.750 (68.750)	DataLoad 2.5458s (2.5458s)	Inference 0.3119s (0.3119s)	FPS 3.21
+[07/20 21:17:28] BIKE INFO: Test: [10/96]	Prec@1 43.750 (35.227)	Prec@5 68.750 (61.364)	DataLoad 0.0381s (0.2673s)	Inference 0.3014s (0.3035s)	FPS 3.30
+[07/20 21:17:35] BIKE INFO: Test: [20/96]	Prec@1 43.750 (35.119)	Prec@5 56.250 (59.226)	DataLoad 0.0336s (0.1559s)	Inference 0.3111s (0.3025s)	FPS 3.31
+[07/20 21:17:43] BIKE INFO: Test: [30/96]	Prec@1 37.500 (33.468)	Prec@5 50.000 (59.879)	DataLoad 0.0279s (0.1156s)	Inference 0.2963s (0.3007s)	FPS 3.33
+[07/20 21:17:50] BIKE INFO: Test: [40/96]	Prec@1 31.250 (32.317)	Prec@5 68.750 (59.451)	DataLoad 0.0343s (0.0953s)	Inference 0.2977s (0.2999s)	FPS 3.33
+[07/20 21:17:58] BIKE INFO: Test: [50/96]	Prec@1 31.250 (31.863)	Prec@5 75.000 (60.294)	DataLoad 0.0296s (0.0828s)	Inference 0.2974s (0.2996s)	FPS 3.34
+[07/20 21:18:05] BIKE INFO: Test: [60/96]	Prec@1 25.000 (31.352)	Prec@5 56.250 (60.041)	DataLoad 0.0306s (0.0744s)	Inference 0.3115s (0.2999s)	FPS 3.33
+[07/20 21:18:13] BIKE INFO: Test: [70/96]	Prec@1 31.250 (31.162)	Prec@5 68.750 (60.739)	DataLoad 0.0325s (0.0683s)	Inference 0.2967s (0.2996s)	FPS 3.34
+[07/20 21:18:20] BIKE INFO: Test: [80/96]	Prec@1 25.000 (31.173)	Prec@5 62.500 (61.034)	DataLoad 0.0298s (0.0641s)	Inference 0.3177s (0.3001s)	FPS 3.33
+[07/20 21:18:27] BIKE INFO: Test: [90/96]	Prec@1 37.500 (30.426)	Prec@5 68.750 (61.195)	DataLoad 0.0305s (0.0606s)	Inference 0.2958s (0.2999s)	FPS 3.33
+[07/20 21:18:31] BIKE INFO: 
+================================================================================
+[07/20 21:18:31] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:18:31] BIKE INFO: ================================================================================
+[07/20 21:18:31] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:18:31] BIKE INFO:    • Top-1 Accuracy: 30.588%
+[07/20 21:18:31] BIKE INFO:    • Top-5 Accuracy: 61.176%
+[07/20 21:18:31] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:18:31] BIKE INFO:    • Total Test Time: 72.84s
+[07/20 21:18:31] BIKE INFO:    • Average Data Loading Time: 58.94ms per batch
+[07/20 21:18:31] BIKE INFO:    • Average Inference Time: 298.40ms per batch
+[07/20 21:18:31] BIKE INFO:    • Average Feature Extraction Time: 194.06ms per batch
+[07/20 21:18:31] BIKE INFO:    • Average Similarity Computation Time: 63.83ms per batch
+[07/20 21:18:31] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:18:31] BIKE INFO:    • Inference FPS: 3.35 batches/second
+[07/20 21:18:31] BIKE INFO:    • Throughput: 10.54 samples/second
+[07/20 21:18:31] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:18:31] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:18:31] BIKE INFO:    • Data Loading Time per Video: 7.37ms
+[07/20 21:18:31] BIKE INFO:    • Inference Time per Video: 37.30ms
+[07/20 21:18:31] BIKE INFO:    • Total Processing Time per Video: 44.67ms
+[07/20 21:18:31] BIKE INFO: ================================================================================
+[07/20 21:18:31] BIKE INFO: Testing Results: Prec@1 30.588 Prec@5 61.176
+[07/20 21:18:31] BIKE INFO: Testing: 30.58823529411765/30.65359477124183
+[07/20 21:18:31] BIKE INFO: Saving:
+[07/20 21:18:33] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:18:33] BIKE INFO: 🔤 Text encoding time: 0.0138s
+[07/20 21:18:36] BIKE INFO: Test: [0/96]	Prec@1 25.000 (25.000)	Prec@5 62.500 (62.500)	DataLoad 2.7762s (2.7762s)	Inference 0.3036s (0.3036s)	FPS 3.29
+[07/20 21:18:44] BIKE INFO: Test: [10/96]	Prec@1 18.750 (26.705)	Prec@5 56.250 (65.909)	DataLoad 0.0566s (0.2871s)	Inference 0.3105s (0.2997s)	FPS 3.34
+[07/20 21:18:51] BIKE INFO: Test: [20/96]	Prec@1 37.500 (28.571)	Prec@5 68.750 (64.583)	DataLoad 0.0299s (0.1666s)	Inference 0.2944s (0.2990s)	FPS 3.34
+[07/20 21:18:59] BIKE INFO: Test: [30/96]	Prec@1 12.500 (28.831)	Prec@5 62.500 (65.524)	DataLoad 0.0277s (0.1227s)	Inference 0.2983s (0.2982s)	FPS 3.35
+[07/20 21:19:06] BIKE INFO: Test: [40/96]	Prec@1 31.250 (28.506)	Prec@5 56.250 (64.329)	DataLoad 0.0393s (0.1012s)	Inference 0.3137s (0.2989s)	FPS 3.35
+[07/20 21:19:13] BIKE INFO: Test: [50/96]	Prec@1 25.000 (28.431)	Prec@5 68.750 (63.235)	DataLoad 0.0334s (0.0879s)	Inference 0.3137s (0.3000s)	FPS 3.33
+[07/20 21:19:21] BIKE INFO: Test: [60/96]	Prec@1 12.500 (28.279)	Prec@5 50.000 (61.988)	DataLoad 0.0344s (0.0787s)	Inference 0.2994s (0.2997s)	FPS 3.34
+[07/20 21:19:28] BIKE INFO: Test: [70/96]	Prec@1 37.500 (28.873)	Prec@5 56.250 (62.588)	DataLoad 0.0304s (0.0720s)	Inference 0.2934s (0.2996s)	FPS 3.34
+[07/20 21:19:36] BIKE INFO: Test: [80/96]	Prec@1 37.500 (28.935)	Prec@5 56.250 (61.651)	DataLoad 0.0278s (0.0669s)	Inference 0.2995s (0.2992s)	FPS 3.34
+[07/20 21:19:43] BIKE INFO: Test: [90/96]	Prec@1 43.750 (29.052)	Prec@5 68.750 (61.332)	DataLoad 0.0427s (0.0631s)	Inference 0.2947s (0.2989s)	FPS 3.35
+[07/20 21:19:47] BIKE INFO: 
+================================================================================
+[07/20 21:19:47] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:19:47] BIKE INFO: ================================================================================
+[07/20 21:19:47] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:19:47] BIKE INFO:    • Top-1 Accuracy: 28.889%
+[07/20 21:19:47] BIKE INFO:    • Top-5 Accuracy: 60.915%
+[07/20 21:19:47] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:19:47] BIKE INFO:    • Total Test Time: 73.58s
+[07/20 21:19:47] BIKE INFO:    • Average Data Loading Time: 61.37ms per batch
+[07/20 21:19:47] BIKE INFO:    • Average Inference Time: 297.41ms per batch
+[07/20 21:19:47] BIKE INFO:    • Average Feature Extraction Time: 194.34ms per batch
+[07/20 21:19:47] BIKE INFO:    • Average Similarity Computation Time: 63.52ms per batch
+[07/20 21:19:47] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:19:47] BIKE INFO:    • Inference FPS: 3.36 batches/second
+[07/20 21:19:47] BIKE INFO:    • Throughput: 10.44 samples/second
+[07/20 21:19:47] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:19:47] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:19:47] BIKE INFO:    • Data Loading Time per Video: 7.67ms
+[07/20 21:19:47] BIKE INFO:    • Inference Time per Video: 37.18ms
+[07/20 21:19:47] BIKE INFO:    • Total Processing Time per Video: 44.85ms
+[07/20 21:19:47] BIKE INFO: ================================================================================
+[07/20 21:19:47] BIKE INFO: Testing Results: Prec@1 28.889 Prec@5 60.915
+[07/20 21:19:47] BIKE INFO: Testing: 28.88888888888889/30.65359477124183
+[07/20 21:19:47] BIKE INFO: Saving:
+[07/20 21:19:49] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:19:49] BIKE INFO: 🔤 Text encoding time: 0.0140s
+[07/20 21:19:52] BIKE INFO: Test: [0/96]	Prec@1 50.000 (50.000)	Prec@5 62.500 (62.500)	DataLoad 2.6624s (2.6624s)	Inference 0.3084s (0.3084s)	FPS 3.24
+[07/20 21:20:00] BIKE INFO: Test: [10/96]	Prec@1 50.000 (31.818)	Prec@5 62.500 (60.795)	DataLoad 0.0252s (0.2865s)	Inference 0.3091s (0.3067s)	FPS 3.26
+[07/20 21:20:07] BIKE INFO: Test: [20/96]	Prec@1 31.250 (30.357)	Prec@5 50.000 (58.929)	DataLoad 0.0293s (0.1680s)	Inference 0.3132s (0.3073s)	FPS 3.25
+[07/20 21:20:15] BIKE INFO: Test: [30/96]	Prec@1 18.750 (29.435)	Prec@5 56.250 (58.468)	DataLoad 0.0268s (0.1263s)	Inference 0.3106s (0.3069s)	FPS 3.26
+[07/20 21:20:22] BIKE INFO: Test: [40/96]	Prec@1 31.250 (30.488)	Prec@5 56.250 (60.061)	DataLoad 0.0393s (0.1044s)	Inference 0.3134s (0.3064s)	FPS 3.26
+[07/20 21:20:30] BIKE INFO: Test: [50/96]	Prec@1 43.750 (30.760)	Prec@5 75.000 (60.417)	DataLoad 0.0271s (0.0913s)	Inference 0.3121s (0.3062s)	FPS 3.27
+[07/20 21:20:37] BIKE INFO: Test: [60/96]	Prec@1 25.000 (30.533)	Prec@5 50.000 (60.963)	DataLoad 0.0364s (0.0828s)	Inference 0.3098s (0.3060s)	FPS 3.27
+[07/20 21:20:45] BIKE INFO: Test: [70/96]	Prec@1 31.250 (30.458)	Prec@5 62.500 (60.563)	DataLoad 0.0364s (0.0765s)	Inference 0.3224s (0.3064s)	FPS 3.26
+[07/20 21:20:52] BIKE INFO: Test: [80/96]	Prec@1 37.500 (30.633)	Prec@5 68.750 (61.265)	DataLoad 0.0332s (0.0721s)	Inference 0.3104s (0.3070s)	FPS 3.26
+[07/20 21:21:00] BIKE INFO: Test: [90/96]	Prec@1 50.000 (31.319)	Prec@5 68.750 (61.401)	DataLoad 0.0299s (0.0679s)	Inference 0.3111s (0.3071s)	FPS 3.26
+[07/20 21:21:03] BIKE INFO: 
+================================================================================
+[07/20 21:21:03] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:21:03] BIKE INFO: ================================================================================
+[07/20 21:21:03] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:21:03] BIKE INFO:    • Top-1 Accuracy: 31.242%
+[07/20 21:21:03] BIKE INFO:    • Top-5 Accuracy: 61.373%
+[07/20 21:21:03] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:21:03] BIKE INFO:    • Total Test Time: 74.24s
+[07/20 21:21:03] BIKE INFO:    • Average Data Loading Time: 66.09ms per batch
+[07/20 21:21:03] BIKE INFO:    • Average Inference Time: 305.60ms per batch
+[07/20 21:21:03] BIKE INFO:    • Average Feature Extraction Time: 194.52ms per batch
+[07/20 21:21:03] BIKE INFO:    • Average Similarity Computation Time: 63.39ms per batch
+[07/20 21:21:03] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:21:03] BIKE INFO:    • Inference FPS: 3.27 batches/second
+[07/20 21:21:03] BIKE INFO:    • Throughput: 10.34 samples/second
+[07/20 21:21:03] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:21:03] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:21:03] BIKE INFO:    • Data Loading Time per Video: 8.26ms
+[07/20 21:21:03] BIKE INFO:    • Inference Time per Video: 38.20ms
+[07/20 21:21:03] BIKE INFO:    • Total Processing Time per Video: 46.46ms
+[07/20 21:21:03] BIKE INFO: ================================================================================
+[07/20 21:21:03] BIKE INFO: Testing Results: Prec@1 31.242 Prec@5 61.373
+[07/20 21:21:03] BIKE INFO: Testing: 31.241830065359476/31.241830065359476
+[07/20 21:21:03] BIKE INFO: Saving:
+[07/20 21:21:08] BIKE INFO: 🚀 Using performance validation...
+[07/20 21:21:08] BIKE INFO: 🔤 Text encoding time: 0.0147s
+[07/20 21:21:11] BIKE INFO: Test: [0/96]	Prec@1 18.750 (18.750)	Prec@5 50.000 (50.000)	DataLoad 2.5019s (2.5019s)	Inference 0.3023s (0.3023s)	FPS 3.31
+[07/20 21:21:19] BIKE INFO: Test: [10/96]	Prec@1 31.250 (30.682)	Prec@5 87.500 (64.773)	DataLoad 0.0316s (0.2578s)	Inference 0.2914s (0.2951s)	FPS 3.39
+[07/20 21:21:26] BIKE INFO: Test: [20/96]	Prec@1 43.750 (28.274)	Prec@5 62.500 (62.500)	DataLoad 0.0233s (0.1506s)	Inference 0.3037s (0.2946s)	FPS 3.39
+[07/20 21:21:33] BIKE INFO: Test: [30/96]	Prec@1 18.750 (28.427)	Prec@5 62.500 (61.694)	DataLoad 0.0377s (0.1135s)	Inference 0.2979s (0.2973s)	FPS 3.36
+[07/20 21:21:41] BIKE INFO: Test: [40/96]	Prec@1 37.500 (27.896)	Prec@5 56.250 (61.738)	DataLoad 0.0266s (0.0951s)	Inference 0.2985s (0.2997s)	FPS 3.34
+[07/20 21:21:48] BIKE INFO: Test: [50/96]	Prec@1 37.500 (28.186)	Prec@5 75.000 (61.887)	DataLoad 0.0285s (0.0841s)	Inference 0.2975s (0.3000s)	FPS 3.33
+[07/20 21:21:56] BIKE INFO: Test: [60/96]	Prec@1 25.000 (28.484)	Prec@5 62.500 (61.680)	DataLoad 0.0302s (0.0764s)	Inference 0.2954s (0.2997s)	FPS 3.34
+[07/20 21:22:03] BIKE INFO: Test: [70/96]	Prec@1 56.250 (28.345)	Prec@5 75.000 (61.268)	DataLoad 0.0314s (0.0703s)	Inference 0.2988s (0.2995s)	FPS 3.34
+[07/20 21:22:11] BIKE INFO: Test: [80/96]	Prec@1 37.500 (29.475)	Prec@5 68.750 (61.497)	DataLoad 0.0339s (0.0657s)	Inference 0.2980s (0.2993s)	FPS 3.34
+[07/20 21:22:18] BIKE INFO: Test: [90/96]	Prec@1 43.750 (29.945)	Prec@5 68.750 (61.951)	DataLoad 0.0299s (0.0620s)	Inference 0.2941s (0.2990s)	FPS 3.34
+[07/20 21:22:21] BIKE INFO: 
+================================================================================
+[07/20 21:22:21] BIKE INFO: 🚀 PERFORMANCE ANALYSIS REPORT
+[07/20 21:22:21] BIKE INFO: ================================================================================
+[07/20 21:22:21] BIKE INFO: 📊 Accuracy Results:
+[07/20 21:22:21] BIKE INFO:    • Top-1 Accuracy: 29.804%
+[07/20 21:22:21] BIKE INFO:    • Top-5 Accuracy: 62.157%
+[07/20 21:22:21] BIKE INFO: 
+⏱️  Timing Analysis:
+[07/20 21:22:21] BIKE INFO:    • Total Test Time: 73.24s
+[07/20 21:22:21] BIKE INFO:    • Average Data Loading Time: 60.39ms per batch
+[07/20 21:22:21] BIKE INFO:    • Average Inference Time: 297.50ms per batch
+[07/20 21:22:21] BIKE INFO:    • Average Feature Extraction Time: 194.34ms per batch
+[07/20 21:22:21] BIKE INFO:    • Average Similarity Computation Time: 63.46ms per batch
+[07/20 21:22:21] BIKE INFO: 
+🚀 Performance Metrics:
+[07/20 21:22:21] BIKE INFO:    • Inference FPS: 3.36 batches/second
+[07/20 21:22:21] BIKE INFO:    • Throughput: 10.49 samples/second
+[07/20 21:22:21] BIKE INFO:    • Total Samples Processed: 768
+[07/20 21:22:21] BIKE INFO: 
+💡 Per Video Analysis (assuming batch_size=8):
+[07/20 21:22:21] BIKE INFO:    • Data Loading Time per Video: 7.55ms
+[07/20 21:22:21] BIKE INFO:    • Inference Time per Video: 37.19ms
+[07/20 21:22:21] BIKE INFO:    • Total Processing Time per Video: 44.74ms
+[07/20 21:22:21] BIKE INFO: ================================================================================
+[07/20 21:22:21] BIKE INFO: Testing Results: Prec@1 29.804 Prec@5 62.157
+[07/20 21:22:22] BIKE INFO: Testing: 29.80392156862745/31.241830065359476
+[07/20 21:22:22] BIKE INFO: Saving:

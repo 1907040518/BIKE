@@ -516,6 +516,32 @@ class CLIP(nn.Module):
             )
 
 
+            self.visual_m = VisualTransformer(
+                input_resolution=image_resolution,
+                patch_size=vision_patch_size,
+                width=vision_width,
+                layers=vision_layers,
+                heads=vision_heads,
+                output_dim=embed_dim,
+                joint=joint,dropout=dpr,
+                emb_dropout=emb_dropout,
+                Block=Block,
+                T=T,
+            )
+
+            self.visual_r = VisualTransformer(
+                input_resolution=image_resolution,
+                patch_size=vision_patch_size,
+                width=vision_width,
+                layers=vision_layers,
+                heads=vision_heads,
+                output_dim=embed_dim,
+                joint=joint,dropout=dpr,
+                emb_dropout=emb_dropout,
+                Block=Block,
+                T=T,
+            )
+
         self.transformer = Transformer(
             width=transformer_width,
             layers=transformer_layers,
@@ -583,8 +609,8 @@ class CLIP(nn.Module):
 
     def encode_image(self, images, mvs, res):
         image_feat = self.visual(images.type(self.dtype))
-        mvs_feat = self.visual(mvs.type(self.dtype))
-        res_feat = self.visual(res.type(self.dtype))
+        mvs_feat = self.visual_m(mvs.type(self.dtype))
+        res_feat = self.visual_r(res.type(self.dtype))
         return image_feat, mvs_feat, res_feat
 
 
@@ -698,31 +724,26 @@ def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joi
                 state_dict.pop(k)
 
         model.load_state_dict(state_dict,strict=False)
-
-
-    # # 输出测试
-    # # 获取当前模型的 state_dict
-    # model_state_dict = model.state_dict()
-    # # 找出匹配成功的键
-    # matched_keys = [key for key in state_dict.keys() if key in model_state_dict]
-
-    # # 找出未匹配的键（在state_dict中但在model中不存在）
-    # unmatched_keys = [key for key in state_dict.keys() if key not in model_state_dict]
-
-    # # 打印匹配和未匹配的键
-    # print("Matched Keys:")   # 512
-    # for key in matched_keys:
-    #     print(key)
-
-    # print("\nUnmatched Keys (ignored by strict=False):")   # 960
-    # for key in unmatched_keys:
-    #     print(key)
-
-    # # 可选：打印加载的参数名和形状
-    # print("\nLoaded Parameters (Matched Keys):")
-    # for key in matched_keys:
-    #     print(f"{key}: {model_state_dict[key].shape}")
-
-    # # 输出打印
+  
+    # 关键修改：使用深拷贝确保参数完全独立
+    if hasattr(model, 'visual_m') and hasattr(model, 'visual_r'):
+        import copy
+        
+        # 获取visual的状态字典
+        visual_state = model.visual.state_dict()
+        
+        # 深拷贝并加载到visual_m
+        visual_m_state = {}
+        for k, v in visual_state.items():
+            visual_m_state[k] = v.clone().detach()
+        model.visual_m.load_state_dict(visual_m_state)
+        
+        # 深拷贝并加载到visual_r
+        visual_r_state = {}
+        for k, v in visual_state.items():
+            visual_r_state[k] = v.clone().detach()
+        model.visual_r.load_state_dict(visual_r_state)
+        
+        print("=> Initialized visual_m and visual_r with independent parameters")
     return model.eval()
 

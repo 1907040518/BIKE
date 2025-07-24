@@ -1,0 +1,192 @@
+[07/18 16:12:55] BIKE INFO: ------------------------------------
+[07/18 16:12:55] BIKE INFO: Environment Versions:
+[07/18 16:12:55] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[07/18 16:12:55] BIKE INFO: - PyTorch: 1.12.1
+[07/18 16:12:55] BIKE INFO: - TorchVison: 0.13.1
+[07/18 16:12:55] BIKE INFO: ------------------------------------
+[07/18 16:12:55] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 1,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'Block': 'Origin',
+                   'M_Align': 'VCS',
+                   'S_Align': 'VCS',
+                   'arch': 'ViT-B/16',
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': True,
+                   'init': True,
+                   'interaction': 'VCS',
+                   'joint_st': False,
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'use_text_prompt_learning': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 20,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'mv_lr_ratio': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/18 16:12:55] BIKE INFO: ------------------------------------
+[07/18 16:12:55] BIKE INFO: storing name: exps/hmdb51/ViT-B/16/20250718_161252
+[07/18 16:12:57] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7d0d60d348e0>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7d0d60d34dc0>]
+[07/18 16:12:57] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7d0d54e9a2b0>, <Coviar.transforms.GroupCenterCrop object at 0x7d0d511edeb0>]
+[07/18 16:12:58] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/18 16:13:00] BIKE INFO: 
+🔍 获取样本数据进行分析...
+[07/18 16:13:01] BIKE INFO: 📊 数据维度:
+[07/18 16:13:01] BIKE INFO:    Images: torch.Size([16, 3, 224, 224])
+[07/18 16:13:01] BIKE INFO:    MVs: torch.Size([16, 2, 224, 224])
+[07/18 16:13:01] BIKE INFO:    Residuals: torch.Size([16, 3, 224, 224])
+[07/18 16:13:01] BIKE INFO:    Texts: torch.Size([1, 77])
+[07/18 16:13:01] BIKE INFO:    Batch size: 1, Time steps: 16
+[07/18 16:13:01] BIKE INFO: 
+===== 主模型结构分析 =====
+[07/18 16:13:01] BIKE INFO: ├─ 🔓 module [CLIP] Params: 149.62M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   ├─ 🔒 visual [VisualTransformer] Params: 86.19M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 conv1 [Conv2d] Params: 0.59M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 dropout [Dropout] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 ln_pre [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 transformer [V_Transformer] Params: 85.05M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 resblocks [Sequential] Params: 85.05M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 ln_post [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   ├─ 🔒 transformer [Transformer] Params: 37.83M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   ├─ 🔒 resblocks [ModuleList] Params: 37.83M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 0 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 1 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 2 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 3 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 4 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 5 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 6 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 7 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 8 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 9 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 10 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   │   │   ├─ 🔒 11 [ResidualAttentionBlock] Params: 3.15M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   ├─ 🔒 token_embedding [Embedding] Params: 25.30M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   ├─ 🔒 ln_final [LayerNorm] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: │   ├─ 🔒 dropout [Dropout] Params: 0.00M (Tunable: 0.00M)
+[07/18 16:13:01] BIKE INFO: 
+🔧 获取真实的中间特征...
+[07/18 16:13:03] BIKE INFO: ✅ 成功获取真实特征:
+[07/18 16:13:03] BIKE INFO:    Image embedding: torch.Size([1, 16, 512])
+[07/18 16:13:03] BIKE INFO:    MV embedding: torch.Size([1, 16, 512])
+[07/18 16:13:03] BIKE INFO:    CLS embedding: torch.Size([1, 512])
+[07/18 16:13:03] BIKE INFO:    Text embedding: torch.Size([1, 77, 512])
+[07/18 16:13:03] BIKE INFO:    Logit scale: 94.4537
+[07/18 16:13:03] BIKE INFO: 
+===== 模块详细分析 =====
+[07/18 16:13:03] BIKE INFO: 
+🔍 分析 Main Model...
+[07/18 16:13:04] BIKE INFO: 
+** Main Model **
+[07/18 16:13:04] BIKE INFO: FLOPs: 542.91G ✅
+[07/18 16:13:04] BIKE INFO: Params: 149.62M (Tunable: 0.00M)
+[07/18 16:13:04] BIKE INFO: Parameter占比: 0.0%
+[07/18 16:13:04] BIKE INFO: ⏱️  前向传播时间: 66.78±0.17ms (最快: 66.49ms)
+[07/18 16:13:04] BIKE INFO: 🚀 计算吞吐量: 8129.72 GFLOPs/s
+[07/18 16:13:04] BIKE INFO: 主要层结构:
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.conv1: 0.59M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.attn.out_proj: 0.59M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.mlp.c_fc: 2.36M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.0.mlp.c_proj: 2.36M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.attn.out_proj: 0.59M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.mlp.c_fc: 2.36M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.1.mlp.c_proj: 2.36M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.attn.out_proj: 0.59M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.mlp.c_fc: 2.36M
+[07/18 16:13:04] BIKE INFO:   🔒 module.visual.transformer.resblocks.2.mlp.c_proj: 2.36M
+[07/18 16:13:04] BIKE INFO:   ... (更多层)
+[07/18 16:13:04] BIKE INFO: 
+🔍 分析 Video Head...
+[07/18 16:13:04] BIKE INFO: 
+** Video Head **
+[07/18 16:13:04] BIKE INFO: FLOPs: 0.20G ✅
+[07/18 16:13:04] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 16:13:04] BIKE INFO: Parameter占比: 100.0%
+[07/18 16:13:04] BIKE INFO: ⏱️  前向传播时间: 3.64±0.02ms (最快: 3.60ms)
+[07/18 16:13:04] BIKE INFO: 🚀 计算吞吐量: 55.27 GFLOPs/s
+[07/18 16:13:04] BIKE INFO: 主要层结构:
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.3.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   ... (更多层)
+[07/18 16:13:04] BIKE INFO: 
+🔍 分析 MV Head...
+[07/18 16:13:04] BIKE INFO: 
+** MV Head **
+[07/18 16:13:04] BIKE INFO: FLOPs: 0.20G ✅
+[07/18 16:13:04] BIKE INFO: Params: 18.95M (Tunable: 18.95M)
+[07/18 16:13:04] BIKE INFO: Parameter占比: 100.0%
+[07/18 16:13:04] BIKE INFO: ⏱️  前向传播时间: 3.65±0.02ms (最快: 3.62ms)
+[07/18 16:13:04] BIKE INFO: 🚀 计算吞吐量: 55.15 GFLOPs/s
+[07/18 16:13:04] BIKE INFO: 主要层结构:
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.0.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.1.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_fc: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.2.mlp.c_proj: 1.05M
+[07/18 16:13:04] BIKE INFO:   🔓 module.transformer.resblocks.3.attn.out_proj: 0.26M
+[07/18 16:13:04] BIKE INFO:   ... (更多层)
+[07/18 16:13:04] BIKE INFO: 
+===== 全局统计 =====
+[07/18 16:13:04] BIKE INFO: 总计算量: 543.32 GFLOPs
+[07/18 16:13:04] BIKE INFO: 总参数量: 187.53M
+[07/18 16:13:04] BIKE INFO: 可训练参数: 37.91M
+[07/18 16:13:04] BIKE INFO: 可训练参数占比: 20.21%
+[07/18 16:13:04] BIKE INFO: ⏱️  总前向传播时间: 74.08ms
+[07/18 16:13:04] BIKE INFO: PEFT效率: ❌ 低效 (20.21%)
+[07/18 16:13:04] BIKE INFO: 
+===== 性能预估 =====
+[07/18 16:13:04] BIKE INFO: 📊 单步训练时间预估:
+[07/18 16:13:04] BIKE INFO:    前向传播: 74.08ms
+[07/18 16:13:04] BIKE INFO:    反向传播: 148.15ms (估算)
+[07/18 16:13:04] BIKE INFO:    总计: 227.23ms
+[07/18 16:13:04] BIKE INFO: 🚀 训练吞吐量: 4.4 samples/s
+[07/18 16:13:04] BIKE INFO: ⏰ 预估epoch时间: 6.8分钟
+[07/18 16:13:04] BIKE INFO: 
+===== 内存使用分析 =====
+[07/18 16:13:04] BIKE INFO: 💾 当前GPU内存: 0.87GB
+[07/18 16:13:04] BIKE INFO: 💾 峰值GPU内存: 1.12GB
+[07/18 16:13:04] BIKE INFO: 💾 模型参数内存: 0.70GB
+[07/18 16:13:04] BIKE INFO: 
+✅ 模型分析完成！

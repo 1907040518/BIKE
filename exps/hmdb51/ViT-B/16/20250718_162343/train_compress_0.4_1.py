@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import time
@@ -36,7 +35,8 @@ from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
-from validation import validate_performance_fixed
+
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -77,7 +77,7 @@ def get_parser():
     parser.add_argument(
         "--precision",
         choices=["amp", "fp16", "fp32"],
-        default="amp",
+        default="fp32",
         help="Floating point precition."
     )        
     parser.add_argument('--no-accumulation', action='store_true',
@@ -228,8 +228,9 @@ def main(args):
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
+            test_mode=True,
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))     
 
     ################ Few shot data for training ###########
     if config.data.shot:
@@ -275,7 +276,27 @@ def main(args):
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
             checkpoint = torch.load(config.pretrain, map_location='cpu')
+            
+            # 加载主模型权重
             model.load_state_dict(checkpoint['model_state_dict'], False)
+            
+            # 在训练文件中的权重同步部分
+            if hasattr(model, 'visual_m') and hasattr(model, 'visual_r'):
+                # 使用参数级别的复制，确保独立性
+                visual_params = dict(model.visual.named_parameters())
+                
+                for name, param in model.visual_m.named_parameters():
+                    visual_name = name.replace('visual_m.', 'visual.')
+                    if visual_name in visual_params:
+                        param.data.copy_(visual_params[visual_name].data)
+                
+                for name, param in model.visual_r.named_parameters():
+                    visual_name = name.replace('visual_r.', 'visual.')
+                    if visual_name in visual_params:
+                        param.data.copy_(visual_params[visual_name].data)
+                
+                logger.info("=> synced visual weights to visual_m and visual_r")
+            
             video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
             mv_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
             del checkpoint
@@ -306,7 +327,8 @@ def main(args):
   
     if config.network.fix_video:
         for name, param in model.named_parameters():
-            if "visual" in name:
+            # 固定所有视觉编码器
+            if any(prefix in name for prefix in ["visual.", "visual_m.", "visual_r."]):
                 param.requires_grad_(False)
 
     ## freeze some parameters
@@ -320,9 +342,9 @@ def main(args):
 
     optimizer = _optimizer(config, model, video_head, mv_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
-
+    # model._set_static_graph()
     if args.distributed:
-        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
+        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True,static_graph=True)
         
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
@@ -357,6 +379,7 @@ def main(args):
     save_score = True if config.data.select_topk_attributes else False
     #############
 
+
     for epoch in range(start_epoch, config.solver.epochs):
         if args.distributed:
             train_loader.sampler.set_epoch(epoch)        
@@ -365,17 +388,16 @@ def main(args):
         # print(video_head)
         # print(mv_head)
         # exit()
-        # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-        #       epoch, device, lr_scheduler, config, classes, logger)
-        # train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-        #       epoch, device, lr_scheduler, config, classes, logger)
+        analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+              epoch, device, lr_scheduler, config, classes, logger)
+        # train_loss = train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+        #                 epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
                 prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate_performance_fixed(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
-
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
                 best_prec1 = max(prec1, best_prec1)
@@ -755,20 +777,6 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                 optimizer.zero_grad()  # reset gradient
 
         losses.update(loss.item(), logits.size(0))
-        if first_iteration:
-            # 查看使用的参数
-            for name, param in model.named_parameters():
-                if hasattr(param, 'grad') and param.grad is not None:
-                    print(f" model Used parameter: {name}")
-            # # 查看使用的参数
-            # for name, param in video_head.named_parameters():
-            #     if hasattr(param, 'grad') and param.grad is not None:
-            #         print(f"video_head Used parameter: {name}")
-            # # 查看使用的参数
-            # for name, param in mv_head.named_parameters():
-            #     if hasattr(param, 'grad') and param.grad is not None:
-            #         print(f"mv_head Used parameter: {name}")
-            first_iteration = False  # 第一次迭代结束后，将标志变量设为 False
 
         batch_time.update(time.time() - end)
         end = time.time()
@@ -784,6 +792,7 @@ def train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler
                          'Loss {loss.val:.4f} ({loss.avg:.4f})'.format(
                              epoch, i, len(train_loader), eta_sec, batch_time=batch_time, data_time=data_time, loss=losses,
                              lr=optimizer.param_groups[-1]['lr'])))
+    return losses.avg    
 
 def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
           epoch, device, lr_scheduler, config, classes, logger):
@@ -821,25 +830,6 @@ def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion,
         texts = classes # n_cls 77
 
 
-# 1. 导入性能测试函数
-from performance_validation import validate_with_timing, benchmark_data_loading
-
-def validate_performance(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
-    """完全使用性能测试函数"""
-    logger.info("🚀 Using performance validation...")
-    
-    # 直接使用性能测试函数
-    top1, sims_list, labels_list, timing_stats = validate_with_timing(
-        epoch, val_loader, classes, device,
-        model, video_head, mv_head, config, n_class, logger,
-        return_sim=return_sim
-    )
-    
-    # 保存性能报告
-    with open(f'performance_report_epoch_{epoch}.json', 'w') as f:
-        json.dump({'timing_stats': timing_stats, 'accuracy': {'top1': top1}}, f, indent=2)
-    
-    return top1, sims_list, labels_list
 
 
 

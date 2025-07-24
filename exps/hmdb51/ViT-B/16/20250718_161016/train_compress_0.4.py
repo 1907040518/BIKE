@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import time
@@ -36,7 +35,7 @@ from modules.text_prompt import text_prompt
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
-from validation import validate_performance_fixed
+
 torch.autograd.set_detect_anomaly(True)  # 在代码开头启用
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -77,7 +76,7 @@ def get_parser():
     parser.add_argument(
         "--precision",
         choices=["amp", "fp16", "fp32"],
-        default="amp",
+        default="fp32",
         help="Floating point precition."
     )        
     parser.add_argument('--no-accumulation', action='store_true',
@@ -365,8 +364,8 @@ def main(args):
         # print(video_head)
         # print(mv_head)
         # exit()
-        # analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
-        #       epoch, device, lr_scheduler, config, classes, logger)
+        analyze_model(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
+              epoch, device, lr_scheduler, config, classes, logger)
         # train(model, video_head, mv_head, train_loader, optimizer, criterion, scaler,
         #       epoch, device, lr_scheduler, config, classes, logger)
 
@@ -374,7 +373,7 @@ def main(args):
             if config.data.dataset == 'charades':
                 prec1, output_list, labels_list = validate_mAP(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
             else:
-                prec1, output_list, labels_list = validate_performance_fixed(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger)
+                prec1, output_list, labels_list = validate(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, save_score)
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -821,25 +820,6 @@ def train_data_p(model, video_head, mv_head, train_loader, optimizer, criterion,
         texts = classes # n_cls 77
 
 
-# 1. 导入性能测试函数
-from performance_validation import validate_with_timing, benchmark_data_loading
-
-def validate_performance(epoch, val_loader, classes, device, model, video_head, mv_head, config, n_class, logger, return_sim=False):
-    """完全使用性能测试函数"""
-    logger.info("🚀 Using performance validation...")
-    
-    # 直接使用性能测试函数
-    top1, sims_list, labels_list, timing_stats = validate_with_timing(
-        epoch, val_loader, classes, device,
-        model, video_head, mv_head, config, n_class, logger,
-        return_sim=return_sim
-    )
-    
-    # 保存性能报告
-    with open(f'performance_report_epoch_{epoch}.json', 'w') as f:
-        json.dump({'timing_stats': timing_stats, 'accuracy': {'top1': top1}}, f, indent=2)
-    
-    return top1, sims_list, labels_list
 
 
 

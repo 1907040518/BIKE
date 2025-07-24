@@ -32,8 +32,8 @@ network:
     video_prompt: False
     joint_st: False
     drop: 0      
-    fix_text: True  
-    fix_video: True 
+    fix_text: False  
+    fix_video: False 
     Block: Origin
     use_text_prompt_learning: False
 solver:
