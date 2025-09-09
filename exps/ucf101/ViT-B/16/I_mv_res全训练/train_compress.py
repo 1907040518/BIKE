@@ -140,7 +140,7 @@ def main(args):
 
     # 检查配置中是否存在residual_layers_to_use参数
     residual_layers = config.network.get('residual_layers_to_use', None)  # 如果不存在则为None
-    mvs_layers = config.network.get('mvs_layers_to_use', None)  # 如果不存在则为None   
+    mvs_layers_to_use = config.network.get('mvs_layers_to_use', None)  # 如果不存在则为None   
     # get fp16 model and weight
     # model: 这将是一个可用于前向推理或继续训练的 CLIP 模型实例。你可以使用这个模型输入图像和文本进行特征提取、相似度计算等任务。
     # clip_state_dict: 包含了模型当前的权重和偏置，你可以使用这个字典在训练过程中更新模型的参数，或者在保存和加载模型时使用。
@@ -154,8 +154,7 @@ def main(args):
         emb_dropout=config.network.emb_dropout,
         pretrain=config.network.init,
         joint_st = config.network.joint_st,
-        residual_layers_to_use=residual_layers,
-        mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
+        residual_layers_to_use=residual_layers) # Must set jit=False for training  ViT-B/32
     
         # 在train.py中
 

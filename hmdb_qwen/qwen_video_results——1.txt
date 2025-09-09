@@ -1,0 +1,115 @@
+🤖 QWEN LMDB 多帧视频描述生成报告
+================================================================================
+
+📊 处理统计:
+  总视频数: 10
+  成功数量: 10
+  失败数量: 0
+  成功率: 100.0%
+  每视频采样帧数: 5
+  使用GPU: [0]
+
+📁 图像保存目录: /home/stu_b/BIKE/hmdb_qwen
+
+================================================================================
+
+📁 视频 1: sword_exercise/The_Last_Samurai_-_In_Your_Honor_sword_exercise_f_cm_np5_fr_bad_2
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/sword_exercise_The_Last_Samurai_-_In_Your_Honor_sword_exercise_f_cm_np5_fr_bad_2_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a person brushing their hair while standing in front of a mirror.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 2: sword_exercise/VERGIL_(DEVIL_MAY_CRY)_swinging_his_sword_sword_exercise_f_cm_np1_fr_med_2
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/sword_exercise_VERGIL_(DEVIL_MAY_CRY)_swinging_his_sword_sword_exercise_f_cm_np1_fr_med_2_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a person brushing their hair while sitting in front of a white wall.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 3: sword_exercise/Blade_Of_Fury_-_Scene_1_sword_exercise_f_cm_np1_fr_med_4
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/sword_exercise_Blade_Of_Fury_-_Scene_1_sword_exercise_f_cm_np1_fr_med_4_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a person with long, dark brown hair sitting in front of a white wall. The person is brushing their hair with a brush while facing away from the camera.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 4: dribble/JashaunKidsWhoRipAmazingBasketball_dribble_f_cm_np1_ba_med_7
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/dribble_JashaunKidsWhoRipAmazingBasketball_dribble_f_cm_np1_ba_med_7_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman with long, straight, light brown hair standing in a bathroom. She is holding a hairbrush and appears to be brushing her hair.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 5: laugh/Best_Of_Skype_Laughter_Chain_laugh_h_nm_np1_fr_bad_9
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/laugh_Best_Of_Skype_Laughter_Chain_laugh_h_nm_np1_fr_bad_9_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman in a blue bikini brushing her hair in a bathroom.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 6: run/happy_go_lovely_run_f_nm_np1_fr_med_16
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/run_happy_go_lovely_run_f_nm_np1_fr_med_16_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman in a bathroom, wearing a blue bikini top and blue shorts, standing in front of a mirror. She is brushing her hair while looking at herself.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 7: punch/HP_PRISONER_OF_AZKABAN_punch_u_cm_np1_ba_med_24
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/punch_HP_PRISONER_OF_AZKABAN_punch_u_cm_np1_ba_med_24_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman standing in a bathroom, wearing a blue bikini top and a blue bikini bottom. She is standing in front of a mirror, and there is a man standing behind her. The woman is holding a phone and appears to be engaged in a conversation with the man. The bathroom has a sink, a mirror, and some cabinets in the background. The video does not show any explicit content.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 8: dribble/Clay_sBasketballSkillz_dribble_f_nm_np1_fr_med_18
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/dribble_Clay_sBasketballSkillz_dribble_f_nm_np1_fr_med_18_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows two women in a bathroom, one with long blonde hair and the other with long brown hair. They are both brushing their hair.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 9: dribble/Basketball_Dribbling_Tips_dribble_f_cm_np1_le_med_7
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/dribble_Basketball_Dribbling_Tips_dribble_f_cm_np1_le_med_7_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman standing in a bathroom, brushing her hair.
+────────────────────────────────────────────────────────────────────────────────
+
+📁 视频 10: chew/Fun_Chewing_Gum!_chew_h_nm_np1_fr_med_1
+📊 状态: success
+🎬 提取帧数: 5
+📏 帧尺寸: [(340, 256), (340, 256), (340, 256), (340, 256), (340, 256)]
+💾 保存的图像数量: 5
+💾 首个图像路径: /home/stu_b/BIKE/hmdb_qwen/chew_Fun_Chewing_Gum!_chew_h_nm_np1_fr_med_1_frame_00.jpg
+🤖 Qwen视频描述:
+The video shows a woman standing in a bathroom, brushing her hair.
+────────────────────────────────────────────────────────────────────────────────
+
