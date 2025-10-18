@@ -1,10 +1,10 @@
-# pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
-pretrain: 
+pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+# pretrain: 
 resume:
 seed: 1024
 data:
     dataset: hmdb51
-    modality: iframe
+    modality: residual
     num_segments: 16
     seg_length: 1
     batch_size: 32
@@ -20,8 +20,6 @@ data:
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
-    qwen_val_path: lists/hmdb51/test_qwen.json
-    qwen_train_path: lists/hmdb51/train_qwen.json
 network:
     arch: ViT-B/16
     init: True 
@@ -32,10 +30,11 @@ network:
     S_Align: DP
     M_Align: DP
     interaction: DP
+    video_prompt: False
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: True 
+    fix_video: False 
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
 solver:

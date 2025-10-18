@@ -149,6 +149,7 @@ def main(args):
         config.network.arch,
         device='cpu',jit=False,
         internal_modeling=config.network.tm,
+        Block=config.network.Block,
         T=config.data.num_segments,
         dropout=config.network.drop_out,
         emb_dropout=config.network.emb_dropout,
@@ -156,6 +157,39 @@ def main(args):
         joint_st = config.network.joint_st,
         residual_layers_to_use=residual_layers,
         mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
+    
+        # 在train.py中
+
+    # 假设您已经加载了CLIP模型
+    # model = CLIP(...) 
+    # model.load_state_dict(torch.load('pretrained_clip.pth'))
+
+    # 获取VisualTransformer的配置参数
+    # vision_width = model.visual.width if hasattr(model.visual, 'width') else model.visual.conv1.weight.shape[0]
+    # patch_size = model.visual.conv1.weight.shape[2]  # 假设是方形patch
+    # input_resolution = model.visual.input_resolution
+
+    # # 创建两个PatchEmbedding实例，分别用于2通道和3通道输入
+    # patch_embed_mv = PatchEmbedding(
+    #     input_resolution=input_resolution,
+    #     patch_size=patch_size,
+    #     width=vision_width,
+    #     in_channels=2,
+    #     emb_dropout=0.1  # 可以根据需要调整
+    # )
+
+    # patch_embed_res = PatchEmbedding(
+    #     input_resolution=input_resolution,
+    #     patch_size=patch_size,
+    #     width=vision_width,
+    #     in_channels=3,
+    #     emb_dropout=0.1
+    # )
+
+    # # 从CLIP模型加载权重
+    # patch_embed_mv.load_clip_visual_weights(model, mode='average')
+    # patch_embed_res.load_clip_visual_weights(model)
+
 
     print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
@@ -219,18 +253,15 @@ def main(args):
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_train_path', None))
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
         val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
             test_mode=True,
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_val_path', None))
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
+
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -350,7 +381,7 @@ def main(args):
 
 
 
-    classes,n_class = text_prompt(train_data)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
+    classes,n_class = text_prompt(train_data, config)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
 
 
     if config.network.fix_text:
@@ -439,75 +470,103 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i, batch in enumerate(train_loader):  
-        if len(batch) == 5:
-            images, mvs, residuals, list_id, descriptions = batch
-        else:
-            images, mvs, residuals, list_id = batch
-            batch_size = images.size(0)
-            descriptions = [""] * batch_size
+    for i,(images, mvs, residuals,list_id) in enumerate(train_loader):  
+        # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
+        # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
+        # exit()
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
-        
+        # lr_scheduler.step()
         data_time.update(time.time() - end)
-        
-        # 数据预处理代码保持不变
-        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
-        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
-        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
-        
+        # b t3 h w
+        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
+        ## 处理MV
+        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])  # b t 3 h w
+        # print("mvs.dataloader ",mvs.shape)
+        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:]) # Adjust if necessary
         b, t, c_i, h, w = images.size()
         b, t, c_m, h, w = mvs.size()
         mvs = mvs.view(-1, c_m, h, w)
-        images = images.view(-1, c_i, h, w)
-        residuals = residuals.view(-1, c_i, h, w)
+        images = images.view(-1, c_i, h, w)  # Flatten batch and time steps  b*t c h w 
+        residuals = residuals.view(-1, c_i, h, w)  # Flatten residuals similarly
+        # Embedding MV RES
+        # print("mvs.shape", mvs.shape)
+        # embedded_mv = patch_embed_mv(mvs)
+        # print("embedded.mvs.shape", embedded_mv.shape)
 
-        texts = classes
-        desc_tokens = clip.tokenize(descriptions, truncate=True)
+        # print("res.shape", residuals.shape)
+        # embedded_res = patch_embed_res(residuals)
+        # print("embeddedres.shape", embedded_res.shape)
+
+        # print("images.shape", images.shape)
+        texts = classes # n_cls 77
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
-                texts = texts[list_id]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, desc_tokens, return_token=True)
-
-                # 重塑图像特征
-                image_embedding = image_embedding.view(b, t, -1)
-
-                # gather操作
+                texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                # embedding ，将prompt加在image前
+                # num_prompts = 3  # 添加的prompt tokens数量
+                
+                # # 原始形状是[b*t, feature_dim]，需要重新计算调整后的维度
+                # new_feature_dim = image_embedding.size(1) // t
+                # if image_embedding.size(0) != b*t:  # 如果大小不匹配
+                #     # 首先获取有效的embedding形状
+                #     total_tokens = image_embedding.size(0) // b
+                #     image_embedding = image_embedding.view(b, total_tokens, -1)
+                #     # 舍弃prompt tokens（假设放在开头）
+                #     image_embedding = image_embedding[:, num_prompts:, :].contiguous()
+                #     # 重新整形为[b, t, -1]
+                #     image_embedding = image_embedding.view(b, t, -1)
+                # else:
+                #     # 正常重塑
+                #     image_embedding = image_embedding.view(b, t, -1)
+                # image_embedding.shape== torch.Size([32, 768])
+                # cls_embedding.shape== torch.Size([2, 768])
+                # text_embedding.shape== torch.Size([2, 77, 768])
+                # logit_scale== tensor(95.5525, device='cuda:0', grad_fn=<ExpBackward>)
+                # image_embedding.view.shape== torch.Size([2, 16, 768])
+                image_embedding = image_embedding.view(b,t,-1)
+                # gather
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
-                cls_embedding = allgather(cls_embedding)
-
+                cls_embedding = allgather(cls_embedding)     
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
-                list_id = gather_labels(list_id.to(device))
-                ground_truth = torch.tensor(gen_label(list_id), dtype=image_embedding.dtype, device=device)
+                list_id = gather_labels(list_id.to(device))  # bs -> n_gpu * bs
 
+                ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
+                # gt = [bs bs]
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
-                loss = (loss_imgs + loss_texts) / 2
+                loss = (loss_imgs + loss_texts)/2
             else:
                 raise NotImplementedError
 
+            # loss regularization
             loss = loss / config.solver.grad_accumulation_steps
 
-        # 反向传播代码保持不变
-        if scaler is not None:
+        if scaler is not None:   # 混合精度使用，报错，修改Persian参数值可以修改使用的精度
+            # back propagation
+            # scaler.scale(loss).backward()
             scaled_loss = scaler.scale(loss)
             scaled_loss.backward()
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
                 scaler.step(optimizer)
                 scaler.update()
-                optimizer.zero_grad()
+                optimizer.zero_grad()  # reset gradient
         else:
+            # back propagation
             loss.backward()
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
-                optimizer.step()
-                optimizer.zero_grad()
+                optimizer.step()  # update param
+                optimizer.zero_grad()  # reset gradient
 
         losses.update(loss.item(), logits.size(0))
+
+
 
         batch_time.update(time.time() - end)
         end = time.time()
@@ -560,52 +619,50 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
 
 
+
+
 def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, return_sim=False):
     top1 = AverageMeter()
     top5 = AverageMeter()
     sims_list = []
     labels_list = []
-    
     model.eval()
     video_head.eval()
 
     with torch.no_grad():
-        text_inputs = classes.to(device)
-        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
-        print("")
-        for i, batch in enumerate(val_loader):
-            if len(batch) == 5:
-                image, mv, residual, class_id, descriptions = batch
-            else:
-                image, mv, residual, class_id = batch
-                batch_size = image.size(0)
-                descriptions = [""] * batch_size
-            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
-            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
-            
+        text_inputs = classes.to(device)  # [n_cls, 77]
+        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]  [cla,77,featdim512]
+        for i,(image, mv, residual, class_id) in enumerate(val_loader):
+            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])  # b t 3 h w
+            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])  # Adjust if necessary
+            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:]) # Adjust if necessary
             b, t, c_i, h, w = image.size()
             b, t, c_m, h, w = mv.size()
 
+            # if image.shape[2] == 2:
+            #     image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
+            # else:
+            #     image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
+    
+            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
+            # b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
+
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
-            image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
-            weights = F.softmax(model.module.beta, dim=0)
+            image_features, res_features, mvs_features  = model.module.encode_image(image_input, residual_input, mv_input)
+            weights = F.softmax(model.module.beta, dim=0)  # 计算权重，确保数值范围正常
+            # 按权重加和特征
             merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
 
             merged_feats = merged_feats.view(b, t, -1)
 
-            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
-            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
-            merged_feats = merged_feats + desc_cls.unsqueeze(1)
-
             similarity = video_head(merged_feats, text_features, cls_feature)
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
-            similarity = similarity.mean(dim=1, keepdim=False)
+            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
+            similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
 
             if return_sim:
                 sims = allgather(similarity)
@@ -626,10 +683,8 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                      'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                          i, len(val_loader), top1=top1, top5=top5)))
-    
     logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
         .format(top1=top1, top5=top5)))
-    
     if return_sim:
         return top1.avg, sims_list, labels_list
     else:

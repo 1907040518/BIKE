@@ -1,0 +1,31 @@
+{
+  "dataset": "UCF101",
+  "num_classes": 101,
+  "attributes": {
+    "motion": [
+      "rhythmic",
+      "continuous",
+      "repetitive",
+      "explosive",
+      "smooth",
+      "controlled",
+      "fast",
+      "slow"
+    ],
+    "appearance": [
+      "indoor",
+      "outdoor",
+      "bright",
+      "dark",
+      "natural",
+      "artificial",
+      "crowded",
+      "empty"
+    ]
+  },
+  "metadata": {
+    "motion_count": 8,
+    "appearance_count": 8,
+    "total_count": 16
+  }
+}

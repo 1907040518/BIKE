@@ -974,27 +974,19 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res, mv):
-        device = self.visual.conv1.weight.device
-        images = images.to(device)
-        res = res.to(device)
-        mv = mv.to(device)
-
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
+        
         # 编码残差信息
         if self.residual_encoder is not None:
             res_feat = self.residual_encoder(res.type(self.dtype))
+            mvs_feats = self.mvs_encoder(res.type(self.dtype))
         else:
-            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用视觉编码器
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
             res_feat = self.visual(res.type(self.dtype))
-
-        if hasattr(self, 'mvs_encoder') and self.mvs_encoder is not None:
-            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
-        else:
-            mvs_feats = self.visual(mv.type(self.dtype))
-
+        
+        
         return image_feat, res_feat, mvs_feats
 
 
@@ -1022,26 +1014,15 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, residual, mv, class_text, desc_text=None, return_token=False):
-        device = self.visual.conv1.weight.device
-        class_text = class_text.to(device)
+    def forward(self, image, residual,mv,text, return_token=False):
+        image_feats, residual_feats, mvs_feats= self.encode_image(image, residual, mv)
+        cls_feat, text_feats = self.encode_text(text, return_token)
+        # 使用可学习的beta参数，并确保它参与反向传播
+        weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
-        image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
-        cls_feat, text_feats = self.encode_text(class_text, return_token)
-        if desc_text is not None:
-            desc_text = desc_text.to(device)
-            desc_cls, _ = self.encode_text(desc_text, return_token=False)
-        else:
-            desc_cls = torch.zeros_like(cls_feat)
-
-        weights = F.softmax(self.beta, dim=0)
         merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 
-        batch_size = cls_feat.shape[0]
-        temporal_length = merged_feats.shape[0] // batch_size if batch_size > 0 else 1
-        merged_feats = merged_feats.view(batch_size, temporal_length, -1)
-        merged_feats = merged_feats + desc_cls.unsqueeze(1)
-        merged_feats = merged_feats.view(-1, merged_feats.shape[-1])
+
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 

@@ -5,17 +5,17 @@ seed: 1024
 data:
     dataset: sthv2
     modality: iframe
-    num_segments: 8
+    num_segments: 16
     seg_length: 1
-    batch_size: 128
+    batch_size: 32
     workers: 4
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/home/NAS/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
-    val_root: '/home/NAS/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
-    train_list: '/home/NAS/gmk/BIKE/lists/sthv2/train_rgb.txt'
-    val_list: '/home/NAS/gmk/BIKE/lists/sthv2/val_rgb.txt'
-    label_list: '/home/NAS/gmk/BIKE/lists/sthv2/sthv2_lables.csv'
+    train_root: '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2'
+    val_root: '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2'
+    train_list: '/home/stu_b/BIKE-main/lists/sthv2/train_subset_seed123.txt'
+    val_list: '/home/stu_b/BIKE-main/lists/sthv2/val_subset_seed123.txt'
+    label_list: '/home/stu_b/BIKE-main/lists/sthv2/sthv2_labels.csv'
     input_size: 224
     random_shift: True
     output_path: exps
@@ -31,16 +31,15 @@ network:
     drop_out: 0.0 
     emb_dropout: 0.0 
     sim_header: Transf
-    S_Align: VCS
-    M_Align: VCS
-    interaction: VCS
-    video_prompt: False
+    S_Align: DP
+    M_Align: DP
+    interaction: DP
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: True 
-    Block: Origin
-    use_text_prompt_learning: False
+    fix_video: False 
+    residual_layers_to_use: [0, 11]
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
 solver:
     type: cosine
     epochs: 30

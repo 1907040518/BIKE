@@ -1,0 +1,30 @@
+{
+  "dataset": "HMDB51",
+  "num_classes": 51,
+  "attributes": {
+    "motion": [
+      "slow",
+      "fast",
+      "rhythmic",
+      "sudden",
+      "continuous",
+      "repetitive",
+      "controlled",
+      "forceful"
+    ],
+    "appearance": [
+      "indoor",
+      "outdoor",
+      "natural",
+      "artificial",
+      "ambient",
+      "dim",
+      "bright"
+    ]
+  },
+  "metadata": {
+    "motion_count": 8,
+    "appearance_count": 7,
+    "total_count": 15
+  }
+}

@@ -94,33 +94,148 @@ class QwenCLIPLMDBGenerator:
             self.device = torch.device("cpu")
     
     def load_clip_model(self):
-        """加载CLIP模型"""
+        """加载CLIP模型 - 智能权重适配"""
         print("🔧 正在加载CLIP模型...")
         try:
-            # 使用你的CLIP加载方式
+            # 加载基础模型
             self.clip_model, clip_state_dict = clip.load(
                 self.clip_config['arch'],
                 device='cpu',
                 jit=False,
-                internal_modeling=None,  # 根据你的配置调整
-                Block="Origin",  # 根据你的配置调整
+                internal_modeling=None,
+                Block="Origin",
                 T=self.frames_per_video,
                 dropout=0.,
                 emb_dropout=0.,
-                pretrain=None,  # 根据你的配置调整
-                joint_st=False,  # 根据你的配置调整
+                pretrain=None,
+                joint_st=False,
                 residual_layers_to_use=self.clip_config['residual_layers_to_use'],
                 mvs_layers_to_use=self.clip_config['mvs_layers_to_use']
             )
             
+            print("✅ CLIP基础模型加载成功")
+            
+            # 加载和适配预训练权重
+            pretrained_path = "/home/stu_b/BIKE/exps/hmdb51/ViT-B/16/I_mv_res_全训练结果_76.6/model_best.pt"
+            
+            if os.path.exists(pretrained_path):
+                print(f"🔧 正在加载预训练权重: {pretrained_path}")
+                
+                checkpoint = torch.load(pretrained_path, map_location='cpu')
+                pretrained_state_dict = checkpoint['model_state_dict']
+                
+                # 适配权重
+                adapted_state_dict = self.adapt_pretrained_weights(
+                    pretrained_state_dict, 
+                    self.clip_model.state_dict()
+                )
+                
+                # 加载适配后的权重
+                missing_keys, unexpected_keys = self.clip_model.load_state_dict(
+                    adapted_state_dict, strict=False
+                )
+                
+                print(f"✅ 权重适配完成 - 缺失: {len(missing_keys)}, 意外: {len(unexpected_keys)}")
+                
+                if 'epoch' in checkpoint:
+                    print(f"🔧 预训练模型训练轮数: {checkpoint['epoch']}")
+            
             self.clip_model.to(self.device)
             self.clip_model.eval()
-            print("✅ CLIP模型加载成功")
+            
             return True
             
         except Exception as e:
             print(f"❌ CLIP模型加载失败: {e}")
             return False
+
+    def adapt_pretrained_weights(self, pretrained_dict, current_dict):
+        """适配预训练权重到当前模型"""
+        adapted_dict = {}
+        
+        for key, current_param in current_dict.items():
+            if key in pretrained_dict:
+                pretrained_param = pretrained_dict[key]
+                
+                if current_param.shape == pretrained_param.shape:
+                    # 形状匹配，直接使用
+                    adapted_dict[key] = pretrained_param
+                    print(f"✅ {key}: 直接匹配")
+                else:
+                    # 形状不匹配，尝试适配
+                    adapted_param = self.adapt_parameter(
+                        pretrained_param, current_param, key
+                    )
+                    if adapted_param is not None:
+                        adapted_dict[key] = adapted_param
+                        print(f"🔧 {key}: 适配成功 {pretrained_param.shape} -> {current_param.shape}")
+                    else:
+                        print(f"⚠️ {key}: 无法适配 {pretrained_param.shape} -> {current_param.shape}")
+            else:
+                print(f"⚠️ {key}: 预训练权重中不存在")
+        
+        return adapted_dict
+
+    def adapt_parameter(self, pretrained_param, current_param, param_name):
+        """适配单个参数"""
+        try:
+            if 'positional_embedding' in param_name:
+                # 位置编码适配
+                return self.adapt_positional_embedding(pretrained_param, current_param)
+            elif 'conv1.weight' in param_name:
+                # 卷积权重适配
+                return self.adapt_conv_weight(pretrained_param, current_param)
+            else:
+                # 其他参数暂时跳过
+                return None
+        except Exception as e:
+            print(f"❌ 参数适配失败 {param_name}: {e}")
+            return None
+
+    def adapt_positional_embedding(self, pretrained_pos, current_pos):
+        """适配位置编码"""
+        # pretrained: [197, 768] -> current: [50, 768]
+        # 简单的截取或插值策略
+        
+        if pretrained_pos.shape[0] > current_pos.shape[0]:
+            # 截取策略：保留前N个位置
+            print(f"🔧 位置编码截取: {pretrained_pos.shape[0]} -> {current_pos.shape[0]}")
+            return pretrained_pos[:current_pos.shape[0]]
+        elif pretrained_pos.shape[0] < current_pos.shape[0]:
+            # 插值策略
+            print(f"🔧 位置编码插值: {pretrained_pos.shape[0]} -> {current_pos.shape[0]}")
+            # 这里可以实现更复杂的插值
+            return current_pos  # 暂时使用当前权重
+        else:
+            return pretrained_pos
+
+    def adapt_conv_weight(self, pretrained_conv, current_conv):
+        """适配卷积权重"""
+        # pretrained: [768, 3, 16, 16] -> current: [768, 3, 32, 32]
+        # 可以使用插值或其他策略
+        
+        print(f"🔧 卷积权重适配: {pretrained_conv.shape} -> {current_conv.shape}")
+        
+        if pretrained_conv.shape[2:] != current_conv.shape[2:]:
+            # 使用双线性插值调整kernel size
+            import torch.nn.functional as F
+            
+            # 将权重reshape为适合插值的形状
+            pretrained_reshaped = pretrained_conv.view(-1, 1, *pretrained_conv.shape[2:])
+            target_size = current_conv.shape[2:]
+            
+            adapted_reshaped = F.interpolate(
+                pretrained_reshaped, 
+                size=target_size, 
+                mode='bilinear', 
+                align_corners=False
+            )
+            
+            adapted_conv = adapted_reshaped.view(*current_conv.shape)
+            return adapted_conv
+        
+        return pretrained_conv
+
     
     def setup_hf_mirror(self):
         """设置Hugging Face镜像源"""

@@ -14,6 +14,8 @@ from torch.cuda.amp import GradScaler
 import torchvision
 import numpy as np
 
+from Coviar.transforms import GroupMultiScaleCrop,GroupCenterCrop, GroupScale,GroupRandomHorizontalFlip
+
 from utils.utils import init_distributed_mode, epoch_saving, best_saving, AverageMeter, reduce_tensor, accuracy, create_logits, gen_label, gather_labels
 from utils.logger import setup_logger
 import clip
@@ -33,7 +35,6 @@ from utils.Augmentation import get_augmentation
 from utils.solver import _optimizer, _lr_scheduler
 from modules.text_prompt import text_prompt
 
-from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -158,18 +159,36 @@ def main(args):
         mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
 
     print(model)
-    if config.data.modality in ['mv', 'residual', 'iframe']:
-        transform_train = get_compress_augmentation(True, config)
-        transform_val = get_compress_augmentation(False, config)
+
+
+    def get_all_augmentations():
+        augmentation_dict = {}
         
-    else:
-        transform_train = get_augmentation(True, config)
-        transform_val = get_augmentation(False, config)
-
-
-    logger.info('train transforms: {}'.format(transform_train.transforms))
-    logger.info('val transforms: {}'.format(transform_val.transforms))
-
+        # i帧增强
+        iframe_scales = [1, .875, .75, .66]
+        iframe_transform = torchvision.transforms.Compose([
+            GroupMultiScaleCrop(224, iframe_scales),
+            GroupRandomHorizontalFlip(is_mv=False)
+        ])
+        augmentation_dict['iframe'] = iframe_transform
+        
+        # MV增强
+        mv_scales = [1, .875, .75]
+        mv_transform = torchvision.transforms.Compose([
+            GroupMultiScaleCrop(224, mv_scales),
+            GroupRandomHorizontalFlip(is_mv=True)
+        ])
+        augmentation_dict['mv'] = mv_transform
+        
+        # 残差增强
+        residual_scales = [1, .875, .75]
+        residual_transform = torchvision.transforms.Compose([
+            GroupMultiScaleCrop(224, residual_scales),
+            GroupRandomHorizontalFlip(is_mv=False)  # 残差通常不需要MV特有的水平翻转
+        ])
+        augmentation_dict['residual'] = residual_transform
+        
+        return augmentation_dict
 
     video_head = video_header(
         config.network.sim_header,
@@ -181,56 +200,24 @@ def main(args):
         model = model.float()
 
     
-    if config.data.modality in ['RGB', 'video']:
-        if config.data.dataset == 'charades':
-            from datasets.charades import Video_dataset
-            train_data = Video_dataset(
-                config.data.train_root, config.data.train_list,
-                config.data.label_list, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-                transform=transform_train, dense_sample=config.data.dense,
-                fps=config.data.fps)
-            val_data = Video_dataset(
-                config.data.val_root, config.data.val_list, config.data.label_list,
-                random_shift=False, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl,
-                transform=transform_val, test_mode=True, dense_sample=config.data.dense)            
-        else:
-            # 创建训练数据集和验证数据集
-            from datasets.video import Video_dataset
-            train_data = Video_dataset(
-                config.data.train_root, config.data.train_list,
-                config.data.label_list, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-                transform=transform_train, dense_sample=config.data.dense)
-            val_data = Video_dataset(
-                config.data.val_root, config.data.val_list, config.data.label_list,
-                random_shift=False, num_segments=config.data.num_segments,
-                modality=config.data.modality,
-                image_tmpl=config.data.image_tmpl,
-                transform=transform_val, dense_sample=config.data.dense)   
-    elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.compress_3 import Video_compress_dataset
-        train_data = Video_compress_dataset(
-            config.data.train_root, config.data.train_list,
-            config.data.label_list, num_segments=config.data.num_segments,
-            modality=config.data.modality,
-            image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_train_path', None))
-        val_data = Video_compress_dataset(
-            config.data.val_root, config.data.val_list, config.data.label_list,
-            random_shift=False, num_segments=config.data.num_segments,
-            modality=config.data.modality,
-            test_mode=True,
-            image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_val_path', None))
+    from datasets.video3 import Video_dataset
+    train_data = Video_dataset(
+        config.data.train_root, config.data.train_list,
+        config.data.label_list, num_segments=config.data.num_segments,
+        modality=config.data.modality,
+        image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
+        transform=get_all_augmentations(), dense_sample=config.data.dense)
+    val_data = Video_dataset(
+        config.data.val_root, config.data.val_list, config.data.label_list,
+        random_shift=False, num_segments=config.data.num_segments,
+        modality=config.data.modality,
+        # test_mode=True,    # 测试true
+        image_tmpl=config.data.image_tmpl,
+        transform = torchvision.transforms.Compose([
+                GroupScale(int(224 * 256 // 224)),
+                GroupCenterCrop(224),
+                ]))
+
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -439,13 +426,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i, batch in enumerate(train_loader):  
-        if len(batch) == 5:
-            images, mvs, residuals, list_id, descriptions = batch
-        else:
-            images, mvs, residuals, list_id = batch
-            batch_size = images.size(0)
-            descriptions = [""] * batch_size
+    for i,(images, residuals, mvs, list_id) in enumerate(train_loader):  
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
@@ -464,30 +445,33 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         residuals = residuals.view(-1, c_i, h, w)
 
         texts = classes
-        desc_tokens = clip.tokenize(descriptions, truncate=True)
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, desc_tokens, return_token=True)
-
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                
                 # 重塑图像特征
                 image_embedding = image_embedding.view(b, t, -1)
-
+                
+                # 方式2：加权融合（可选）
+                # alpha = 0.8  # 图像特征权重
+                # image_embedding = alpha * image_embedding + (1 - alpha) * class_embeds_expanded
+                
                 # gather操作
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
-                cls_embedding = allgather(cls_embedding)
-
+                cls_embedding = allgather(cls_embedding)     
+                
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
                 list_id = gather_labels(list_id.to(device))
-                ground_truth = torch.tensor(gen_label(list_id), dtype=image_embedding.dtype, device=device)
-
+                ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
+                
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
-                loss = (loss_imgs + loss_texts) / 2
+                loss = (loss_imgs + loss_texts)/2
             else:
                 raise NotImplementedError
 
@@ -573,13 +557,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         text_inputs = classes.to(device)
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
         print("")
-        for i, batch in enumerate(val_loader):
-            if len(batch) == 5:
-                image, mv, residual, class_id, descriptions = batch
-            else:
-                image, mv, residual, class_id = batch
-                batch_size = image.size(0)
-                descriptions = [""] * batch_size
+        for i,(image, residual, mv, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
@@ -597,10 +575,6 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
 
             merged_feats = merged_feats.view(b, t, -1)
-
-            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
-            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
-            merged_feats = merged_feats + desc_cls.unsqueeze(1)
 
             similarity = video_head(merged_feats, text_features, cls_feature)
 

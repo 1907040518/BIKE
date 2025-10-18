@@ -15,8 +15,9 @@ def fusion_acc():
     print('sentence_label===', sentence_labels_list.shape)
     print((video_labels_list == sentence_labels_list).sum())
 
-    a = 0.3
-    b = 0.7
+    a = 0
+    b = 1
+    
     fusion_matrix = a * video_sim + b * sentence_sim
     fusion_prec = accuracy(fusion_matrix, video_labels_list, topk=(1, 5))
     print('a=={}'.format(a), 'b=={}'.format(b), 'top1=={}'.format(fusion_prec[0].item()), 'top5=={}'.format(fusion_prec[1].item()))

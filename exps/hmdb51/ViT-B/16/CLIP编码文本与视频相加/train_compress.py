@@ -149,6 +149,7 @@ def main(args):
         config.network.arch,
         device='cpu',jit=False,
         internal_modeling=config.network.tm,
+        Block=config.network.Block,
         T=config.data.num_segments,
         dropout=config.network.drop_out,
         emb_dropout=config.network.emb_dropout,
@@ -156,6 +157,39 @@ def main(args):
         joint_st = config.network.joint_st,
         residual_layers_to_use=residual_layers,
         mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
+    
+        # 在train.py中
+
+    # 假设您已经加载了CLIP模型
+    # model = CLIP(...) 
+    # model.load_state_dict(torch.load('pretrained_clip.pth'))
+
+    # 获取VisualTransformer的配置参数
+    # vision_width = model.visual.width if hasattr(model.visual, 'width') else model.visual.conv1.weight.shape[0]
+    # patch_size = model.visual.conv1.weight.shape[2]  # 假设是方形patch
+    # input_resolution = model.visual.input_resolution
+
+    # # 创建两个PatchEmbedding实例，分别用于2通道和3通道输入
+    # patch_embed_mv = PatchEmbedding(
+    #     input_resolution=input_resolution,
+    #     patch_size=patch_size,
+    #     width=vision_width,
+    #     in_channels=2,
+    #     emb_dropout=0.1  # 可以根据需要调整
+    # )
+
+    # patch_embed_res = PatchEmbedding(
+    #     input_resolution=input_resolution,
+    #     patch_size=patch_size,
+    #     width=vision_width,
+    #     in_channels=3,
+    #     emb_dropout=0.1
+    # )
+
+    # # 从CLIP模型加载权重
+    # patch_embed_mv.load_clip_visual_weights(model, mode='average')
+    # patch_embed_res.load_clip_visual_weights(model)
+
 
     print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
@@ -219,18 +253,15 @@ def main(args):
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_train_path', None))
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
         val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
             test_mode=True,
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_val_path', None))
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
+
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -350,7 +381,7 @@ def main(args):
 
 
 
-    classes,n_class = text_prompt(train_data)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
+    classes,n_class = text_prompt(train_data, config)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
 
 
     if config.network.fix_text:
@@ -439,13 +470,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i, batch in enumerate(train_loader):  
-        if len(batch) == 5:
-            images, mvs, residuals, list_id, descriptions = batch
-        else:
-            images, mvs, residuals, list_id = batch
-            batch_size = images.size(0)
-            descriptions = [""] * batch_size
+    for i,(images, mvs, residuals,list_id) in enumerate(train_loader):  
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
@@ -464,30 +489,51 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         residuals = residuals.view(-1, c_i, h, w)
 
         texts = classes
-        desc_tokens = clip.tokenize(descriptions, truncate=True)
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, desc_tokens, return_token=True)
-
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                
                 # 重塑图像特征
                 image_embedding = image_embedding.view(b, t, -1)
-
+                
+                # 使用encode_text编码类别信息
+                # 获取当前batch对应的类别文本
+                class_texts = classes[list_id].to(device)  # [batch_size, 77] tokenized text
+                
+                # 使用encode_text编码类别
+                if args.distributed:
+                    class_cls_features, class_text_features = model.module.encode_text(class_texts, return_token=True)
+                else:
+                    class_cls_features, class_text_features = model.encode_text(class_texts, return_token=True)
+                
+                # class_cls_features: [batch_size, feature_dim]
+                # 扩展到所有时间步
+                class_embeds_expanded = class_cls_features.unsqueeze(1).repeat(1, t, 1)  # [batch_size, t, feature_dim]
+                
+                # 融合特征 - 可以尝试不同的融合方式
+                # 方式1：直接相加
+                image_embedding = image_embedding + class_embeds_expanded
+                
+                # 方式2：加权融合（可选）
+                # alpha = 0.8  # 图像特征权重
+                # image_embedding = alpha * image_embedding + (1 - alpha) * class_embeds_expanded
+                
                 # gather操作
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
-                cls_embedding = allgather(cls_embedding)
-
+                cls_embedding = allgather(cls_embedding)     
+                
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
                 list_id = gather_labels(list_id.to(device))
-                ground_truth = torch.tensor(gen_label(list_id), dtype=image_embedding.dtype, device=device)
-
+                ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
+                
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
-                loss = (loss_imgs + loss_texts) / 2
+                loss = (loss_imgs + loss_texts)/2
             else:
                 raise NotImplementedError
 
@@ -572,14 +618,8 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
     with torch.no_grad():
         text_inputs = classes.to(device)
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
-        print("")
-        for i, batch in enumerate(val_loader):
-            if len(batch) == 5:
-                image, mv, residual, class_id, descriptions = batch
-            else:
-                image, mv, residual, class_id = batch
-                batch_size = image.size(0)
-                descriptions = [""] * batch_size
+        
+        for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
@@ -597,10 +637,23 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
 
             merged_feats = merged_feats.view(b, t, -1)
-
-            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
-            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
-            merged_feats = merged_feats + desc_cls.unsqueeze(1)
+            
+            # 使用encode_text编码类别信息
+            # 获取当前batch对应的类别文本
+            # 修正：先将class_id移到CPU，然后索引classes，最后将结果移到GPU
+            class_id_cpu = class_id.cpu()  # 将索引移到CPU
+            class_texts = classes[class_id_cpu]  # 在CPU上进行索引
+            class_texts = class_texts.to(device)  # 将结果移到GPU
+            
+            # 使用encode_text编码类别
+            class_cls_features, class_text_features = model.module.encode_text(class_texts, return_token=True)
+            
+            # class_cls_features: [batch_size, feature_dim]
+            # 扩展到所有时间步
+            class_embeds_expanded = class_cls_features.unsqueeze(1).repeat(1, t, 1)  # [batch_size, t, feature_dim]
+            
+            # 融合特征
+            merged_feats = merged_feats + class_embeds_expanded
 
             similarity = video_head(merged_feats, text_features, cls_feature)
 

@@ -219,18 +219,15 @@ def main(args):
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_train_path', None))
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
         val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            test_mode=True,
+            test_mode=True,    # 测试true
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_val_path', None))
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
+
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -439,13 +436,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     video_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i, batch in enumerate(train_loader):  
-        if len(batch) == 5:
-            images, mvs, residuals, list_id, descriptions = batch
-        else:
-            images, mvs, residuals, list_id = batch
-            batch_size = images.size(0)
-            descriptions = [""] * batch_size
+    for i,(images, mvs, residuals,list_id) in enumerate(train_loader):  
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
@@ -464,30 +455,33 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         residuals = residuals.view(-1, c_i, h, w)
 
         texts = classes
-        desc_tokens = clip.tokenize(descriptions, truncate=True)
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, desc_tokens, return_token=True)
-
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                
                 # 重塑图像特征
                 image_embedding = image_embedding.view(b, t, -1)
-
+                
+                # 方式2：加权融合（可选）
+                # alpha = 0.8  # 图像特征权重
+                # image_embedding = alpha * image_embedding + (1 - alpha) * class_embeds_expanded
+                
                 # gather操作
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
-                cls_embedding = allgather(cls_embedding)
-
+                cls_embedding = allgather(cls_embedding)     
+                
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
                 list_id = gather_labels(list_id.to(device))
-                ground_truth = torch.tensor(gen_label(list_id), dtype=image_embedding.dtype, device=device)
-
+                ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
+                
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
-                loss = (loss_imgs + loss_texts) / 2
+                loss = (loss_imgs + loss_texts)/2
             else:
                 raise NotImplementedError
 
@@ -573,13 +567,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         text_inputs = classes.to(device)
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
         print("")
-        for i, batch in enumerate(val_loader):
-            if len(batch) == 5:
-                image, mv, residual, class_id, descriptions = batch
-            else:
-                image, mv, residual, class_id = batch
-                batch_size = image.size(0)
-                descriptions = [""] * batch_size
+        for i,(image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
@@ -597,10 +585,6 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
 
             merged_feats = merged_feats.view(b, t, -1)
-
-            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
-            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
-            merged_feats = merged_feats + desc_cls.unsqueeze(1)
 
             similarity = video_head(merged_feats, text_features, cls_feature)
 

@@ -3,7 +3,7 @@ resume:
 seed: 1024
 data:
     dataset: ucf101
-    modality: residual
+    modality: iframe
     num_segments: 16
     seg_length: 1
     batch_size: 16
@@ -26,14 +26,12 @@ network:
     drop_out: 0.0 
     emb_dropout: 0.0  # 嵌入层的Dropout率为0.0
     sim_header: Transf  # 相似性头部为Transformer
-    interaction: VCS  # 交互类型为VCS
+    interaction: DP  # 交互类型为VCS
     video_prompt: False
     joint_st: False
     drop: 0      
     fix_text: True  
     fix_video: False
-    Block: Origin
-    use_text_prompt_learning: False
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
 solver:

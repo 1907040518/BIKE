@@ -183,6 +183,7 @@ def main(args):
         modality=config.data.modality,
         image_tmpl=config.data.image_tmpl,
         transform=transform_val, dense_sample=config.data.dense,
+        test_mode=True,
         select_topk_attributes=config.data.select_topk_attributes,
         attributes_path=config.data.attributes_val_path,
         train_video=False
@@ -225,9 +226,8 @@ def main(args):
         else:
             logger.info("=> no checkpoint found at '{}'".format(config.pretrain))
 
-    classes,n_class = text_prompt(train_data, config) 
-
-
+    classes,n_class = text_prompt(train_data)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
+    
     for name, param in model.named_parameters():
         if "visual" not in name and "logit_scale" not in name:
             param.requires_grad_(False)

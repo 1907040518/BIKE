@@ -197,7 +197,8 @@ This implementation supports Multi-GPU `DistributedDataParallel` training, which
 1. **Single Machine**: To train our model on Kinetics-400 with 8 GPUs in *Single Machine*, you can run:
 ```sh
 # We train the 8 Frames ViT-B/32 video model (i.e., video branch).
-sh scripts/run_train.sh  configs/k400/k400_train_rgb_vitb-32-f8.yaml
+sh scripts/run_train_23.sh  configs/k400/k400_train_rgb_vitb-32-f8.yaml
+sh scripts/run_train_23.sh  /home/stu_b/BIKE/configs/hmdb51/hmdb_CLIP_fix_B16_0_11.yaml
 
 # We train the video branch and attributes branch.
 sh scripts/run_co_train.sh  configs/k400/k400_train_video_attr_vitb-32-f8.yaml

@@ -1,7 +1,12 @@
 import torch.optim as optim
 from utils.lr_scheduler import WarmupMultiStepLR, WarmupCosineAnnealingLR
 
-def _optimizer(config, model, video_head):
+def _optimizer(config, model, video_head, extra_params=None):
+
+    params = list(model.parameters()) + list(video_head.parameters())
+    if extra_params is not None:
+        params.extend(list(extra_params))
+
     if config.solver.optim == 'adam':
         optimizer = optim.Adam([{'params': model.parameters()},  
          {'params': video_head.parameters(), 'lr': config.solver.lr}],

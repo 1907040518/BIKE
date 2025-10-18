@@ -352,15 +352,34 @@ class ResidualAttentionBlock(nn.Module):
 
 # 可以进行识别，加入Cross条件的transformer
 class V_Transformer(nn.Module):
-    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None, T = 8):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, dropout=None, Block = "Origin", T = 8):
         super().__init__()
         if dropout is None:
             dropout = [0.0 for i in range(layers)] 
         print('dropout used:{}'.format(dropout))
         self.width = width
         self.layers = layers
-        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
 
+        if Block == 'Origin':
+            print("model Block: ResidualAttentionBlock")
+            self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers)])
+        elif Block == 'Cross':
+            print("model Block: CrossFramelAttentionBlock")
+            # 创建剩余层的ResidualAttentionBlock
+            # 假设ResidualAttentionBlock的定义不需要attn_mask和T参数
+            residual_blocks = [
+                ResidualAttentionBlock(width, heads, attn_mask, dropout=dropout[i]) for i in range(layers-3)
+            ]
+            # 创建前三层CrossFramelAttentionBlock
+            cross_frame_blocks = [
+                CrossFramelAttentionBlock(width, heads, attn_mask, dropout[i], T) for i in range(layers-3, layers)
+            ]
+
+            # 合并两个列表
+            all_blocks =  residual_blocks+ cross_frame_blocks
+
+            # 创建Sequential模型
+            self.resblocks = nn.Sequential(*all_blocks)
         self.grad_checkpointing = True
 
     def forward(self, x: torch.Tensor):
@@ -557,7 +576,7 @@ class CMFMPlus(nn.Module):
         return video_embed
 
 class VisualTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0., Block = "Origin", T=8):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -579,7 +598,7 @@ class VisualTransformer(nn.Module):
             print('emb_dropout:{}'.format(emb_dropout))
 
         ## Attention Blocks
-        self.transformer = V_Transformer(width, layers, heads, dropout=dropout,T=T,)
+        self.transformer = V_Transformer(width, layers, heads, dropout=dropout,Block = Block, T=T,)
 
         self.ln_post = LayerNorm(width)
         self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
@@ -820,7 +839,7 @@ class CLIP(nn.Module):
                  transformer_heads: int,
                  transformer_layers: int,
                  joint=False,
-                 tm=None, T=8,dropout = 0., emb_dropout = 0.,
+                 tm=None, Block = "Origin", T=8,dropout = 0., emb_dropout = 0.,
                  residual_layers_to_use=None,  # 新增参数：指定使用哪几层 
                  mvs_layers_to_use=None  # 新增MVS层参数
                 ):
@@ -862,6 +881,7 @@ class CLIP(nn.Module):
                 output_dim=embed_dim,
                 joint=joint,dropout=dpr,
                 emb_dropout=emb_dropout,
+                Block=Block,
                 T=T,
             )
             # 创建独立的残差编码器
@@ -974,27 +994,19 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res, mv):
-        device = self.visual.conv1.weight.device
-        images = images.to(device)
-        res = res.to(device)
-        mv = mv.to(device)
-
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
+        
         # 编码残差信息
         if self.residual_encoder is not None:
             res_feat = self.residual_encoder(res.type(self.dtype))
+            mvs_feats = self.mvs_encoder(res.type(self.dtype))
         else:
-            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用视觉编码器
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
             res_feat = self.visual(res.type(self.dtype))
-
-        if hasattr(self, 'mvs_encoder') and self.mvs_encoder is not None:
-            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
-        else:
-            mvs_feats = self.visual(mv.type(self.dtype))
-
+        
+        
         return image_feat, res_feat, mvs_feats
 
 
@@ -1022,26 +1034,15 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, residual, mv, class_text, desc_text=None, return_token=False):
-        device = self.visual.conv1.weight.device
-        class_text = class_text.to(device)
+    def forward(self, image, residual,mv,text, return_token=False):
+        image_feats, residual_feats, mvs_feats= self.encode_image(image, residual, mv)
+        cls_feat, text_feats = self.encode_text(text, return_token)
+        # 使用可学习的beta参数，并确保它参与反向传播
+        weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
-        image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
-        cls_feat, text_feats = self.encode_text(class_text, return_token)
-        if desc_text is not None:
-            desc_text = desc_text.to(device)
-            desc_cls, _ = self.encode_text(desc_text, return_token=False)
-        else:
-            desc_cls = torch.zeros_like(cls_feat)
-
-        weights = F.softmax(self.beta, dim=0)
         merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 
-        batch_size = cls_feat.shape[0]
-        temporal_length = merged_feats.shape[0] // batch_size if batch_size > 0 else 1
-        merged_feats = merged_feats.view(batch_size, temporal_length, -1)
-        merged_feats = merged_feats + desc_cls.unsqueeze(1)
-        merged_feats = merged_feats.view(-1, merged_feats.shape[-1])
+
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 
@@ -1069,7 +1070,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None):
+def build_model(state_dict: dict,  tm=None,Block = "Origin", T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -1099,7 +1100,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,Block=Block,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

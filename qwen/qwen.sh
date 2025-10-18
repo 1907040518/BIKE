@@ -1,4 +1,4 @@
-python /home/stu_b/BIKE/qwen/ProcessorWrapper.py \
+python /home/stu_b/BIKE/qwen/qwen_lmdb_fixed.py \
     --image_lmdb /mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_frames.lmdb \
     --res_lmdb /mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_residuals.lmdb \
     --mv_lmdb /mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_mvs.lmdb \

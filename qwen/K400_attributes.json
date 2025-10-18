@@ -1,0 +1,27 @@
+{
+  "dataset": "K400",
+  "num_classes": 400,
+  "attributes": {
+    "motion": [
+      "fast",
+      "slow",
+      "rhythmic",
+      "sudden",
+      "smooth",
+      "repetitive"
+    ],
+    "appearance": [
+      "indoor",
+      "outdoor",
+      "bright",
+      "dark",
+      "crowded",
+      "empty"
+    ]
+  },
+  "metadata": {
+    "motion_count": 6,
+    "appearance_count": 6,
+    "total_count": 12
+  }
+}

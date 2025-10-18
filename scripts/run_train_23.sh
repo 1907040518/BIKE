@@ -8,6 +8,7 @@ fi
 
 now=$(date +"%Y%m%d_%H%M%S")
 export CUDA_VISIBLE_DEVICES=2,3
-python -m torch.distributed.launch --master_port 1223 --nproc_per_node=2 \
-         train_compress.py  --config ${config} --log_time $now
-         
+
+# 使用torchrun替代torch.distributed.launch
+torchrun --nproc_per_node=2 --master_port=1223 \
+         train3.py --config ${config} --log_time $now

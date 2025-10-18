@@ -4,24 +4,21 @@ seed: 1024
 data:
     dataset: k400
     modality: iframe
-    num_segments: 8
+    num_segments: 16
     seg_length: 1
-    batch_size: 32
-    workers: 4
+    batch_size: 64
+    workers: 8
     num_classes: 400
     image_tmpl: 'img_{:05d}.jpg'
-    train_root: '/mnt/data/k400/kinetics/compress/train_comp'
-    train_list: 'lists/k400/kinetics_train_updated.txt'
-    val_root: '/mnt/data/k400/kinetics/compress/val_comp'
-    val_list: lists/k400/kinetics_val.txt
+    train_root: '/mnt/data/CKinetics'
+    train_list: 'lists/k400/k400_train.txt'
+    val_root: '/mnt/data/CKinetics'
+    val_list: lists/k400/k400_val.txt
     label_list: 'lists/k400/kinetics_400_labels.csv'
     input_size: 224
     random_shift: True
     output_path: exps
-prompt:
-    n_ctx: 2
-    ctx_init: "This is a video about"
-    prompt_depth: 9
+    GOP_SIZE: 12
 network:
     arch: ViT-B/16  #ViT-B/32 ViT-B/16
     init: True
@@ -29,11 +26,13 @@ network:
     drop_out: 0.0 
     emb_dropout: 0.0 
     sim_header: Transf  # Transf   None  
-    interaction: VCS  # DP VCS
+    interaction: DP  # DP VCS
     joint_st: False
     drop: 0           
     fix_text: True  
-    fix_video: True        
+    fix_video: True      
+    residual_layers_to_use: [0, 11]   # [0, 11]  # ViT-B/16使用的层
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层  
 solver:
     type: cosine
     epochs: 30

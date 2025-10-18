@@ -95,7 +95,7 @@ def load(
         name: str,
         device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", 
         jit=True, 
-        internal_modeling=False, joint_st=False, Block= "Origin",T=8, dropout=0., 
+        internal_modeling=False, joint_st=False, T=8, dropout=0., 
         emb_dropout=0., 
         pretrain=True,residual_layers_to_use=None,mvs_layers_to_use=None):
     """Load a CLIP model
@@ -168,7 +168,7 @@ def load(
     if not jit:
 
         model = build_model(state_dict or model.state_dict(), joint=joint_st, tm=internal_modeling, 
-                            Block=Block, T=T, 
+                            T=T, 
                             dropout=dropout, 
                             emb_dropout=emb_dropout, 
                             pretrain=pretrain,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use).to(device)

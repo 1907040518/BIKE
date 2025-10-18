@@ -4,7 +4,6 @@ import decord
 import matplotlib.pyplot as plt
 import os
 import os.path
-import json
 import numpy as np
 from numpy.random import randint
 import io
@@ -76,8 +75,7 @@ class Video_compress_dataset(data.Dataset):
                  image_tmpl='img_{:05d}.jpg', transform=None,
                  random_shift=True, test_mode=False,
                  index_bias=1, dense_sample=False, test_clips=3,
-                 num_sample=1, accumulate=False, GOP_SIZE=12,
-                 text_map_path=None):
+                 num_sample=1, accumulate=False, GOP_SIZE=12):
 
         self.root_path = root_path
         self.list_file = list_file
@@ -97,7 +95,6 @@ class Video_compress_dataset(data.Dataset):
         self.num_sample = num_sample
         self.accumulate = accumulate
         self.GOP_SIZE = GOP_SIZE
-        self.return_description = text_map_path is not None
         
         self.input_mean = torch.from_numpy(
             np.array([0.485, 0.456, 0.406]).reshape((1, 3, 1, 1))).float()
@@ -115,47 +112,6 @@ class Video_compress_dataset(data.Dataset):
             else:
                 self.index_bias = 1
         self._parse_list()
-        self._load_text_map(text_map_path)
-
-    def _load_text_map(self, text_map_path):
-        self.text_map = {}
-        if not text_map_path:
-            return
-        try:
-            with open(text_map_path, 'r', encoding='utf-8') as f:
-                raw = json.load(f)
-            for key, value in raw.items():
-                desc = self._extract_description(value)
-                if desc:
-                    self.text_map[key] = desc
-        except Exception as e:
-            print(f"Failed to load text descriptions from {text_map_path}: {e}")
-            self.text_map = {}
-
-    @staticmethod
-    def _extract_description(value):
-        if isinstance(value, dict):
-            for field in ['semantic_description', 'description', 'caption', 'text']:
-                desc = value.get(field)
-                if desc:
-                    if isinstance(desc, list):
-                        return " ".join(str(x) for x in desc)
-                    return str(desc)
-            return ""
-        if isinstance(value, list):
-            return " ".join(str(x) for x in value)
-        if isinstance(value, str):
-            return value
-        return str(value)
-
-    def _get_description(self, video_record):
-        key = os.path.splitext(video_record.path)[0]
-        description = self.text_map.get(key, "") if hasattr(self, 'text_map') else ""
-        if description:
-            return description
-        # 默认回退为简单描述，避免空字符串
-        action_name = key.split('/')[-1].replace('_', ' ')
-        return f"This video shows {action_name}."
 
     @property
     def total_length(self):
@@ -371,11 +327,7 @@ class Video_compress_dataset(data.Dataset):
             input_residual = (input_residual - 0.5) / self.input_std
             input_mv = (input_mv - 0.5)
 
-            if self.return_description:
-                description = self._get_description(video_record)
-                return input_iframe, input_mv, input_residual, label, description
-            else:
-                return input_iframe, input_mv, input_residual, label
+            return input_iframe, input_mv, input_residual, label
 
     def _load_image(self, directory, idx):
         if self.modality == 'RGB':

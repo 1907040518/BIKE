@@ -1,0 +1,31 @@
+{
+  "dataset": "sthv2",
+  "num_classes": 174,
+  "attributes": {
+    "motion": [
+      "slow",
+      "sudden",
+      "smooth",
+      "rhythmic",
+      "continuous",
+      "repetitive",
+      "controlled",
+      "jerky"
+    ],
+    "appearance": [
+      "indoor",
+      "outdoor",
+      "bright",
+      "dark",
+      "cluttered",
+      "clean",
+      "natural",
+      "plain"
+    ]
+  },
+  "metadata": {
+    "motion_count": 8,
+    "appearance_count": 8,
+    "total_count": 16
+  }
+}

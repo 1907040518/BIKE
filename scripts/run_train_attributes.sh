@@ -7,6 +7,8 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-python -m torch.distributed.launch --master_port 1236 --nproc_per_node=8 \
-         train_attributes.py  --config ${config} --log_time $now;
+export CUDA_VISIBLE_DEVICES=0,1
 
+# 使用torchrun替代torch.distributed.launch
+torchrun --nproc_per_node=2 --master_port=12010 \
+         train_attributes.py --config ${config} --log_time $now
