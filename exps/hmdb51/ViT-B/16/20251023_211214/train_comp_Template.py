@@ -31,7 +31,7 @@ from modules.video_clip import video_header
 from utils.NCELoss import NCELoss, DualLoss
 from utils.Augmentation import get_augmentation
 from utils.solver import _optimizer, _lr_scheduler
-from modules.text_prompt import text_prompt
+from modules.text_prompt import text_prompt, VerbObjectPromptLearner
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
@@ -157,7 +157,7 @@ def main(args):
         residual_layers_to_use=residual_layers,
         mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
 
-    print(model)
+    # print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
         transform_train = get_compress_augmentation(True, config)
         transform_val = get_compress_augmentation(False, config)
@@ -352,11 +352,35 @@ def main(args):
 
     classes,n_class = text_prompt(train_data)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
 
+    action_prompt_cfg = config.network.get('action_prompt', DotMap())
+    action_prompt_enabled = bool(action_prompt_cfg.get('enable', False))
+    if action_prompt_enabled:
+        classnames = [c for _, c in train_data.classes]
+        prompt_learner = VerbObjectPromptLearner(
+            classnames=classnames,
+            clip_model=model,
+            template=action_prompt_cfg.get('template', "A video of people {}ing {}."),
+            verb_init=action_prompt_cfg.get('verb_init', 'doing'),
+            object_init=action_prompt_cfg.get('object_init', 'something'),
+            class_specific=action_prompt_cfg.get('class_specific', True),
+        )
+        model.attach_action_prompt(prompt_learner)
+        if (not args.distributed) or dist.get_rank() == 0:
+            logger.info("Action prompt branch enabled (fusion='add').")
+    else:
+        if (not args.distributed) or dist.get_rank() == 0:
+            logger.info("Action prompt branch disabled.")
+
 
     if config.network.fix_text:
         for name, param in model.named_parameters():
-            if "visual" not in name and "logit_scale" not in name and "beta" not in name:
-                param.requires_grad_(False)
+            if "visual" in name:
+                continue
+            if "logit_scale" in name or "beta" in name:
+                continue
+            if "action_prompt" in name or "verb_embeddings" in name or "object_embeddings" in name:
+                continue
+            param.requires_grad_(False)
   
     if config.network.fix_video:
         for name, param in model.named_parameters():
@@ -469,7 +493,15 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, desc_tokens, return_token=True)
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(
+                    images,
+                    residuals,
+                    mvs,
+                    texts,
+                    desc_tokens,
+                    return_token=True,
+                    class_ids=list_id,
+                )
 
                 # 重塑图像特征
                 image_embedding = image_embedding.view(b, t, -1)
@@ -593,14 +625,23 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
             image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
-            weights = F.softmax(model.module.beta, dim=0)
-            merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-
-            merged_feats = merged_feats.view(b, t, -1)
-
             desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
             desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
+
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_feats = (
+                weights[0] * image_features
+                + weights[1] * res_features
+                + weights[2] * mvs_features
+            )
+
+            merged_feats = merged_feats.view(b, t, -1)
             merged_feats = merged_feats + desc_cls.unsqueeze(1)
+
+            if model.module.action_prompt_learner is not None:
+                action_cls = model.module.encode_action_prompts(class_id)
+                if action_cls is not None:
+                    merged_feats = merged_feats + action_cls.unsqueeze(1).type_as(merged_feats)
 
             similarity = video_head(merged_feats, text_features, cls_feature)
 
@@ -657,8 +698,21 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
             b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c, h, w)
-            image_features = model.module.encode_image(image_input).view(b, t, -1)
-            similarity = video_head(image_features, text_features, cls_feature)
+            image_features, res_features, mvs_features = model.module.encode_image(image_input)
+
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_feats = (
+                weights[0] * image_features
+                + weights[1] * res_features
+                + weights[2] * mvs_features
+            ).view(b, t, -1)
+
+            if model.module.action_prompt_learner is not None:
+                action_cls = model.module.encode_action_prompts(class_id)
+                if action_cls is not None:
+                    merged_feats = merged_feats + action_cls.unsqueeze(1).type_as(merged_feats)
+
+            similarity = video_head(merged_feats, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]
             similarity = similarity.mean(dim=1, keepdim=False)  # [bs, 400]

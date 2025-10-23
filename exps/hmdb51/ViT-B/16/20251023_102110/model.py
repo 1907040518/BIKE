@@ -929,8 +929,6 @@ class CLIP(nn.Module):
 
         self.T = T
 
-        self.action_prompt_learner = None
-
         self.initialize_parameters()
 
 
@@ -976,62 +974,11 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def attach_action_prompt(self, prompt_learner):
-        self.action_prompt_learner = prompt_learner
-
-    def _encode_prompt_embeddings(self, prompt_embeddings, tokenized_prompts, return_token=False):
-        x = prompt_embeddings.type(self.dtype)
-        x = x + self.positional_embedding.type(self.dtype)
-        if self.emb_dropout > 0:
-            x = self.dropout(x)
-        x = x.permute(1, 0, 2)
-        x = self.transformer(x)
-        x = x.permute(1, 0, 2)
-        x = self.ln_final(x).type(self.dtype)
-
-        text_token = x @ self.text_projection
-        eot_indices = tokenized_prompts.argmax(dim=-1)
-        cls_token = x[torch.arange(x.shape[0]), eot_indices] @ self.text_projection
-
-        if return_token:
-            return cls_token, text_token
-        return cls_token, None
-
-    def encode_action_prompts(self, class_ids):
-        if self.action_prompt_learner is None or class_ids is None:
-            return None
-
-        if isinstance(class_ids, torch.Tensor):
-            indices = class_ids.to(self.token_embedding.weight.device, dtype=torch.long)
-        else:
-            indices = torch.as_tensor(class_ids, device=self.token_embedding.weight.device, dtype=torch.long)
-
-        prompt_embeddings, prompt_tokens = self.action_prompt_learner(indices)
-        prompt_embeddings = prompt_embeddings.to(device=self.token_embedding.weight.device, dtype=self.dtype)
-        prompt_tokens = prompt_tokens.to(self.token_embedding.weight.device)
-
-        action_cls, _ = self._encode_prompt_embeddings(prompt_embeddings, prompt_tokens, return_token=False)
-        return action_cls
-
-
-    def encode_image(self, images, res=None, mv=None):
+    def encode_image(self, images, res, mv):
         device = self.visual.conv1.weight.device
         images = images.to(device)
-        if res is None:
-            res = torch.zeros_like(images)
-        else:
-            res = res.to(device)
-        if mv is None:
-            mv = torch.zeros(
-                images.shape[0],
-                2,
-                images.shape[-2],
-                images.shape[-1],
-                device=device,
-                dtype=images.dtype,
-            )
-        else:
-            mv = mv.to(device)
+        res = res.to(device)
+        mv = mv.to(device)
 
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
@@ -1075,7 +1022,7 @@ class CLIP(nn.Module):
             return x, None    
 
 
-    def forward(self, image, residual, mv, class_text, desc_text=None, return_token=False, class_ids=None):
+    def forward(self, image, residual, mv, class_text, desc_text=None, return_token=False):
         device = self.visual.conv1.weight.device
         class_text = class_text.to(device)
 
@@ -1088,22 +1035,12 @@ class CLIP(nn.Module):
             desc_cls = torch.zeros_like(cls_feat)
 
         weights = F.softmax(self.beta, dim=0)
-        merged_feats = (
-            weights[0] * image_feats
-            + weights[1] * residual_feats
-            + weights[2] * mvs_feats
-        )
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 
         batch_size = cls_feat.shape[0]
         temporal_length = merged_feats.shape[0] // batch_size if batch_size > 0 else 1
         merged_feats = merged_feats.view(batch_size, temporal_length, -1)
         merged_feats = merged_feats + desc_cls.unsqueeze(1)
-
-        if self.action_prompt_learner is not None and class_ids is not None:
-            action_cls = self.encode_action_prompts(class_ids)
-            if action_cls is not None:
-                merged_feats = merged_feats + action_cls.unsqueeze(1).type_as(merged_feats)
-
         merged_feats = merged_feats.view(-1, merged_feats.shape[-1])
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()

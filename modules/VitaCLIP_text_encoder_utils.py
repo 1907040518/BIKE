@@ -9,7 +9,18 @@ import regex as re
 
 @lru_cache()
 def default_bpe():
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "bpe_simple_vocab_16e6.txt.gz")
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    local_path = os.path.join(module_dir, "bpe_simple_vocab_16e6.txt.gz")
+    if os.path.exists(local_path):
+        return local_path
+
+    alt_path = os.path.join(os.path.dirname(module_dir), "clip", "bpe_simple_vocab_16e6.txt.gz")
+    if os.path.exists(alt_path):
+        return alt_path
+
+    raise FileNotFoundError(
+        "bpe_simple_vocab_16e6.txt.gz not found. Expected under modules/ or clip/."
+    )
 
 
 @lru_cache()

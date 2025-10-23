@@ -3,6 +3,15 @@ import clip
 import torch.nn as nn
 from .VitaCLIP_text_encoder_utils import SimpleTokenizer as _Tokenizer
 
+
+def _find_subsequence(sequence, subsequence):
+    """Return the indices of a contiguous subsequence; empty list if not found."""
+    max_start = len(sequence) - len(subsequence) + 1
+    for start in range(max_start):
+        if sequence[start:start + len(subsequence)] == subsequence:
+            return list(range(start, start + len(subsequence)))
+    return []
+
 def text_prompt(data):
     text_aug = 'This is a video about {}'
     classes = torch.cat([clip.tokenize(text_aug.format(c)) for i, c in data.classes])
@@ -233,4 +242,95 @@ class TextPromptLearnerOnly(nn.Module):
             raise ValueError
 
         return prompts
+
+
+class VerbObjectPromptLearner(nn.Module):
+    def __init__(
+        self,
+        classnames,
+        clip_model,
+        template="A video of people {}ing {}.",
+        verb_init="doing",
+        object_init="something",
+        class_specific=True,
+    ):
+        super().__init__()
+
+        self._tokenizer = _Tokenizer()
+        self.class_specific = class_specific
+
+        n_cls = len(classnames)
+        token_embedding = clip_model.token_embedding
+        device = token_embedding.weight.device
+        dtype = token_embedding.weight.dtype
+
+        base_prompt = template.format(verb_init, object_init)
+        tokenized_single = clip.tokenize(base_prompt)
+        tokenized = tokenized_single.repeat(n_cls, 1)
+
+        with torch.no_grad():
+            embedding = token_embedding(tokenized).detach()
+
+        if "{}ing" in template:
+            if verb_init.endswith("ing"):
+                verb_search = verb_init
+            else:
+                verb_search = verb_init + "ing"
+        else:
+            verb_search = verb_init
+
+        verb_tokens = self._tokenizer.encode(verb_search)
+        object_tokens = self._tokenizer.encode(object_init)
+
+        token_list = tokenized_single[0].tolist()
+        verb_indices = _find_subsequence(token_list, verb_tokens)
+        object_indices = _find_subsequence(token_list, object_tokens)
+
+        if not verb_indices or not object_indices:
+            raise ValueError(
+                f"Failed to locate verb/object placeholders in template '{base_prompt}'."
+            )
+
+        self.register_buffer("tokenized_prompts", tokenized)
+        self.register_buffer("template_embedding", embedding)
+        self.register_buffer("verb_indices", torch.tensor(verb_indices, dtype=torch.long))
+        self.register_buffer("object_indices", torch.tensor(object_indices, dtype=torch.long))
+
+        if class_specific:
+            verb_embed_init = embedding[:, verb_indices, :].clone()
+            object_embed_init = embedding[:, object_indices, :].clone()
+        else:
+            verb_embed_init = embedding[0, verb_indices, :].clone()
+            object_embed_init = embedding[0, object_indices, :].clone()
+
+        self.verb_embeddings = nn.Parameter(verb_embed_init.to(dtype=dtype, device=device))
+        self.object_embeddings = nn.Parameter(object_embed_init.to(dtype=dtype, device=device))
+
+    def forward(self, class_ids):
+        if isinstance(class_ids, torch.Tensor):
+            indices = class_ids.to(self.tokenized_prompts.device, dtype=torch.long)
+        else:
+            indices = torch.as_tensor(class_ids, device=self.tokenized_prompts.device, dtype=torch.long)
+
+        prompts = self.template_embedding[indices].clone()
+
+        if self.class_specific:
+            prompts[:, self.verb_indices, :] = self.verb_embeddings[indices]
+            prompts[:, self.object_indices, :] = self.object_embeddings[indices]
+        else:
+            prompts[:, self.verb_indices, :] = self.verb_embeddings.unsqueeze(0)
+            prompts[:, self.object_indices, :] = self.object_embeddings.unsqueeze(0)
+
+        tokenized = self.tokenized_prompts[indices]
+        return prompts, tokenized
+
+    def get_all_prompts(self):
+        prompts = self.template_embedding.clone()
+        if self.class_specific:
+            prompts[:, self.verb_indices, :] = self.verb_embeddings
+            prompts[:, self.object_indices, :] = self.object_embeddings
+        else:
+            prompts[:, self.verb_indices, :] = self.verb_embeddings.unsqueeze(0)
+            prompts[:, self.object_indices, :] = self.object_embeddings.unsqueeze(0)
+        return prompts, self.tokenized_prompts
 

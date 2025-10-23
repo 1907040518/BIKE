@@ -31,11 +31,9 @@ from modules.video_clip import video_header
 from utils.NCELoss import NCELoss, DualLoss
 from utils.Augmentation import get_augmentation
 from utils.solver import _optimizer, _lr_scheduler
-from modules.text_prompt import text_prompt
+from modules.text_prompt import text_prompt, VerbObjectPromptLearner
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
-from X_CLIP.models.prompt import VideoSpecificPrompt
-from X_CLIP.models.prompt import Video_Prompt
 
 class AllGather(torch.autograd.Function):
     """An autograd function that performs allgather on a tensor."""
@@ -71,7 +69,7 @@ def get_parser():
                         help='url used to set up distributed training')
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')                        
-    parser.add_argument("--local_rank", type=int,
+    parser.add_argument("--local-rank", type=int,
                         help='local rank for DistributedDataParallel')
     parser.add_argument(
         "--precision",
@@ -107,6 +105,9 @@ def main(args):
         # 获取当前执行脚本的文件名
         current_script_name = os.path.basename(__file__)
         shutil.copy(current_script_name, working_dir)
+        shutil.copy('clip/model.py', working_dir)
+        shutil.copy('datasets/compress_3.py', working_dir)
+
 
 
     # build logger, print env and config
@@ -138,7 +139,9 @@ def main(args):
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-
+    # 检查配置中是否存在residual_layers_to_use参数
+    residual_layers = config.network.get('residual_layers_to_use', None)  # 如果不存在则为None
+    mvs_layers = config.network.get('mvs_layers_to_use', None)  # 如果不存在则为None   
     # get fp16 model and weight
     # model: 这将是一个可用于前向推理或继续训练的 CLIP 模型实例。你可以使用这个模型输入图像和文本进行特征提取、相似度计算等任务。
     # clip_state_dict: 包含了模型当前的权重和偏置，你可以使用这个字典在训练过程中更新模型的参数，或者在保存和加载模型时使用。
@@ -146,13 +149,15 @@ def main(args):
         config.network.arch,
         device='cpu',jit=False,
         internal_modeling=config.network.tm,
-        Block=config.network.Block,
         T=config.data.num_segments,
         dropout=config.network.drop_out,
         emb_dropout=config.network.emb_dropout,
         pretrain=config.network.init,
-        joint_st = config.network.joint_st) # Must set jit=False for training  ViT-B/32
-    
+        joint_st = config.network.joint_st,
+        residual_layers_to_use=residual_layers,
+        mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
+
+    # print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
         transform_train = get_compress_augmentation(True, config)
         transform_val = get_compress_augmentation(False, config)
@@ -170,8 +175,6 @@ def main(args):
         config.network.sim_header,
         config.network.interaction,
         clip_state_dict)
-
-    video_prompt = Video_Prompt(clip_state_dict)
 
 
     if args.precision == "amp" or args.precision == "fp32":
@@ -216,14 +219,18 @@ def main(args):
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
+            GOP_SIZE=config.data.GOP_SIZE,
+            text_map_path=getattr(config.data, 'qwen_train_path', None))
         val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
+            test_mode=True,
             image_tmpl=config.data.image_tmpl,
-            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
-
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
+            GOP_SIZE=config.data.GOP_SIZE,
+            text_map_path=getattr(config.data, 'qwen_val_path', None))
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -263,37 +270,117 @@ def main(args):
         raise NotImplementedError
 
     start_epoch = config.solver.start_epoch
-    
+            
     if config.pretrain:
         if os.path.isfile(config.pretrain):
             logger.info("=> loading pretrain checkpoint '{}'".format(config.pretrain))
             checkpoint = torch.load(config.pretrain, map_location='cpu')
+            
+            # 加载主模型权重
             model.load_state_dict(checkpoint['model_state_dict'], False)
             video_head.load_state_dict(checkpoint['fusion_model_state_dict'], False)
+            
+            # 为ResidualEncoder和MVSEncoder加载预训练权重
+            if hasattr(model, 'residual_encoder') and model.residual_encoder is not None:
+                try:
+                    # ResidualEncoder权重加载
+                    residual_layers_to_use = getattr(config, 'residual_layers_to_use', [0, 1])
+                    residual_dict = {}
+                    
+                    # 复制基础层
+                    for key in ['conv1.weight', 'class_embedding', 'positional_embedding', 
+                            'ln_pre.weight', 'ln_pre.bias', 'ln_post.weight', 'ln_post.bias', 'proj']:
+                        source_key = f'visual.{key}'
+                        target_key = f'residual_encoder.{key}'
+                        if source_key in checkpoint['model_state_dict']:
+                            residual_dict[target_key] = checkpoint['model_state_dict'][source_key]
+                    
+                    # 复制指定的transformer层
+                    for target_idx, source_idx in enumerate(residual_layers_to_use):
+                        for param in ['attn.in_proj_weight', 'attn.in_proj_bias', 'attn.out_proj.weight', 'attn.out_proj.bias',
+                                    'ln_1.weight', 'ln_1.bias', 'ln_2.weight', 'ln_2.bias',
+                                    'mlp.c_fc.weight', 'mlp.c_fc.bias', 'mlp.c_proj.weight', 'mlp.c_proj.bias']:
+                            source_key = f'visual.transformer.resblocks.{source_idx}.{param}'
+                            target_key = f'residual_encoder.transformer_blocks.{target_idx}.{param}'
+                            if source_key in checkpoint['model_state_dict']:
+                                residual_dict[target_key] = checkpoint['model_state_dict'][source_key]
+                    
+                    # 加载到模型
+                    model.load_state_dict(residual_dict, strict=False)
+                    logger.info(f"=> loaded pretrained weights for ResidualEncoder from layers {residual_layers_to_use}")
+                    
+                except Exception as e:
+                    logger.warning(f"=> failed to load ResidualEncoder weights: {e}")
+            
+            # 为MVSEncoder加载预训练权重
+            if hasattr(model, 'mvs_encoder') and model.mvs_encoder is not None:
+                try:
+                    # MVSEncoder权重加载
+                    mvs_layers_to_use = getattr(config, 'mvs_layers_to_use', [0, 1])
+                    mvs_dict = {}
+                    
+                    # 复制基础层
+                    for key in ['conv1.weight', 'class_embedding', 'positional_embedding', 
+                            'ln_pre.weight', 'ln_pre.bias', 'ln_post.weight', 'ln_post.bias', 'proj']:
+                        source_key = f'visual.{key}'
+                        target_key = f'mvs_encoder.{key}'
+                        if source_key in checkpoint['model_state_dict']:
+                            mvs_dict[target_key] = checkpoint['model_state_dict'][source_key]
+                    
+                    # 复制指定的transformer层
+                    for target_idx, source_idx in enumerate(mvs_layers_to_use):
+                        for param in ['attn.in_proj_weight', 'attn.in_proj_bias', 'attn.out_proj.weight', 'attn.out_proj.bias',
+                                    'ln_1.weight', 'ln_1.bias', 'ln_2.weight', 'ln_2.bias',
+                                    'mlp.c_fc.weight', 'mlp.c_fc.bias', 'mlp.c_proj.weight', 'mlp.c_proj.bias']:
+                            source_key = f'visual.transformer.resblocks.{source_idx}.{param}'
+                            target_key = f'mvs_encoder.transformer_blocks.{target_idx}.{param}'
+                            if source_key in checkpoint['model_state_dict']:
+                                mvs_dict[target_key] = checkpoint['model_state_dict'][source_key]
+                    
+                    # 加载到模型
+                    model.load_state_dict(mvs_dict, strict=False)
+                    logger.info(f"=> loaded pretrained weights for MVSEncoder from layers {mvs_layers_to_use}")
+                    
+                except Exception as e:
+                    logger.warning(f"=> failed to load MVSEncoder weights: {e}")
+            
             del checkpoint
         else:
-            logger.info("=> no pretrain checkpoint found at '{}'".format(config.resume))
-    
-    if config.resume:
-        if os.path.isfile(config.resume):
-            logger.info("=> loading resume checkpoint '{}'".format(config.resume))
-            checkpoint = torch.load(config.resume, map_location='cpu')
-            model.load_state_dict(update_dict(checkpoint['model_state_dict']))
-            video_head.load_state_dict(update_dict(checkpoint['fusion_model_state_dict']))
-            start_epoch = checkpoint['epoch'] + 1
-            logger.info("=> loaded resume checkpoint '{}' (epoch {})"
-                   .format(config.evaluate, checkpoint['epoch']))
-            del checkpoint
-        else:
-            logger.info("=> no resume checkpoint found at '{}'".format(config.pretrain))
+            logger.info("=> no pretrain checkpoint found at '{}'".format(config.pretrain))
 
-    classes,n_class = text_prompt(train_data, config)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
+
+
+    classes,n_class = text_prompt(train_data)    # torch.Size([51, 77])    使用vita的时候，返回的是类别名
+
+    action_prompt_cfg = config.network.get('action_prompt', DotMap())
+    action_prompt_enabled = bool(action_prompt_cfg.get('enable', False))
+    if action_prompt_enabled:
+        classnames = [c for _, c in train_data.classes]
+        prompt_learner = VerbObjectPromptLearner(
+            classnames=classnames,
+            clip_model=model,
+            template=action_prompt_cfg.get('template', "A video of people {}ing {}."),
+            verb_init=action_prompt_cfg.get('verb_init', 'doing'),
+            object_init=action_prompt_cfg.get('object_init', 'something'),
+            class_specific=action_prompt_cfg.get('class_specific', True),
+        )
+        model.attach_action_prompt(prompt_learner)
+        if (not args.distributed) or dist.get_rank() == 0:
+            logger.info("Action prompt branch enabled (fusion='add').")
+    else:
+        if (not args.distributed) or dist.get_rank() == 0:
+            logger.info("Action prompt branch disabled.")
 
 
     if config.network.fix_text:
         for name, param in model.named_parameters():
-            if "visual" not in name and "logit_scale" not in name:
-                param.requires_grad_(False)
+            if "visual" in name:
+                continue
+            if "logit_scale" in name or "beta" in name:
+                continue
+            if "action_prompt" in name or "verb_embeddings" in name or "object_embeddings" in name:
+                continue
+            param.requires_grad_(False)
   
     if config.network.fix_video:
         for name, param in model.named_parameters():
@@ -304,13 +391,12 @@ def main(args):
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
-        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu])
-        video_prompt = DistributedDataParallel(video_prompt.cuda(), device_ids=[args.gpu])
+        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
         else:
-            video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu])
+            video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
             video_head_nomodule = video_head.module
         
 
@@ -342,7 +428,7 @@ def main(args):
 
         # print(model)
         train(model, video_head, train_loader, optimizer, criterion, scaler,
-              epoch, device, lr_scheduler, config, classes, logger, video_prompt)
+              epoch, device, lr_scheduler, config, classes, logger)
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
@@ -364,9 +450,8 @@ def main(args):
                         save_sims(output_list, labels_list)
 
 
-
 def train(model, video_head, train_loader, optimizer, criterion, scaler,
-          epoch, device, lr_scheduler, config, classes, logger, video_prompt):
+          epoch, device, lr_scheduler, config, classes, logger):
     """ train a epoch """
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -376,102 +461,85 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
     model.train()
     video_head.train()
-    video_prompt.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
-    for i,(mvs, residuals, images, list_id) in enumerate(train_loader):
-        # print(list_id)     # list_id={12，45，78}  数字代表类别，个数是batchsize  
-        # image.size() torch.Size([1, 16, 3, 224, 224])   b t c h w 
-        # exit()
+    for i, batch in enumerate(train_loader):  
+        if len(batch) == 5:
+            images, mvs, residuals, list_id, descriptions = batch
+        else:
+            images, mvs, residuals, list_id = batch
+            batch_size = images.size(0)
+            descriptions = [""] * batch_size
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
-        # lr_scheduler.step()
-
+        
         data_time.update(time.time() - end)
-        # b t3 h w
-        print(f'images.size:{images.size()}')
-        print(f'mvs.size:{mvs.size()}')
-        print(f'residuals.size:{residuals.size()}')
-        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])  # b t 3 h w
-        mvs = mvs.view((-1, config.data.num_segments, mvs.size(1), mvs.size(2), mvs.size(3)))  # Adjust if necessary
-        residuals = residuals.view((-1, config.data.num_segments, residuals.size(1), residuals.size(2), residuals.size(3)))  # Adjust if necessary
-        print(f'images view.size:{images.size()}')
-        print(f'mvs view .size:{mvs.size()}')
-        print(f'residuals view.size:{residuals.size()}')
-        b, t, c, h, w = images.size()
-        images = images.view(-1, c, h, w)  # Flatten batch and time steps
-        mvs = mvs.view(-1, mvs.size(2), mvs.size(3), mvs.size(4))  # Flatten mvs similarly
-        residuals = residuals.view(-1, residuals.size(2), residuals.size(3), residuals.size(4))  # Flatten residuals similarly
-        print(f'images two view.size:{images.size()}')
-        print(f'mvs two view .size:{mvs.size()}')
-        print(f'residuals two view.size:{residuals.size()}')
+        
+        # 数据预处理代码保持不变
+        images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
+        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
+        residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
+        
+        b, t, c_i, h, w = images.size()
+        b, t, c_m, h, w = mvs.size()
+        mvs = mvs.view(-1, c_m, h, w)
+        images = images.view(-1, c_i, h, w)
+        residuals = residuals.view(-1, c_i, h, w)
 
-
-        # print(f'images.size:{images.size()}')
-        # images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
-        # print(f'images view.size:{images.size()}')
-        # b,t,c,h,w = images.size()
-        # # [b*t, c, h, w]
-        # images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
-        # print(f'images two view.size:{images.size()}')
-        texts = classes # n_cls 77
+        texts = classes
+        desc_tokens = clip.tokenize(descriptions, truncate=True)
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
-                texts = texts[list_id]  # bs 77    # torch.Size([2, 77])   [batch_size, 77]
-                image_embedding, cls_embedding, text_embedding, logit_scale = model(images,mvs, residuals,  texts, return_token=True)
-                exit()
-                # image_embedding.shape== torch.Size([32, 768])
-                # cls_embedding.shape== torch.Size([2, 768])
-                # text_embedding.shape== torch.Size([2, 77, 768])
-                # logit_scale== tensor(95.5525, device='cuda:0', grad_fn=<ExpBackward>)
-                # image_embedding.view.shape== torch.Size([2, 16, 768])
-                image_embedding = image_embedding.view(b,t,-1)
-                # gather
+                texts = texts[list_id]
+                image_embedding, cls_embedding, text_embedding, logit_scale = model(
+                    images,
+                    residuals,
+                    mvs,
+                    texts,
+                    desc_tokens,
+                    return_token=True,
+                    class_ids=list_id,
+                )
+
+                # 重塑图像特征
+                image_embedding = image_embedding.view(b, t, -1)
+
+                # gather操作
                 image_embedding = allgather(image_embedding)
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
-                cls_embedding = allgather(cls_embedding)     
-                if config.network.video_prompt:
-                    cls_embedding = cls_embedding.unsqueeze(1) 
-                    cls_embedding = cls_embedding + video_prompt(cls_embedding, image_embedding)
-                    cls_embedding = cls_embedding.squeeze()
-                    print("cls_embedding-video_prompt")
+                cls_embedding = allgather(cls_embedding)
+
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
-                list_id = gather_labels(list_id.to(device))  # bs -> n_gpu * bs
+                list_id = gather_labels(list_id.to(device))
+                ground_truth = torch.tensor(gen_label(list_id), dtype=image_embedding.dtype, device=device)
 
-                ground_truth = torch.tensor(gen_label(list_id),dtype=image_embedding.dtype,device=device)
-                # gt = [bs bs]
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
-                loss = (loss_imgs + loss_texts)/2
+                loss = (loss_imgs + loss_texts) / 2
             else:
                 raise NotImplementedError
 
-            # loss regularization
             loss = loss / config.solver.grad_accumulation_steps
 
-        if scaler is not None:   # 混合精度使用，报错，修改Persian参数值可以修改使用的精度
-            # back propagation
-            # scaler.scale(loss).backward()
+        # 反向传播代码保持不变
+        if scaler is not None:
             scaled_loss = scaler.scale(loss)
             scaled_loss.backward()
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
                 scaler.step(optimizer)
                 scaler.update()
-                optimizer.zero_grad()  # reset gradient
+                optimizer.zero_grad()
         else:
-            # back propagation
             loss.backward()
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
-                optimizer.step()  # update param
-                optimizer.zero_grad()  # reset gradient
+                optimizer.step()
+                optimizer.zero_grad()
 
         losses.update(loss.item(), logits.size(0))
-
-
 
         batch_time.update(time.time() - end)
         end = time.time()
@@ -510,8 +578,12 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
         data_time.update(time.time() - end)
         # b t3 h w
-        
-        images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
+        if images.shape[2] == 2:
+            images = images.view((-1,config.data.num_segments,2)+images.size()[-2:])  # bt 3 h w
+        else:
+            images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
+ 
+        # images = images.view((-1,config.data.num_segments,3)+images.size()[-2:])  # bt 3 h w
         b,t,c,h,w = images.size()
 
         images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
@@ -520,29 +592,61 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
 
 
-
-
 def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger, return_sim=False):
     top1 = AverageMeter()
     top5 = AverageMeter()
     sims_list = []
     labels_list = []
+    
     model.eval()
     video_head.eval()
 
     with torch.no_grad():
-        text_inputs = classes.to(device)  # [n_cls, 77]
-        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [n_cls, feat_dim]
-        for i, (image, class_id) in enumerate(val_loader):
+        text_inputs = classes.to(device)
+        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
+        print("")
+        for i, batch in enumerate(val_loader):
+            if len(batch) == 5:
+                image, mv, residual, class_id, descriptions = batch
+            else:
+                image, mv, residual, class_id = batch
+                batch_size = image.size(0)
+                descriptions = [""] * batch_size
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            b, t, c, h, w = image.size()
-            class_id = class_id.to(device)
-            image_input = image.to(device).view(-1, c, h, w)
-            image_features = model.module.encode_image(image_input).view(b, t, -1)
-            similarity = video_head(image_features, text_features, cls_feature)
+            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
+            residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
+            
+            b, t, c_i, h, w = image.size()
+            b, t, c_m, h, w = mv.size()
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, n_frames, n_cls]
-            similarity = similarity.mean(dim=1, keepdim=False)  # [bs, n_cls]
+            class_id = class_id.to(device)
+            image_input = image.to(device).view(-1, c_i, h, w)
+            mv_input = mv.to(device).view(-1, c_m, h, w)
+            residual_input = residual.to(device).view(-1, c_i, h, w)
+
+            image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
+            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
+            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
+
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_feats = (
+                weights[0] * image_features
+                + weights[1] * res_features
+                + weights[2] * mvs_features
+            )
+
+            merged_feats = merged_feats.view(b, t, -1)
+            merged_feats = merged_feats + desc_cls.unsqueeze(1)
+
+            if model.module.action_prompt_learner is not None:
+                action_cls = model.module.encode_action_prompts(class_id)
+                if action_cls is not None:
+                    merged_feats = merged_feats + action_cls.unsqueeze(1).type_as(merged_feats)
+
+            similarity = video_head(merged_feats, text_features, cls_feature)
+
+            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
+            similarity = similarity.mean(dim=1, keepdim=False)
 
             if return_sim:
                 sims = allgather(similarity)
@@ -563,8 +667,10 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                      'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                          i, len(val_loader), top1=top1, top5=top5)))
+    
     logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
         .format(top1=top1, top5=top5)))
+    
     if return_sim:
         return top1.avg, sims_list, labels_list
     else:
@@ -583,12 +689,30 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
         text_inputs = classes.to(device)  # [400, 77]
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)  # [400, 512]
         for i, (image, class_id) in enumerate(val_loader):
-            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
+            if image.shape[2] == 2:
+                image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
+            else:
+                image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
+    
+            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c, h, w)
-            image_features = model.module.encode_image(image_input).view(b, t, -1)
-            similarity = video_head(image_features, text_features, cls_feature)
+            image_features, res_features, mvs_features = model.module.encode_image(image_input)
+
+            weights = F.softmax(model.module.beta, dim=0)
+            merged_feats = (
+                weights[0] * image_features
+                + weights[1] * res_features
+                + weights[2] * mvs_features
+            ).view(b, t, -1)
+
+            if model.module.action_prompt_learner is not None:
+                action_cls = model.module.encode_action_prompts(class_id)
+                if action_cls is not None:
+                    merged_feats = merged_feats + action_cls.unsqueeze(1).type_as(merged_feats)
+
+            similarity = video_head(merged_feats, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]
             similarity = similarity.mean(dim=1, keepdim=False)  # [bs, 400]
@@ -613,8 +737,8 @@ def save_sims(output_list, labels_list):
     outputs_sim = torch.cat(output_list, dim=0)
     labels_list_res = torch.cat(labels_list, dim=0)
     prec = accuracy(outputs_sim, labels_list_res, topk=(1, 5))
-    torch.save(outputs_sim, 'video_sentence_fusion/k400_video_sims.pt')
-    torch.save(labels_list_res, 'video_sentence_fusion/k400_video_labels.pt')
+    torch.save(outputs_sim, 'video_sentence_fusion/hmdb51_video_sims.pt')
+    torch.save(labels_list_res, 'video_sentence_fusion/hmdb51_video_labels.pt')
     # print('outputs_sim.shape==', outputs_sim.shape)
     # print('labels_list_res.shape===', labels_list_res.shape)
     # print('top1====', prec[0].item())
