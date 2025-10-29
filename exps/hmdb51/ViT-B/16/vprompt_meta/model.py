@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from typing import Tuple, Union
-
+import clip
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -454,108 +454,106 @@ class Transformer(nn.Module):
 
         return x
 
-class CMFMPlus(nn.Module):
-    def __init__(self, feature_dim=768, text_dim=512):
+class SimpleVideoActionPromptLearner(nn.Module):
+    """简化版本:直接从视频特征生成action prompt"""
+    def __init__(self, clip_model, hidden_dim=None):
         super().__init__()
-        self.feature_dim = feature_dim
         
-        # 三种视觉特征的投影层
-        self.iframe_proj = nn.Linear(feature_dim, feature_dim)
-        self.residual_proj = nn.Linear(feature_dim, feature_dim)
-        self.motion_proj = nn.Linear(feature_dim, feature_dim)
-
-        # 融合前学习模态权重
-        self.modality_weight = nn.Sequential(
-            nn.Linear(3 * feature_dim, 128),
-            nn.ReLU(),
-            nn.Linear(128, 3)
-        )
-
-        # 特征融合注意力机制
-        self.cross_attention = nn.MultiheadAttention(
-            embed_dim=feature_dim,
-            num_heads=8,
-            batch_first=True
+        ctx_dim = clip_model.transformer.width
+        if hidden_dim is None:
+            hidden_dim = ctx_dim
+        
+        # 简单的MLP生成action prompt
+        self.prompt_generator = nn.Sequential(
+            nn.Linear(ctx_dim, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, ctx_dim)
         )
         
-        # 时空建模
-        self.temporal_fusion = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(
-                d_model=feature_dim,
-                nhead=8,
-                dim_feedforward=2048,
-                batch_first=True
-            ),
-            num_layers=2
-        )
-
-        # 注意力池化层（代替mean pooling）
-        self.pool_query = nn.Parameter(torch.randn(1, 1, feature_dim))
-
-        # 视频到文本空间对齐
-        self.video_text_proj = nn.Linear(feature_dim, text_dim)
-
-    def forward(self, f_iframe, f_res, f_mv, text_feat=None):
+        # 可选:添加一个可学习的缩放因子
+        self.scale = nn.Parameter(torch.ones(1) * 0.1)
+        
+    def forward(self, video_features):
         """
-        参数:
-            f_iframe: (B, T, D)
-            f_res:    (B, T, D)
-            f_mv:     (B, T, D)
-            text_feat: (B, text_dim), 可选，用于文本引导
-        返回:
-            video_embed: (B, text_dim)
+        Args:
+            video_features: [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 每个视频的prompt特征
         """
-        B, T, D = f_iframe.shape
-
-        # 特征投影 + 归一化
-        iframe_feat = F.normalize(self.iframe_proj(f_iframe), dim=-1)
-        residual_feat = F.normalize(self.residual_proj(f_res), dim=-1)
-        motion_feat = F.normalize(self.motion_proj(f_mv), dim=-1)
-
-        # 计算模态权重
-        stacked_feats = torch.cat([
-            iframe_feat.mean(dim=1), 
-            residual_feat.mean(dim=1), 
-            motion_feat.mean(dim=1)
-        ], dim=-1)  # (B, 3*D)
-        weights = torch.softmax(self.modality_weight(stacked_feats), dim=-1)  # (B, 3)
-
-        # 加权融合
-        weights = weights.unsqueeze(-1).unsqueeze(-1)  # (B, 3, 1, 1)
-        weighted_feats = (
-            weights[:, 0] * iframe_feat +
-            weights[:, 1] * residual_feat +
-            weights[:, 2] * motion_feat
-        )  # (B, T, D)
-
-        # 自注意力融合
-        attn_output, _ = self.cross_attention(
-            weighted_feats, weighted_feats, weighted_feats
+        # 时序池化
+        video_feat_pooled = video_features.mean(dim=1)  # [B, D]
+        
+        # 生成prompt
+        prompt_features = self.prompt_generator(video_feat_pooled)
+        prompt_features = prompt_features * self.scale
+        
+        return prompt_features
+    
+class VideoActionPromptLearner(nn.Module):
+    """为每个视频学习action prompt,而不是每个类别"""
+    def __init__(self, clip_model, n_ctx=4, ctx_init=None):
+        super().__init__()
+        
+        dtype = clip_model.dtype
+        ctx_dim = clip_model.transformer.width
+        
+        # 可学习的context tokens
+        if ctx_init:
+            ctx_init = ctx_init.replace("_", " ")
+            n_ctx = len(ctx_init.split(" "))
+            prompt = clip.tokenize(ctx_init)
+            with torch.no_grad():
+                embedding = clip_model.token_embedding(prompt).type(dtype)
+            ctx_vectors = embedding[0, 1 : 1 + n_ctx, :]
+            self.n_ctx = n_ctx
+        else:
+            ctx_vectors = torch.empty(n_ctx, ctx_dim, dtype=dtype)
+            nn.init.normal_(ctx_vectors, std=0.02)
+            self.n_ctx = n_ctx
+        
+        self.ctx = nn.Parameter(ctx_vectors)
+        
+        # 用于生成视频特定的prompt
+        self.meta_net = nn.Sequential(
+            nn.Linear(ctx_dim, ctx_dim // 2),
+            nn.ReLU(inplace=True),
+            nn.Linear(ctx_dim // 2, n_ctx * ctx_dim)
         )
+        
+    def forward(self, video_features):
+        """
+        Args:
+            video_features: [B, D] 或 [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 每个视频的prompt特征
+        """
+        # 🔧 修改：支持2D和3D输入
+        if video_features.dim() == 3:
+            # [B, T, D] -> [B, D]
+            B, T, D = video_features.shape
+            video_feat_pooled = video_features.mean(dim=1)
+        elif video_features.dim() == 2:
+            # [B, D] 已经是池化后的特征
+            B, D = video_features.shape
+            video_feat_pooled = video_features
+        else:
+            raise ValueError(f"Expected 2D or 3D input, got {video_features.dim()}D")
+        
+        # 生成视频特定的context偏移
+        ctx_shift = self.meta_net(video_feat_pooled)  # [B, n_ctx * D]
+        ctx_shift = ctx_shift.view(B, self.n_ctx, D)  # [B, n_ctx, D]
+        
+        # 基础prompt + 视频特定偏移
+        ctx = self.ctx.unsqueeze(0).expand(B, -1, -1)  # [B, n_ctx, D]
+        ctx = ctx + ctx_shift  # [B, n_ctx, D]
+        
+        # 池化得到prompt特征
+        prompt_features = ctx.mean(dim=1)  # [B, D]
+        
+        return prompt_features
 
-        # 时序建模
-        temporal_output = self.temporal_fusion(attn_output)  # (B, T, D)
-
-        # 可学习注意力池化
-        # query = self.pool_query.expand(B, -1, -1)  # (B, 1, D)
-        # attn_weights = torch.softmax(torch.matmul(query, temporal_output.transpose(1, 2)), dim=-1)  # (B, 1, T)
-        # video_repr = torch.bmm(attn_weights, temporal_output).squeeze(1)  # (B, D)
-        query = self.pool_query.expand(B, T, -1)  # (B, T, D)
-        attn_weights = torch.softmax(torch.sum(query * temporal_output, dim=-1, keepdim=True), dim=1)  # (B, T, 1)
-        video_repr = temporal_output * attn_weights  # (B, T, D)
-
-        # 可选：引入文本引导调整
-        if text_feat is not None:
-            text_feat = F.normalize(text_feat, dim=-1)
-            video_repr = video_repr + torch.matmul(video_repr, text_feat.unsqueeze(-1)).squeeze(-1).unsqueeze(-1) * text_feat
-
-        # 投影到文本空间
-        video_embed = self.video_text_proj(video_repr)
-       
-        video_embed = F.normalize(video_embed, dim=-1)
-
-        return video_embed
-
+    
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
         super().__init__()
@@ -821,6 +819,8 @@ class CLIP(nn.Module):
                  transformer_layers: int,
                  joint=False,
                  tm=None, T=8,dropout = 0., emb_dropout = 0.,
+                 action_prompt_type='simple',  # 新增: 'simple' 或 'meta'
+                 action_prompt_enabled=False,  # 新增: 是否启用
                  residual_layers_to_use=None,  # 新增参数：指定使用哪几层 
                  mvs_layers_to_use=None  # 新增MVS层参数
                 ):
@@ -928,7 +928,18 @@ class CLIP(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
         self.T = T
-
+        # 初始化action prompt learner
+        self.action_prompt_learner = None
+        self.action_prompt_enabled = action_prompt_enabled
+        
+        if action_prompt_enabled:
+            if action_prompt_type == 'simple':
+                self.action_prompt_learner = SimpleVideoActionPromptLearner(self)
+            elif action_prompt_type == 'meta':
+                self.action_prompt_learner = VideoActionPromptLearner(self, n_ctx=4)
+            else:
+                raise ValueError(f"Unknown action_prompt_type: {action_prompt_type}")
+        
         self.initialize_parameters()
 
 
@@ -960,6 +971,14 @@ class CLIP(nn.Module):
 
         if self.text_projection is not None:
             nn.init.normal_(self.text_projection, std=self.transformer.width ** -0.5)
+        
+        # 初始化action prompt learner
+        if self.action_prompt_learner is not None:
+            for module in self.action_prompt_learner.modules():
+                if isinstance(module, nn.Linear):
+                    nn.init.normal_(module.weight, std=0.02)
+                    if module.bias is not None:
+                        nn.init.zeros_(module.bias)
 
     def build_attention_mask(self):
         # lazily create causal attention mask, with full attention between the vision tokens
@@ -1019,10 +1038,16 @@ class CLIP(nn.Module):
         cls_feat, text_feats = self.encode_text(text, return_token)
         # 使用可学习的beta参数，并确保它参与反向传播
         weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
+        
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats  # 加权融合特征
+        # 🔧 新增: 从视频特征生成action prompt
+        if self.action_prompt_learner is not None:
+            action_prompt = self.action_prompt_learner(merged_feats)  # [B, D]
+            # 将action prompt加到视频特征上
+            merged_feats = merged_feats + action_prompt  # broadcast到所有帧
 
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
-
-
+        # Reshape回 [B*T, D]
+        merged_feats = merged_feats.view(-1, merged_feats.shape[-1])
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 
@@ -1050,7 +1075,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None):
+def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None, action_prompt_type='simple', action_prompt_enabled=False):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -1080,7 +1105,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use, action_prompt_type=action_prompt_type, action_prompt_enabled=action_prompt_enabled
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

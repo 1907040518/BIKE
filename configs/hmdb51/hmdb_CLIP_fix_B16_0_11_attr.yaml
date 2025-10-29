@@ -20,9 +20,6 @@ data:
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
-    select_topk_attributes: 10
-    attributes_val_path: lists/hmdb51/mul_caption_test.json
-    attributes_train_path: lists/hmdb51/mul_caption_train.json
 network:
     arch: ViT-B/16
     init: True 

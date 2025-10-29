@@ -220,8 +220,7 @@ def main(args):
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
             transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_train_path', None))
+            GOP_SIZE=config.data.GOP_SIZE)
         val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
@@ -229,8 +228,7 @@ def main(args):
             test_mode=True,
             image_tmpl=config.data.image_tmpl,
             transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation),
-            GOP_SIZE=config.data.GOP_SIZE,
-            text_map_path=getattr(config.data, 'qwen_val_path', None))
+            GOP_SIZE=config.data.GOP_SIZE)
     ################ Few shot data for training ###########
     if config.data.shot:
         cls_dict = {}
@@ -464,12 +462,8 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
     end = time.time()
     for i, batch in enumerate(train_loader):  
-        if len(batch) == 5:
-            images, mvs, residuals, list_id, descriptions = batch
-        else:
-            images, mvs, residuals, list_id = batch
-            batch_size = images.size(0)
-            descriptions = [""] * batch_size
+        images, mvs, residuals, list_id = batch
+        batch_size = images.size(0)
         if config.solver.type != 'monitor':
             if (i + 1) == 1 or (i + 1) % 10 == 0:
                 lr_scheduler.step(epoch + i / len(train_loader))
@@ -488,7 +482,6 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         residuals = residuals.view(-1, c_i, h, w)
 
         texts = classes
-        desc_tokens = clip.tokenize(descriptions, truncate=True)
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
@@ -498,7 +491,6 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                     residuals,
                     mvs,
                     texts,
-                    desc_tokens,
                     return_token=True,
                     class_ids=list_id,
                 )
@@ -606,12 +598,8 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
         print("")
         for i, batch in enumerate(val_loader):
-            if len(batch) == 5:
-                image, mv, residual, class_id, descriptions = batch
-            else:
-                image, mv, residual, class_id = batch
-                batch_size = image.size(0)
-                descriptions = [""] * batch_size
+            image, mv, residual, class_id = batch
+            batch_size = image.size(0)
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
@@ -625,8 +613,6 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
             image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
-            desc_tokens = clip.tokenize(descriptions, truncate=True).to(device)
-            desc_cls, _ = model.module.encode_text(desc_tokens, return_token=False)
 
             weights = F.softmax(model.module.beta, dim=0)
             merged_feats = (
@@ -636,7 +622,6 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             )
 
             merged_feats = merged_feats.view(b, t, -1)
-            merged_feats = merged_feats + desc_cls.unsqueeze(1)
 
             if model.module.action_prompt_learner is not None:
                 action_cls = model.module.encode_action_prompts(class_id)

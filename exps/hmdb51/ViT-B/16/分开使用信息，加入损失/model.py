@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from typing import Tuple, Union
-
+import clip
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -454,107 +454,558 @@ class Transformer(nn.Module):
 
         return x
 
-class CMFMPlus(nn.Module):
-    def __init__(self, feature_dim=768, text_dim=512):
+class SimpleVideoActionPromptLearner(nn.Module):
+    """简化版本:直接从视频特征生成action prompt"""
+    def __init__(self, clip_model, hidden_dim=None):
         super().__init__()
-        self.feature_dim = feature_dim
         
-        # 三种视觉特征的投影层
-        self.iframe_proj = nn.Linear(feature_dim, feature_dim)
-        self.residual_proj = nn.Linear(feature_dim, feature_dim)
-        self.motion_proj = nn.Linear(feature_dim, feature_dim)
-
-        # 融合前学习模态权重
-        self.modality_weight = nn.Sequential(
-            nn.Linear(3 * feature_dim, 128),
-            nn.ReLU(),
-            nn.Linear(128, 3)
-        )
-
-        # 特征融合注意力机制
-        self.cross_attention = nn.MultiheadAttention(
-            embed_dim=feature_dim,
-            num_heads=8,
-            batch_first=True
+        ctx_dim = clip_model.transformer.width
+        if hidden_dim is None:
+            hidden_dim = ctx_dim
+        
+        # 简单的MLP生成action prompt
+        self.prompt_generator = nn.Sequential(
+            nn.Linear(ctx_dim, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, ctx_dim)
         )
         
-        # 时空建模
-        self.temporal_fusion = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(
-                d_model=feature_dim,
-                nhead=8,
-                dim_feedforward=2048,
-                batch_first=True
-            ),
-            num_layers=2
-        )
-
-        # 注意力池化层（代替mean pooling）
-        self.pool_query = nn.Parameter(torch.randn(1, 1, feature_dim))
-
-        # 视频到文本空间对齐
-        self.video_text_proj = nn.Linear(feature_dim, text_dim)
-
-    def forward(self, f_iframe, f_res, f_mv, text_feat=None):
+        # 可选:添加一个可学习的缩放因子
+        self.scale = nn.Parameter(torch.ones(1) * 0.1)
+        
+    def forward(self, video_features):
         """
-        参数:
-            f_iframe: (B, T, D)
-            f_res:    (B, T, D)
-            f_mv:     (B, T, D)
-            text_feat: (B, text_dim), 可选，用于文本引导
-        返回:
-            video_embed: (B, text_dim)
+        Args:
+            video_features: [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 每个视频的prompt特征
         """
-        B, T, D = f_iframe.shape
-
-        # 特征投影 + 归一化
-        iframe_feat = F.normalize(self.iframe_proj(f_iframe), dim=-1)
-        residual_feat = F.normalize(self.residual_proj(f_res), dim=-1)
-        motion_feat = F.normalize(self.motion_proj(f_mv), dim=-1)
-
-        # 计算模态权重
-        stacked_feats = torch.cat([
-            iframe_feat.mean(dim=1), 
-            residual_feat.mean(dim=1), 
-            motion_feat.mean(dim=1)
-        ], dim=-1)  # (B, 3*D)
-        weights = torch.softmax(self.modality_weight(stacked_feats), dim=-1)  # (B, 3)
-
-        # 加权融合
-        weights = weights.unsqueeze(-1).unsqueeze(-1)  # (B, 3, 1, 1)
-        weighted_feats = (
-            weights[:, 0] * iframe_feat +
-            weights[:, 1] * residual_feat +
-            weights[:, 2] * motion_feat
-        )  # (B, T, D)
-
-        # 自注意力融合
-        attn_output, _ = self.cross_attention(
-            weighted_feats, weighted_feats, weighted_feats
+        # 时序池化
+        video_feat_pooled = video_features.mean(dim=1)  # [B, D]
+        
+        # 生成prompt
+        prompt_features = self.prompt_generator(video_feat_pooled)
+        prompt_features = prompt_features * self.scale
+        
+        return prompt_features
+    
+class VideoActionPromptLearner(nn.Module):
+    """为每个视频学习action prompt,而不是每个类别"""
+    def __init__(self, clip_model, n_ctx=4, ctx_init=None):
+        super().__init__()
+        
+        dtype = clip_model.dtype
+        ctx_dim = clip_model.transformer.width
+        
+        # 可学习的context tokens
+        if ctx_init:
+            ctx_init = ctx_init.replace("_", " ")
+            n_ctx = len(ctx_init.split(" "))
+            prompt = clip.tokenize(ctx_init)
+            with torch.no_grad():
+                embedding = clip_model.token_embedding(prompt).type(dtype)
+            ctx_vectors = embedding[0, 1 : 1 + n_ctx, :]
+            self.n_ctx = n_ctx
+        else:
+            ctx_vectors = torch.empty(n_ctx, ctx_dim, dtype=dtype)
+            nn.init.normal_(ctx_vectors, std=0.02)
+            self.n_ctx = n_ctx
+        
+        self.ctx = nn.Parameter(ctx_vectors)
+        
+        # 用于生成视频特定的prompt
+        self.meta_net = nn.Sequential(
+            nn.Linear(ctx_dim, ctx_dim // 2),
+            nn.ReLU(inplace=True),
+            nn.Linear(ctx_dim // 2, n_ctx * ctx_dim)
         )
+        
+    def forward(self, video_features):
+        """
+        Args:
+            video_features: [B, D] 或 [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 每个视频的prompt特征
+        """
+        # 🔧 修改：支持2D和3D输入
+        if video_features.dim() == 3:
+            # [B, T, D] -> [B, D]
+            B, T, D = video_features.shape
+            video_feat_pooled = video_features.mean(dim=1)
+        elif video_features.dim() == 2:
+            # [B, D] 已经是池化后的特征
+            B, D = video_features.shape
+            video_feat_pooled = video_features
+        else:
+            raise ValueError(f"Expected 2D or 3D input, got {video_features.dim()}D")
+        
+        # 生成视频特定的context偏移
+        ctx_shift = self.meta_net(video_feat_pooled)  # [B, n_ctx * D]
+        ctx_shift = ctx_shift.view(B, self.n_ctx, D)  # [B, n_ctx, D]
+        
+        # 基础prompt + 视频特定偏移
+        ctx = self.ctx.unsqueeze(0).expand(B, -1, -1)  # [B, n_ctx, D]
+        ctx = ctx + ctx_shift  # [B, n_ctx, D]
+        
+        # 池化得到prompt特征
+        prompt_features = ctx.mean(dim=1)  # [B, D]
+        
+        return prompt_features
 
-        # 时序建模
-        temporal_output = self.temporal_fusion(attn_output)  # (B, T, D)
+class TemplateVideoActionPromptLearner(nn.Module):
+    """
+    使用模板 "A video of people {X}ing {Y}." 学习prompt
+    其中 {X} 和 {Y} 是从视频特征生成的可训练tokens
+    """
+    def __init__(self, clip_model, template="A video of people {}ing {}.", n_learnable_tokens=2):
+        super().__init__()
+        
+        self.dtype = clip_model.dtype
+        self.ctx_dim = clip_model.transformer.width
+        self.n_learnable_tokens = n_learnable_tokens
+        
+        # 1. 解析模板，找到 {} 的位置
+        self.template = template
+        self.prefix, self.suffix, self.infix = self._parse_template(template)
+        
+        # 2. 将模板的固定部分转换为embedding (不可训练)
+        # 🔧 修复：使用 register_buffer 确保自动移动到正确设备
+        prefix_emb = self._text_to_embedding(clip_model, self.prefix)
+        if prefix_emb is not None:
+            self.register_buffer('prefix_embeddings', prefix_emb)
+        else:
+            self.prefix_embeddings = None
+            
+        suffix_emb = self._text_to_embedding(clip_model, self.suffix)
+        if suffix_emb is not None:
+            self.register_buffer('suffix_embeddings', suffix_emb)
+        else:
+            self.suffix_embeddings = None
+            
+        if self.infix:
+            infix_emb = self._text_to_embedding(clip_model, self.infix)
+            self.register_buffer('infix_embeddings', infix_emb)
+        else:
+            self.infix_embeddings = None
+        
+        # 3. 为每个可学习位置创建元网络
+        self.meta_nets = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(self.ctx_dim, self.ctx_dim // 2),
+                nn.ReLU(inplace=True),
+                nn.Linear(self.ctx_dim // 2, self.ctx_dim)
+            ) for _ in range(n_learnable_tokens)
+        ])
+        
+        # 4. 可学习的基础token (作为元网络的基础)
+        learnable_ctx = torch.empty(n_learnable_tokens, self.ctx_dim, dtype=self.dtype)
+        nn.init.normal_(learnable_ctx, std=0.02)
+        self.learnable_ctx = nn.Parameter(learnable_ctx)
+        
+    def _parse_template(self, template):
+        """
+        解析模板字符串
+        例如: "A video of people {}ing {}."
+        返回: prefix="A video of people", suffix=".", infix="ing"
+        """
+        parts = template.split("{}")
+        if len(parts) != self.n_learnable_tokens + 1:
+            raise ValueError(f"Template must have exactly {self.n_learnable_tokens} placeholders {{}}")
+        
+        prefix = parts[0].strip()  # "A video of people"
+        suffix = parts[-1].strip()  # "."
+        infix = parts[1].strip() if len(parts) > 2 else None  # "ing"
+        
+        return prefix, suffix, infix
+    
+    def _text_to_embedding(self, clip_model, text):
+        """将文本转换为固定的embedding"""
+        if not text:
+            return None
+        
+        # 🔧 修复：确保在正确的设备上
+        device = clip_model.token_embedding.weight.device
+        
+        # Tokenize并获取embedding
+        tokens = clip.tokenize(text).to(device)
+        with torch.no_grad():
+            embeddings = clip_model.token_embedding(tokens).type(self.dtype)
+        
+        # 移除 [SOS] 和 [EOS] tokens
+        # 🔧 修复：更安全的索引方式
+        n_words = len(text.split())
+        if n_words > 0:
+            embeddings = embeddings[0, 1:1+n_words, :]  # [n_words, D]
+        else:
+            # 如果是空字符串或只有标点，返回None
+            return None
+        
+        return embeddings
+    
+    def forward(self, video_features):
+        """
+        Args:
+            video_features: [B, D] 或 [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 池化后的prompt特征
+        """
+        # 处理输入维度
+        if video_features.dim() == 3:
+            B, T, D = video_features.shape
+            video_feat_pooled = video_features.mean(dim=1)  # [B, D]
+        elif video_features.dim() == 2:
+            B, D = video_features.shape
+            video_feat_pooled = video_features
+        else:
+            raise ValueError(f"Expected 2D or 3D input, got {video_features.dim()}D")
+        
+        # 🔧 修复：确保所有tensor在同一设备
+        device = video_feat_pooled.device
+        
+        # 为每个视频生成可学习的tokens
+        learnable_tokens = []
+        for i in range(self.n_learnable_tokens):
+            # 基础token + 视频特定的偏移
+            base_token = self.learnable_ctx[i].unsqueeze(0).expand(B, -1)  # [B, D]
+            token_shift = self.meta_nets[i](video_feat_pooled)  # [B, D]
+            video_specific_token = base_token + token_shift  # [B, D]
+            learnable_tokens.append(video_specific_token.unsqueeze(1))  # [B, 1, D]
+        
+        # 组装完整的prompt: [prefix] + [token1] + [infix] + [token2] + [suffix]
+        prompt_parts = []
+        
+        # 添加prefix: "A video of people"
+        if self.prefix_embeddings is not None:
+            prefix = self.prefix_embeddings.unsqueeze(0).expand(B, -1, -1)  # [B, n_prefix, D]
+            prompt_parts.append(prefix)
+        
+        # 添加第一个可学习token: {X}
+        prompt_parts.append(learnable_tokens[0])  # [B, 1, D]
+        
+        # 添加infix: "ing"
+        if self.infix_embeddings is not None:
+            infix = self.infix_embeddings.unsqueeze(0).expand(B, -1, -1)  # [B, n_infix, D]
+            prompt_parts.append(infix)
+        
+        # 添加第二个可学习token: {Y}
+        if len(learnable_tokens) > 1:
+            prompt_parts.append(learnable_tokens[1])  # [B, 1, D]
+        
+        # 添加suffix: "."
+        if self.suffix_embeddings is not None:
+            suffix = self.suffix_embeddings.unsqueeze(0).expand(B, -1, -1)  # [B, n_suffix, D]
+            prompt_parts.append(suffix)
+        
+        # 拼接所有部分
+        prompt_embeddings = torch.cat(prompt_parts, dim=1)  # [B, total_len, D]
+        
+        # 池化得到单一特征向量
+        prompt_features = prompt_embeddings.mean(dim=1)  # [B, D]
+        
+        return prompt_features
 
-        # 可学习注意力池化
-        # query = self.pool_query.expand(B, -1, -1)  # (B, 1, D)
-        # attn_weights = torch.softmax(torch.matmul(query, temporal_output.transpose(1, 2)), dim=-1)  # (B, 1, T)
-        # video_repr = torch.bmm(attn_weights, temporal_output).squeeze(1)  # (B, D)
-        query = self.pool_query.expand(B, T, -1)  # (B, T, D)
-        attn_weights = torch.softmax(torch.sum(query * temporal_output, dim=-1, keepdim=True), dim=1)  # (B, T, 1)
-        video_repr = temporal_output * attn_weights  # (B, T, D)
+class AttributeVideoActionPromptLearner(nn.Module):
+    """使用多个属性词 + 可学习tokens 生成 action prompt."""
 
-        # 可选：引入文本引导调整
-        if text_feat is not None:
-            text_feat = F.normalize(text_feat, dim=-1)
-            video_repr = video_repr + torch.matmul(video_repr, text_feat.unsqueeze(-1)).squeeze(-1).unsqueeze(-1) * text_feat
+    def __init__(self, clip_model, attribute_words=None, n_learnable_tokens=4, max_seq_len=77):
+        super().__init__()
+        
+        self.dtype = clip_model.dtype
+        self.ctx_dim = clip_model.transformer.width
+        self.n_learnable_tokens = n_learnable_tokens
+        self.max_seq_len = max_seq_len  # 🔧 新增: 最大序列长度
+        
+        # 🔧 默认属性词
+        if attribute_words is None:
+            attribute_words = {
+                "motion": ["slow", "fast", "continuous", "sudden"],
+                "appearance": ["indoor", "outdoor", "bright", "dim"]
+            }
+        self.attribute_words = attribute_words
+        self.attribute_categories = list(attribute_words.keys())
+        self.category_types = {}
+        for name in self.attribute_categories:
+            lower = name.lower()
+            if "motion" in lower:
+                self.category_types[name] = "motion"
+            elif "appearance" in lower:
+                self.category_types[name] = "appearance"
+            else:
+                self.category_types[name] = "general"
+        
+        # 1. 将所有属性词转换为embedding (不可训练)
+        self.attribute_embeddings = nn.ParameterDict()
+        for category, words in attribute_words.items():
+            embeddings_list = []
+            for word in words:
+                word_emb = self._text_to_embedding(clip_model, word)
+                if word_emb is not None:
+                    embeddings_list.append(word_emb)
+            
+            if embeddings_list:
+                # 拼接所有词的embedding: [n_words, word_len, D]
+                category_emb = torch.cat(embeddings_list, dim=0)  # [total_tokens, D]
+                self.register_buffer(f'{category}_embeddings', category_emb)
+        
+        # 2. 为每个可学习位置创建元网络
+        self.meta_nets = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(self.ctx_dim, self.ctx_dim // 2),
+                nn.ReLU(inplace=True),
+                nn.Linear(self.ctx_dim // 2, self.ctx_dim)
+            ) for _ in range(n_learnable_tokens)
+        ])
+        
+        # 3. 可学习的基础token
+        learnable_ctx = torch.empty(n_learnable_tokens, self.ctx_dim, dtype=self.dtype)
+        nn.init.normal_(learnable_ctx, std=0.02)
+        self.learnable_ctx = nn.Parameter(learnable_ctx)
+        
+        # 🔧 4. 特殊token embeddings (用于填充)
+        device = clip_model.token_embedding.weight.device
+        with torch.no_grad():
+            # [SOS] token (id=49406)
+            sos_token = torch.tensor([49406], device=device)
+            self.register_buffer('sos_embedding', 
+                               clip_model.token_embedding(sos_token).type(self.dtype))
+            
+            # [EOS] token (id=49407)
+            eos_token = torch.tensor([49407], device=device)
+            self.register_buffer('eos_embedding', 
+                               clip_model.token_embedding(eos_token).type(self.dtype))
+            
+            # [PAD] token (id=0)
+            pad_token = torch.tensor([0], device=device)
+            self.register_buffer('pad_embedding', 
+                               clip_model.token_embedding(pad_token).type(self.dtype))
+    
+    def _text_to_embedding(self, clip_model, text):
+        """将文本转换为固定的embedding"""
+        if not text:
+            return None
+        
+        device = clip_model.token_embedding.weight.device
+        tokens = clip.tokenize(text).to(device)
+        
+        with torch.no_grad():
+            embeddings = clip_model.token_embedding(tokens).type(self.dtype)
+        
+        # 移除 [SOS] 和 [EOS]
+        n_words = len(text.split())
+        if n_words > 0:
+            embeddings = embeddings[0, 1:1+n_words, :]  # [n_words, D]
+        else:
+            return None
+        
+        return embeddings
+    
+    def _select_attribute_words(self, motion_features, appearance_features):
+        """根据特征选择最相关的属性词."""
+        feature_fallback = None
+        if motion_features is not None:
+            feature_fallback = motion_features
+        if feature_fallback is None and appearance_features is not None:
+            feature_fallback = appearance_features
+        if feature_fallback is None:
+            raise ValueError("motion_features 和 appearance_features 不能同时为 None")
 
-        # 投影到文本空间
-        video_embed = self.video_text_proj(video_repr)
-       
-        video_embed = F.normalize(video_embed, dim=-1)
+        B = feature_fallback.shape[0]
+        selected_parts = []
+        
+        # 🔧 为每个类别选择一个词
+        for category in self.attribute_categories:
+            if not hasattr(self, f"{category}_embeddings"):
+                continue
 
-        return video_embed
+            category_emb = getattr(self, f"{category}_embeddings")  # [n_tokens, D]
+
+            cat_type = self.category_types.get(category, "general")
+            if cat_type == "motion":
+                feats = motion_features if motion_features is not None else appearance_features
+            elif cat_type == "appearance":
+                feats = appearance_features if appearance_features is not None else motion_features
+            else:
+                if motion_features is not None and appearance_features is not None:
+                    feats = (motion_features + appearance_features) / 2
+                else:
+                    feats = feature_fallback
+
+            if feats is None:
+                continue
+            
+            # 计算相似度
+            # video_features: [B, D], category_emb: [n_tokens, D]
+            similarity = feats @ category_emb.T  # [B, n_tokens]
+            
+            # 选择最相似的token
+            selected_idx = similarity.argmax(dim=1)  # [B]
+            selected_emb = category_emb[selected_idx]  # [B, D]
+            
+            selected_parts.append(selected_emb.unsqueeze(1))  # [B, 1, D]
+        
+        return selected_parts  # List of [B, 1, D]
+    
+    def forward_embeddings(self, iframe_features, pframe_features):
+        """生成完整的 prompt 序列并返回 padding mask."""
+
+        def _pool_features(feats):
+            if feats is None:
+                return None
+            if feats.dim() == 3:
+                return feats.mean(dim=1)
+            if feats.dim() == 2:
+                return feats
+            raise ValueError("期望输入维度为2或3")
+
+        appearance_feat = _pool_features(iframe_features)
+        motion_feat = _pool_features(pframe_features)
+
+        feature_reference = None
+        if motion_feat is not None:
+            feature_reference = motion_feat
+        if feature_reference is None and appearance_feat is not None:
+            feature_reference = appearance_feat
+        if feature_reference is None:
+            raise ValueError("iframe_features 和 pframe_features 至少需要一个有效输入")
+
+        B, D = feature_reference.shape
+        device = feature_reference.device
+        
+        # 1. 生成可学习的tokens
+        learnable_tokens = []
+        for i in range(self.n_learnable_tokens):
+            base_token = self.learnable_ctx[i].unsqueeze(0).expand(B, -1)
+            if i % 2 == 0:
+                driver = motion_feat if motion_feat is not None else feature_reference
+            else:
+                driver = appearance_feat if appearance_feat is not None else feature_reference
+            linear_dtype = self.meta_nets[i][0].weight.dtype
+            token_shift = self.meta_nets[i](driver.to(linear_dtype))
+            token_shift = token_shift.to(self.dtype)
+            video_specific_token = base_token + token_shift
+            learnable_tokens.append(video_specific_token.unsqueeze(1))  # [B, 1, D]
+        
+        # 2. 选择属性词
+        selected_attribute_tokens = self._select_attribute_words(motion_feat, appearance_feat)
+        
+        # 3. 组装prompt序列
+        prompt_parts = []
+        
+        # [SOS] token
+        sos = self.sos_embedding.unsqueeze(0).expand(B, -1, -1)  # [B, 1, D]
+        prompt_parts.append(sos)
+        
+        # 交替添加可学习token和属性词
+        # 例如: [SOS] {X1} [motion_word] {X2} [appearance_word] {X3} ... [EOS] [PAD]...
+        for i, learnable_token in enumerate(learnable_tokens):
+            prompt_parts.append(learnable_token)  # [B, 1, D]
+            
+            # 添加对应的属性词
+            if i < len(selected_attribute_tokens):
+                prompt_parts.append(selected_attribute_tokens[i])  # [B, 1, D]
+        
+        # [EOS] token
+        eos = self.eos_embedding.unsqueeze(0).expand(B, -1, -1)  # [B, 1, D]
+        prompt_parts.append(eos)
+        
+        # 拼接有效tokens
+        valid_prompt = torch.cat(prompt_parts, dim=1)  # [B, valid_len, D]
+        valid_len = valid_prompt.shape[1]
+        
+        # 🔧 4. 填充到max_seq_len
+        if valid_len < self.max_seq_len:
+            pad_len = self.max_seq_len - valid_len
+            pad = self.pad_embedding.unsqueeze(0).expand(B, pad_len, -1)  # [B, pad_len, D]
+            prompt_embeddings = torch.cat([valid_prompt, pad], dim=1)  # [B, max_seq_len, D]
+        elif valid_len == self.max_seq_len:
+            prompt_embeddings = valid_prompt
+        else:
+            # 如果超长，截断
+            prompt_embeddings = valid_prompt[:, :self.max_seq_len, :]
+            valid_len = self.max_seq_len
+        
+        # 创建mask (1表示有效token, 0表示padding)
+        prompt_mask = torch.zeros(B, self.max_seq_len, device=device, dtype=prompt_embeddings.dtype)
+        prompt_mask[:, :valid_len] = 1
+        
+        return prompt_embeddings, prompt_mask
+    
+    def forward(self, iframe_features, pframe_features):
+        """返回池化后的 prompt 特征."""
+        prompt_embeddings, prompt_mask = self.forward_embeddings(iframe_features, pframe_features)
+        
+        # 只对有效token池化
+        masked_embeddings = prompt_embeddings * prompt_mask.unsqueeze(-1)
+        denom = prompt_mask.sum(dim=1, keepdim=True).clamp(min=1e-6)
+        prompt_features = masked_embeddings.sum(dim=1) / denom
+        
+        return prompt_features
+
+
+class HybridPromptLearner(nn.Module):
+    """
+    混合Prompt学习器：结合Template和Meta两种方式的优势
+    
+    优势：
+    1. Template部分提供结构化引导，加速收敛
+    2. Meta部分提供自由学习能力，增强表达
+    3. 可学习的融合权重，自适应调整两者比例
+    """
+    def __init__(self, clip_model, template="A video of people {}ing {}.", 
+                 n_learnable_tokens=2, n_free_ctx=2):
+        super().__init__()
+        
+        self.dtype = clip_model.dtype
+        self.ctx_dim = clip_model.transformer.width
+        
+        # ============ Template部分 (结构化学习) ============
+        self.template_learner = TemplateVideoActionPromptLearner(
+            clip_model, 
+            template=template,
+            n_learnable_tokens=n_learnable_tokens
+        )
+        
+        # ============ Meta部分 (自由学习) ============
+        self.meta_learner = VideoActionPromptLearner(
+            clip_model, 
+            n_ctx=n_free_ctx
+        )
+        
+        # ============ 融合权重 (可学习) ============
+        # alpha: template的权重
+        # (1-alpha): meta的权重
+        # 初始值0.7表示初始时更依赖template的结构化引导
+        self.alpha = nn.Parameter(torch.tensor(0.7))
+        
+        print(f"[HybridPromptLearner] 初始化完成:")
+        print(f"  - Template tokens: {n_learnable_tokens}")
+        print(f"  - Meta context: {n_free_ctx}")
+        print(f"  - 初始融合权重 alpha: {self.alpha.item():.2f}")
+        
+    def forward(self, video_features):
+        """
+        Args:
+            video_features: [B, D] 或 [B, T, D] 视频特征
+        Returns:
+            prompt_features: [B, D] 融合后的prompt特征
+        """
+        # 1. Template部分生成结构化prompt
+        template_prompt = self.template_learner(video_features)  # [B, D]
+        
+        # 2. Meta部分生成自由prompt
+        meta_prompt = self.meta_learner(video_features)  # [B, D]
+        
+        # 3. 加权融合 (使用sigmoid确保权重在[0,1]之间)
+        alpha = torch.sigmoid(self.alpha)
+        prompt = alpha * template_prompt + (1 - alpha) * meta_prompt
+        
+        return prompt
+    
+    def get_fusion_weight(self):
+        """获取当前的融合权重"""
+        return torch.sigmoid(self.alpha).item()
+
 
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
@@ -821,6 +1272,8 @@ class CLIP(nn.Module):
                  transformer_layers: int,
                  joint=False,
                  tm=None, T=8,dropout = 0., emb_dropout = 0.,
+                 action_prompt_type='simple',  # 新增: 'simple' 或 'meta'
+                 action_prompt_enabled=False,  # 新增: 是否启用
                  residual_layers_to_use=None,  # 新增参数：指定使用哪几层 
                  mvs_layers_to_use=None  # 新增MVS层参数
                 ):
@@ -928,8 +1381,41 @@ class CLIP(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
         self.T = T
+        # 初始化action prompt learner
+        # 在你的模型初始化部分，直接添加 'hybrid' 分支
 
-        self.initialize_parameters()
+        self.action_prompt_learner = None
+        self.action_prompt_enabled = action_prompt_enabled
+        self.last_prompt_feature = None
+
+        if action_prompt_enabled:
+            if action_prompt_type == 'simple':
+                self.action_prompt_learner = SimpleVideoActionPromptLearner(self)
+                
+            elif action_prompt_type == 'meta':
+                self.action_prompt_learner = VideoActionPromptLearner(self, n_ctx=4)
+                
+            elif action_prompt_type == 'template':
+                template = "A video of people {}ing {}."
+                self.action_prompt_learner = TemplateVideoActionPromptLearner(
+                    self, 
+                    template=template,
+                    n_learnable_tokens=2
+                )
+            
+            elif action_prompt_type == 'hybrid':  # 🆕 新增这个分支
+                self.action_prompt_learner = HybridPromptLearner(
+                    self,
+                    template="A video of people {}ing {}.",  # 固定模板
+                    n_learnable_tokens=2,                    # Template: 2个tokens
+                    n_free_ctx=2                             # Meta: 2个context
+                )
+            elif action_prompt_type == 'Attribute':  # 🆕 新增这个分支
+                self.action_prompt_learner = AttributeVideoActionPromptLearner(
+                    self,
+                )
+            else:
+                raise ValueError(f"Unknown action_prompt_type: {action_prompt_type}")
 
 
     def initialize_parameters(self):
@@ -960,6 +1446,14 @@ class CLIP(nn.Module):
 
         if self.text_projection is not None:
             nn.init.normal_(self.text_projection, std=self.transformer.width ** -0.5)
+        
+        # 初始化action prompt learner
+        if self.action_prompt_learner is not None:
+            for module in self.action_prompt_learner.modules():
+                if isinstance(module, nn.Linear):
+                    nn.init.normal_(module.weight, std=0.02)
+                    if module.bias is not None:
+                        nn.init.zeros_(module.bias)
 
     def build_attention_mask(self):
         # lazily create causal attention mask, with full attention between the vision tokens
@@ -974,76 +1468,148 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res, mv):
-        device = self.visual.conv1.weight.device
-        images = images.to(device)
-        res = res.to(device)
-        mv = mv.to(device)
-
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
+        
         # 编码残差信息
         if self.residual_encoder is not None:
             res_feat = self.residual_encoder(res.type(self.dtype))
-        else:
-            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用视觉编码器
-            res_feat = self.visual(res.type(self.dtype))
-
-        if hasattr(self, 'mvs_encoder') and self.mvs_encoder is not None:
             mvs_feats = self.mvs_encoder(mv.type(self.dtype))
         else:
-            mvs_feats = self.visual(mv.type(self.dtype))
-
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            res_feat = self.visual(res.type(self.dtype))
+        
+        
         return image_feat, res_feat, mvs_feats
 
 
-    def encode_text(self, text, return_token=False):
-        # print("encode_text:",text)
-        x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
-
-        x = x + self.positional_embedding.type(self.dtype)
+    def encode_text(self, text=None, return_token=False, prompt_embeddings=None):
+        """
+        编码文本或prompt embeddings
+        
+        Args:
+            text: [B, 77] token indices 或 None
+            prompt_embeddings: [B, seq_len, D] 直接的embedding输入
+            return_token: 是否返回token特征
+        
+        Returns:
+            cls_feat: [B, D]
+            text_token: [B, seq_len, D] 或 None
+        """
+        # 🔧 支持两种输入方式
+        if prompt_embeddings is not None:
+            x = prompt_embeddings.type(self.dtype)  # [B, seq_len, D]
+            use_prompt = True
+            
+            # 🔧 确保序列长度匹配
+            if x.shape[1] != self.positional_embedding.shape[0]:
+                raise ValueError(
+                    f"Prompt embedding length {x.shape[1]} must match "
+                    f"positional embedding length {self.positional_embedding.shape[0]}"
+                )
+        elif text is not None:
+            x = self.token_embedding(text).type(self.dtype)  # [B, 77, D]
+            use_prompt = False
+        else:
+            raise ValueError("Either text or prompt_embeddings must be provided")
+        
+        # 添加位置编码
+        seq_len = x.shape[1]
+        x = x + self.positional_embedding[:seq_len].type(self.dtype)
+        
         if self.emb_dropout > 0:
             x = self.dropout(x)
+        
         x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.transformer(x)
         x = x.permute(1, 0, 2)  # LND -> NLD
-        x = self.ln_final(x).type(self.dtype)  # eg, [400 77 512]
-
-        text_token = x @ self.text_projection   # eg, [400 77 512]
-
-        # x.shape = [batch_size, n_ctx, transformer.width]
-        # take features from the eot embedding (eot_token is the highest number in each sequence)
-        x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection   # 400 512 
-
+        x = self.ln_final(x).type(self.dtype)
+        
+        text_token = x @ self.text_projection
+        
+        # 🔧 根据输入类型选择池化方式
+        if use_prompt:
+            # 对于prompt，取第一个有效token (通常是最后一个非PAD token)
+            # 这里简化为取序列中间位置
+            x = x[:, seq_len // 2, :] @ self.text_projection  # [B, D]
+        else:
+            # 对于文本，取 [EOS] token
+            x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection
+        
         if return_token:
             return x, text_token
         else:
-            return x, None    
+            return x, None
 
 
-    def forward(self, image, residual, mv, class_text, desc_text=None, return_token=False):
-        device = self.visual.conv1.weight.device
-        class_text = class_text.to(device)
 
+
+
+    def forward(self, image, residual, mv, text, return_token=False):
         image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
-        cls_feat, text_feats = self.encode_text(class_text, return_token)
-        if desc_text is not None:
-            desc_text = desc_text.to(device)
-            desc_cls, _ = self.encode_text(desc_text, return_token=False)
-        else:
-            desc_cls = torch.zeros_like(cls_feat)
-
+        
+        # 原始文本编码
+        cls_feat, text_feats = self.encode_text(text=text, return_token=return_token)
+        
+        # 加权融合视频特征
         weights = F.softmax(self.beta, dim=0)
-        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
+        iframe_feats = weights[0] * image_feats
+        pframe_feats = weights[1] * residual_feats + weights[2] * mvs_feats
+        merged_feats = iframe_feats + pframe_feats  # [B, D]
+        
+        prompt_feature = None
 
-        batch_size = cls_feat.shape[0]
-        temporal_length = merged_feats.shape[0] // batch_size if batch_size > 0 else 1
-        merged_feats = merged_feats.view(batch_size, temporal_length, -1)
-        merged_feats = merged_feats + desc_cls.unsqueeze(1)
+        # 🔧 从视频特征生成action prompt并编码
+        if self.action_prompt_learner is not None:
+            # 1. 生成prompt embeddings (已填充到77)
+            batch_size = cls_feat.shape[0]
+            feat_dim = iframe_feats.shape[-1]
+            temporal_len = self.T if self.T is not None else 0
+            if temporal_len is None or temporal_len <= 0:
+                temporal_len = 0
+            if temporal_len <= 0 or batch_size * temporal_len != iframe_feats.shape[0]:
+                if batch_size == 0:
+                    temporal_len = 1
+                else:
+                    temporal_len = max(1, iframe_feats.shape[0] // batch_size)
+            if batch_size * temporal_len != iframe_feats.shape[0]:
+                raise ValueError(
+                    f"Mismatch when reshaping prompts: expected {batch_size * temporal_len} elements "
+                    f"but got {iframe_feats.shape[0]}."
+                )
+
+            iframe_feats_video = iframe_feats.view(batch_size, temporal_len, feat_dim)
+            pframe_feats_video = pframe_feats.view(batch_size, temporal_len, feat_dim)
+
+            action_prompt_embeddings, prompt_mask = self.action_prompt_learner.forward_embeddings(
+                iframe_feats_video, pframe_feats_video
+            )
+            # action_prompt_embeddings: [B, 77, D]
+            
+            # print(f"action_prompt_embeddings shape: {action_prompt_embeddings.shape}")
+            # print(f"prompt_mask sum: {prompt_mask.sum(dim=1)}")  # 查看有效token数量
+            
+            # 2. 通过encode_text编码
+            action_prompt_encoded, _ = self.encode_text(
+                text=None,
+                prompt_embeddings=action_prompt_embeddings,
+                return_token=False
+            )  # [B, D]
+            
+            # 3. 与视频特征相加
+            prompt_feature = action_prompt_encoded
+            prompt_feature_expanded = prompt_feature.unsqueeze(1).expand(-1, temporal_len, -1)
+            prompt_feature_expanded = prompt_feature_expanded.reshape(-1, feat_dim)
+            merged_feats = merged_feats + prompt_feature_expanded
+        
+        # Reshape回 [B*T, D]
         merged_feats = merged_feats.view(-1, merged_feats.shape[-1])
-
+        self.last_prompt_feature = prompt_feature
+        
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
+
+
 
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""
@@ -1069,7 +1635,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None):
+def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_dropout=0.,pretrain=True,residual_layers_to_use=None, mvs_layers_to_use=None, action_prompt_type='simple', action_prompt_enabled=False):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -1099,7 +1665,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use, action_prompt_type=action_prompt_type, action_prompt_enabled=action_prompt_enabled
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

@@ -97,7 +97,7 @@ def load(
         jit=True, 
         internal_modeling=False, joint_st=False, T=8, dropout=0., 
         emb_dropout=0., 
-        pretrain=True,residual_layers_to_use=None,mvs_layers_to_use=None):
+        pretrain=True,residual_layers_to_use=None,mvs_layers_to_use=None, action_prompt_type='simple', action_prompt_enabled=False):
     """Load a CLIP model
 
     Parameters
@@ -171,7 +171,7 @@ def load(
                             T=T, 
                             dropout=dropout, 
                             emb_dropout=emb_dropout, 
-                            pretrain=pretrain,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use).to(device)
+                            pretrain=pretrain,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use, action_prompt_type=action_prompt_type, action_prompt_enabled=action_prompt_type).to(device)
         if str(device) == "cpu":
             model.float()        
         return model, model.state_dict()

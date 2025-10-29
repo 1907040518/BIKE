@@ -1,4 +1,5 @@
 pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+# pretrain: 
 resume:
 seed: 1024
 data:
@@ -6,12 +7,12 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 16
+    batch_size: 32
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
-    val_root: '/home/stu_a/BIKE-main/datasets/Chmdb51'
+    train_root: '/mnt/data/hmdb51/mpeg4_videos'
+    val_root: '/mnt/data/hmdb51/mpeg4_videos'
     train_list: 'lists/hmdb51/train_rgb_split_1.txt'
     val_list: 'lists/hmdb51/val_rgb_split_1.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'
@@ -27,23 +28,28 @@ network:
     emb_dropout: 0.0 
     sim_header: Transf
     S_Align: DP
-    M_Align: VCS
-    interaction: VCS
-    video_prompt: False
+    M_Align: DP
+    interaction: DP
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: True 
-    Block: Origin
-    use_text_prompt_learning: False
+    fix_video: False 
     residual_layers_to_use: [0, 11]
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    action_prompt:
+        enable: True
+        template: "A video of people {}ing {}."
+        verb_init: do
+        object_init: something
+        class_specific: True
+        fusion: gated_sum
+        type: 'meta'  # 'simple' 或 'meta'
 solver:
     type: cosine
     epochs: 30
     start_epoch: 0
     optim: adamw
     lr: 5.e-5
-    mv_lr_ratio: 1  # mv_head学习率
     lr_warmup_step: 5
     weight_decay: 0.2
     loss_type: NCE

@@ -142,6 +142,10 @@ def main(args):
     # 检查配置中是否存在residual_layers_to_use参数
     residual_layers = config.network.get('residual_layers_to_use', None)  # 如果不存在则为None
     mvs_layers = config.network.get('mvs_layers_to_use', None)  # 如果不存在则为None   
+        # 🔧 修改: 从配置读取action_prompt设置
+    action_prompt_cfg = config.network.get('action_prompt', DotMap())
+    action_prompt_enabled = bool(action_prompt_cfg.get('enable', False))
+    action_prompt_type = action_prompt_cfg.get('type', 'simple')  # 'simple' 或 'meta'
     # get fp16 model and weight
     # model: 这将是一个可用于前向推理或继续训练的 CLIP 模型实例。你可以使用这个模型输入图像和文本进行特征提取、相似度计算等任务。
     # clip_state_dict: 包含了模型当前的权重和偏置，你可以使用这个字典在训练过程中更新模型的参数，或者在保存和加载模型时使用。
@@ -155,9 +159,11 @@ def main(args):
         pretrain=config.network.init,
         joint_st = config.network.joint_st,
         residual_layers_to_use=residual_layers,
-        mvs_layers_to_use=mvs_layers) # Must set jit=False for training  ViT-B/32
+        mvs_layers_to_use=mvs_layers,
+        action_prompt_enabled=action_prompt_enabled,  # 🔧 新增
+        action_prompt_type=action_prompt_type)  # 🔧 新增) # Must set jit=False for training  ViT-B/32
 
-    print(model)
+    # print(model)
     if config.data.modality in ['mv', 'residual', 'iframe']:
         transform_train = get_compress_augmentation(True, config)
         transform_val = get_compress_augmentation(False, config)
@@ -435,6 +441,25 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     model.train()
     video_head.train()
     autocast = torch.cuda.amp.autocast if args.precision == 'amp' else suppress
+    raw_prompt_loss_weight = getattr(config.solver, 'prompt_loss_weight', 1.0)
+
+    def _resolve_prompt_weight(value, default=1.0):
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, torch.Tensor) and value.numel() == 1:
+            return float(value.item())
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                return float(default)
+        if isinstance(value, (DotMap, dict)):
+            for key in ('value', 'weight', 'scale', 'coef'):
+                if key in value:
+                    return _resolve_prompt_weight(value[key], default)
+        return float(default)
+
+    prompt_loss_weight = _resolve_prompt_weight(raw_prompt_loss_weight)
     end = time.time()
     for i,(images, mvs, residuals,list_id) in enumerate(train_loader):  
         if config.solver.type != 'monitor':
@@ -460,6 +485,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
             if config.solver.loss_type in ['NCE', 'DS']:
                 texts = texts[list_id]
                 image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, texts, return_token=True)
+                prompt_embedding = getattr(model.module, 'last_prompt_feature', None) if hasattr(model, 'module') else model.last_prompt_feature
                 
                 # 重塑图像特征
                 image_embedding = image_embedding.view(b, t, -1)
@@ -473,6 +499,9 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                 if text_embedding is not None:
                     text_embedding = allgather(text_embedding)
                 cls_embedding = allgather(cls_embedding)     
+                prompt_embedding_global = None
+                if prompt_embedding is not None:
+                    prompt_embedding_global = allgather(prompt_embedding)
                 
                 logits = logit_scale * video_head(image_embedding, text_embedding, cls_embedding)
 
@@ -482,6 +511,15 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
                 loss = (loss_imgs + loss_texts)/2
+
+                if prompt_embedding_global is not None and prompt_loss_weight > 0:
+                    prompt_feat = prompt_embedding_global / prompt_embedding_global.norm(dim=-1, keepdim=True).clamp(min=1e-6)
+                    cls_feat_norm = cls_embedding / cls_embedding.norm(dim=-1, keepdim=True).clamp(min=1e-6)
+                    prompt_logits = logit_scale * prompt_feat @ cls_feat_norm.t()
+                    prompt_loss_img = criterion(prompt_logits, ground_truth)
+                    prompt_loss_text = criterion(prompt_logits.T, ground_truth)
+                    loss_prompt = 0.5 * (prompt_loss_img + prompt_loss_text)
+                    loss = loss + prompt_loss_weight * loss_prompt
             else:
                 raise NotImplementedError
 
@@ -565,11 +603,11 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
 
     with torch.no_grad():
         text_inputs = classes.to(device)
-        cls_feature, text_features = model.module.encode_text(text_inputs, return_token=True)
+        cls_feature, text_features = model.module.encode_text(text=text_inputs, return_token=True)
         print("")
-        for i,(image, mv, residual, class_id) in enumerate(val_loader):
+        for i, (image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            mv = mv.view((-1, config.data.num_segments, 2)+ mv.size()[-2:])
+            mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
             
             b, t, c_i, h, w = image.size()
@@ -580,12 +618,38 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
-            image_features, res_features, mvs_features = model.module.encode_image(image_input, residual_input, mv_input)
+            # 编码图像特征
+            image_features, res_features, mvs_features = model.module.encode_image(
+                image_input, residual_input, mv_input
+            )
+            
+            # 加权融合
             weights = F.softmax(model.module.beta, dim=0)
-            merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-
+            iframe_feats = weights[0] * image_features
+            pframe_feats = weights[1] * res_features + weights[2] * mvs_features
+            merged_feats = iframe_feats + pframe_feats
+            # merged_feats: [B*T, D]
+            
+            # 🔧 修改: 从视频特征生成action prompt (与forward保持一致)
+            if model.module.action_prompt_learner is not None:
+                # 1. 生成prompt embeddings
+                action_prompt_embeddings, _ = model.module.action_prompt_learner.forward_embeddings(iframe_feats, pframe_feats)
+                # [B*T, seq_len, D]
+                
+                # 2. 通过encode_text编码
+                action_prompt_encoded, _ = model.module.encode_text(
+                    text=None,
+                    prompt_embeddings=action_prompt_embeddings,
+                    return_token=False
+                )  # [B, D]
+                
+                # 3. 与视频特征相加
+                merged_feats = merged_feats + action_prompt_encoded  # [B*T, D] + [B*T, D]
+            
+            # Reshape为 [B, T, D] 用于video_head
             merged_feats = merged_feats.view(b, t, -1)
 
+            # 计算相似度
             similarity = video_head(merged_feats, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
@@ -618,6 +682,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         return top1.avg, sims_list, labels_list
     else:
         return top1.avg, None, None
+
 
 def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, n_class, logger):
     mAP = AverageMeter()

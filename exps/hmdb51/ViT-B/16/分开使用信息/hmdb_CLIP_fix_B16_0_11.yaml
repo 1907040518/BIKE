@@ -4,7 +4,7 @@ resume:
 seed: 1024
 data:
     dataset: hmdb51
-    modality: iframe
+    modality: residual
     num_segments: 16
     seg_length: 1
     batch_size: 32
@@ -33,9 +33,17 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: True 
+    fix_video: False 
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    action_prompt:
+        enable: True
+        template: "A video of people {}ing {}."
+        verb_init: do
+        object_init: something
+        class_specific: True
+        fusion: gated_sum
+        type: 'Attribute'  # 'simple' 或 'meta'  template hybrid Attribute
 solver:
     type: cosine
     epochs: 30
