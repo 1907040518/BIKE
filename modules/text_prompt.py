@@ -18,6 +18,137 @@ def text_prompt(data):
     return classes, classes.size(0)
 
 
+class AttributePromptLearner(nn.Module):
+    def __init__(
+        self,
+        classnames,
+        clip_model,
+        num_ctx_tokens,
+        attributes,
+        attribute_ctx_tokens,
+        template="a video about {}.",
+        class_specific=False,
+    ):
+        super().__init__()
+
+        if not isinstance(classnames, (list, tuple)) or len(classnames) == 0:
+            raise ValueError("classnames must be a non-empty sequence")
+        if not isinstance(attributes, (list, tuple)) or len(attributes) == 0:
+            raise ValueError("attributes must be a non-empty sequence")
+
+        self._tokenizer = _Tokenizer()
+        self.classnames = [name.replace("_", " ") for name in classnames]
+        self.n_cls = len(self.classnames)
+        self.attributes = [str(attr).strip() for attr in attributes]
+        self.class_specific = class_specific
+
+        token_embedding = clip_model.token_embedding
+        dtype = token_embedding.weight.dtype
+        ctx_dim = token_embedding.weight.shape[1]
+
+        if isinstance(attribute_ctx_tokens, int):
+            attribute_ctx_tokens = [attribute_ctx_tokens] * len(self.attributes)
+        elif len(attribute_ctx_tokens) != len(self.attributes):
+            raise ValueError("attribute_ctx_tokens must match number of attributes")
+
+        if num_ctx_tokens < 0:
+            raise ValueError("num_ctx_tokens must be non-negative")
+        if any(n < 0 for n in attribute_ctx_tokens):
+            raise ValueError("attribute_ctx_tokens must be non-negative")
+
+        self.n_ctx_main = num_ctx_tokens
+        self.attribute_ctx_counts = attribute_ctx_tokens
+
+        if class_specific:
+            ctx_shape = (self.n_cls, self.n_ctx_main, ctx_dim)
+            self.ctx_main = nn.Parameter(torch.empty(ctx_shape, dtype=dtype))
+        else:
+            self.ctx_main = nn.Parameter(torch.empty(self.n_ctx_main, ctx_dim, dtype=dtype))
+        nn.init.normal_(self.ctx_main, std=0.02)
+
+        self.attribute_ctx = nn.ParameterList()
+        for n_ctx in self.attribute_ctx_counts:
+            if class_specific:
+                param = nn.Parameter(torch.empty(self.n_cls, n_ctx, ctx_dim, dtype=dtype))
+            else:
+                param = nn.Parameter(torch.empty(n_ctx, ctx_dim, dtype=dtype))
+            if n_ctx > 0:
+                nn.init.normal_(param, std=0.01)
+            self.attribute_ctx.append(param)
+
+        prompts = []
+        for name in self.classnames:
+            pieces = []
+            for attr, n_ctx in zip(self.attributes, self.attribute_ctx_counts):
+                if n_ctx > 0:
+                    pieces.append(" ".join(["X"] * n_ctx))
+                pieces.append(attr)
+            if self.n_ctx_main > 0:
+                pieces.append(" ".join(["X"] * self.n_ctx_main))
+            pieces.append(template.format(name))
+            prompt = " ".join(piece for piece in pieces if piece).strip()
+            prompts.append(prompt)
+
+        tokenized_prompts = torch.cat([clip.tokenize(p) for p in prompts])
+        with torch.no_grad():
+            embedding = token_embedding(tokenized_prompts).type(dtype)
+
+        self.register_buffer("token_prefix", embedding[:, :1, :])
+
+        self.attribute_tokens = []
+        offset = 1
+        for idx, (attr, n_ctx) in enumerate(zip(self.attributes, self.attribute_ctx_counts)):
+            offset += n_ctx
+            attr_token_len = len(self._tokenizer.encode(attr))
+            token_slice = embedding[:, offset : offset + attr_token_len, :]
+            self.register_buffer(f"token_attribute_{idx}", token_slice)
+            self.attribute_tokens.append(f"token_attribute_{idx}")
+            offset += attr_token_len
+
+        suffix_start = offset + self.n_ctx_main
+        self.register_buffer("token_suffix", embedding[:, suffix_start:, :])
+        self.register_buffer("tokenized_prompts", tokenized_prompts)
+
+    def _expand_param(self, param, indices):
+        if param.shape[0] == 0:
+            return torch.zeros(indices.size(0), 0, param.shape[-1], device=param.device, dtype=param.dtype)
+
+        if param.dim() == 2:
+            param = param.unsqueeze(0).expand(indices.size(0), -1, -1)
+        else:
+            param = param[indices]
+        return param
+
+    def forward(self, class_ids=None):
+        if class_ids is None:
+            indices = torch.arange(self.n_cls, device=self.token_prefix.device)
+        else:
+            indices = class_ids.to(self.token_prefix.device, dtype=torch.long)
+
+        pieces = [self.token_prefix[indices]]
+
+        for name, ctx_param in zip(self.attribute_tokens, self.attribute_ctx):
+            idx = int(name.rsplit("_", 1)[-1])
+            ctx_blocks = self._expand_param(ctx_param, indices)
+            if ctx_blocks.numel() > 0:
+                pieces.append(ctx_blocks)
+            attr_tokens = getattr(self, name)[indices]
+            pieces.append(attr_tokens)
+
+        if self.n_ctx_main > 0:
+            pieces.append(self._expand_param(self.ctx_main, indices))
+
+        pieces.append(self.token_suffix[indices])
+        return torch.cat(pieces, dim=1)
+
+    def get_tokenized_prompts(self, class_ids=None):
+        if class_ids is None:
+            indices = torch.arange(self.n_cls, device=self.tokenized_prompts.device)
+        else:
+            indices = class_ids.to(self.tokenized_prompts.device, dtype=torch.long)
+        return self.tokenized_prompts[indices]
+
+
 class TextPromptLearner(nn.Module):
     def __init__(self, classnames, token_embedding, num_prompts, CSC=False, ctx_pos='end'):
         super().__init__()

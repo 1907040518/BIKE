@@ -1,0 +1,74 @@
+[11/01 23:25:08] BIKE INFO: ------------------------------------
+[11/01 23:25:08] BIKE INFO: Environment Versions:
+[11/01 23:25:08] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/01 23:25:08] BIKE INFO: - PyTorch: 2.4.1+cu118
+[11/01 23:25:08] BIKE INFO: - TorchVison: 0.19.1+cu118
+[11/01 23:25:08] BIKE INFO: ------------------------------------
+[11/01 23:25:08] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'ucf101',
+                'image_tmpl': 'img_{:05d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/ucf101/ucf_labels.csv',
+                'modality': 'residual',
+                'num_classes': 101,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/ucf101/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/ucf101/Cucf101',
+                'val_list': 'lists/ucf101/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/ucf101/Cucf101',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'arch': 'ViT-B/16',
+                   'attribute_prompt': {   'attribute_ctx': [2, 2],
+                                           'attributes': ['color', 'shape'],
+                                           'class_specific': False,
+                                           'coapt_bias': {   'enable': True,
+                                                             'layers': [   1024,
+                                                                           512,
+                                                                           512]},
+                                           'enable': True,
+                                           'n_ctx': 4,
+                                           'template': 'a video about {}.'},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': 'Fasle',
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 30,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[11/01 23:25:08] BIKE INFO: ------------------------------------
+[11/01 23:25:08] BIKE INFO: storing name: exps/ucf101/ViT-B/16/20251101_232504
+[11/01 23:25:11] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7c1ce2fcf940>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7c1ce2fcff40>]
+[11/01 23:25:11] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7c1ce2fcfdf0>, <Coviar.transforms.GroupCenterCrop object at 0x7c1ce2fcff10>]
+[11/01 23:25:12] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[11/01 23:25:13] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers DotMap()
+[11/01 23:25:13] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers DotMap()
+[11/01 23:25:13] BIKE INFO: Attribute prompt branch enabled with attributes: ['color', 'shape']
+[11/01 23:25:13] BIKE INFO: Attribute prompt tokens -> context: 4, attribute_ctx: [2, 2], class_specific: False
+[11/01 23:25:13] BIKE INFO: CoAPT bias meta-net enabled
+[11/01 23:25:13] BIKE INFO: CoAPT bias meta-net layers: [1024, 512, 512]

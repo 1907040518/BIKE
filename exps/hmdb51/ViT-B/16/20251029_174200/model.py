@@ -928,7 +928,6 @@ class CLIP(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
         self.T = T
-        self.attribute_prompt_learner = None
 
         self.initialize_parameters()
 
@@ -991,58 +990,35 @@ class CLIP(nn.Module):
         return image_feat, res_feat, mvs_feats
 
 
-    def _encode_text_from_embeddings(self, embeddings, tokenized_prompts, return_token=False):
-        x = embeddings + self.positional_embedding.type(self.dtype)
+    def encode_text(self, text, return_token=False):
+        # print("encode_text:",text)
+        x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
+
+        x = x + self.positional_embedding.type(self.dtype)
         if self.emb_dropout > 0:
             x = self.dropout(x)
-        x = x.permute(1, 0, 2)
+        x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.transformer(x)
-        x = x.permute(1, 0, 2)
-        x = self.ln_final(x).type(self.dtype)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_final(x).type(self.dtype)  # eg, [400 77 512]
 
-        text_token = x @ self.text_projection
-        pooled = x[torch.arange(x.shape[0]), tokenized_prompts.argmax(dim=-1)] @ self.text_projection
+        text_token = x @ self.text_projection   # eg, [400 77 512]
+
+        # x.shape = [batch_size, n_ctx, transformer.width]
+        # take features from the eot embedding (eot_token is the highest number in each sequence)
+        x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection   # 400 512 
 
         if return_token:
-            return pooled, text_token
-        return pooled, None
-
-    def encode_text(self, text, return_token=False):
-        tokenized = text
-        embeddings = self.token_embedding(tokenized).type(self.dtype)
-        return self._encode_text_from_embeddings(embeddings, tokenized, return_token)
-
-    def attach_attribute_prompt(self, prompt_learner):
-        self.attribute_prompt_learner = prompt_learner
-
-    def encode_attribute_prompts(self, class_ids=None, return_token=False):
-        if self.attribute_prompt_learner is None:
-            raise RuntimeError("Attribute prompt learner has not been attached to the model.")
-
-        prompts = self.attribute_prompt_learner(class_ids)
-        tokenized = self.attribute_prompt_learner.get_tokenized_prompts(class_ids)
-
-        device = self.token_embedding.weight.device
-        prompts = prompts.to(device=device, dtype=self.dtype)
-        tokenized = tokenized.to(device=device)
-        return self._encode_text_from_embeddings(prompts, tokenized, return_token)
-
-
-    def forward(self, image, residual, mv, text=None, return_token=False):
-        image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
-
-        if self.attribute_prompt_learner is not None:
-            if text is None:
-                cls_feat, text_feats = self.encode_attribute_prompts(return_token=return_token)
-            else:
-                if isinstance(text, torch.Tensor) and text.dim() == 1:
-                    cls_feat, text_feats = self.encode_attribute_prompts(text, return_token)
-                else:
-                    cls_feat, text_feats = self.encode_text(text, return_token)
+            return x, text_token
         else:
-            cls_feat, text_feats = self.encode_text(text, return_token)
+            return x, None    
 
-        weights = F.softmax(self.beta, dim=0)
+
+    def forward(self, image, residual,mv,text, return_token=False):
+        image_feats, residual_feats, mvs_feats= self.encode_image(image, residual, mv)
+        cls_feat, text_feats = self.encode_text(text, return_token)
+        # 使用可学习的beta参数，并确保它参与反向传播
+        weights = F.softmax(self.beta, dim=0)  # 计算权重，确保数值范围正常
 
         merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 

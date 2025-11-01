@@ -1,0 +1,69 @@
+[10/29 19:16:23] BIKE INFO: ------------------------------------
+[10/29 19:16:23] BIKE INFO: Environment Versions:
+[10/29 19:16:23] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[10/29 19:16:23] BIKE INFO: - PyTorch: 2.4.1+cu118
+[10/29 19:16:23] BIKE INFO: - TorchVison: 0.19.1+cu118
+[10/29 19:16:23] BIKE INFO: ------------------------------------
+[10/29 19:16:23] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'class_specific': True,
+                                        'enable': True,
+                                        'fusion': 'gated_sum',
+                                        'object_init': 'something',
+                                        'template': 'A video of people {}ing '
+                                                    '{}.',
+                                        'type': 'Attribute',
+                                        'verb_init': 'do'},
+                   'arch': 'ViT-B/16',
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': True,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 30,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[10/29 19:16:23] BIKE INFO: ------------------------------------
+[10/29 19:16:23] BIKE INFO: storing name: exps/hmdb51/ViT-B/16/20251029_191619
+[10/29 19:16:26] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7e53565fd640>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7e53565fdfa0>]
+[10/29 19:16:26] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7e53565fdee0>, <Coviar.transforms.GroupCenterCrop object at 0x7e53565fde80>]
+[10/29 19:16:26] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[10/29 19:16:28] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers DotMap()
+[10/29 19:16:28] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers DotMap()

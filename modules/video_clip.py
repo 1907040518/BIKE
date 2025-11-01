@@ -140,18 +140,35 @@ class video_header(nn.Module):
             vid_emb = vid_emb.mean(dim=1, keepdim=False)  # b c
             vid_emb = vid_emb / vid_emb.norm(dim=-1, keepdim=True)
             cls_emb = cls_emb / cls_emb.norm(dim=-1, keepdim=True)
-            logit = vid_emb @ cls_emb.t()  
+
+            if cls_emb.dim() == 2:
+                logit = vid_emb @ cls_emb.t()
+            elif cls_emb.dim() == 3:
+                logit = torch.einsum('bd,bkd->bk', vid_emb, cls_emb)
+            else:
+                raise ValueError('Unsupported cls_emb dim for DP interaction')
 
         elif self.interaction == 'VCS':  # video concept spotting
             cls_emb = cls_emb / cls_emb.norm(dim=-1, keepdim=True)
             vid_emb = vid_emb / vid_emb.norm(dim=-1, keepdim=True)
             text_emb = text_emb / text_emb.norm(dim=-1, keepdim=True)
-            sims = torch.einsum('awd,btd->abwt', [text_emb, vid_emb])
+
+            if text_emb.dim() == 3:
+                sims = torch.einsum('awd,btd->abwt', [text_emb, vid_emb])
+            elif text_emb.dim() == 4:
+                sims = torch.einsum('bawd,btd->abwt', [text_emb, vid_emb])
+            else:
+                raise ValueError('Unsupported text_emb dim for VCS interaction')
             att_weight_v = F.softmax(sims/0.01, dim=-1) # abwt
             att_weight_v = att_weight_v.mean(dim=-2)  # abt
             v_att = torch.einsum('abt,btd->abd', [att_weight_v, vid_emb])
-            # new
-            t2v_logits = torch.einsum('abd,ad->ab',[v_att, cls_emb])
+
+            if cls_emb.dim() == 2:
+                t2v_logits = torch.einsum('abd,ad->ab', [v_att, cls_emb])
+            elif cls_emb.dim() == 3:
+                t2v_logits = torch.einsum('abd,bad->ab', [v_att, cls_emb])
+            else:
+                raise ValueError('Unsupported cls_emb dim for VCS interaction')
 
             logit = t2v_logits.transpose(1, 0)
             

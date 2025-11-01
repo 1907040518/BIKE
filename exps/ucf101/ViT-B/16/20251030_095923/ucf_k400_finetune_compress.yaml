@@ -34,9 +34,13 @@ network:
     fix_video: False
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
-    coapt_bias:
+    attribute_prompt:
         enable: True
-        layers: [1024, 512, 512]
+        attributes: ["precision"]
+        attribute_ctx: 2
+        n_ctx: 4
+        template: "a video about {}."
+        class_specific: False
 solver:
     type: cosine
     epochs: 30

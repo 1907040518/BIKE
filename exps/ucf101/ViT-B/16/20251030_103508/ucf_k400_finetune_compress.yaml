@@ -31,12 +31,16 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False
+    fix_video: True
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
-    coapt_bias:
+    attribute_prompt:
         enable: True
-        layers: [1024, 512, 512]
+        attributes: ['color', 'shape']
+        attribute_ctx: [2, 2]
+        n_ctx: 4
+        template: "a video about {}."
+        class_specific: False
 solver:
     type: cosine
     epochs: 30
