@@ -32,7 +32,7 @@ from modules.video_clip import video_header
 from utils.NCELoss import NCELoss, DualLoss
 from utils.Augmentation import get_augmentation
 from utils.solver import _optimizer, _lr_scheduler
-from modules.text_prompt import text_prompt
+from modules.text_prompt import text_prompt, AttributePromptLearner
 
 from Coviar.transforms import get_compress_augmentation, GroupCenterCrop, GroupScale
 
@@ -172,43 +172,6 @@ def load_attribute_descriptions(classnames, attribute_cfg, logger, dataset_name)
         logger.info(f"Loaded attribute descriptions from {vocab_path}")
 
     return attribute_words
-
-
-def build_attribute_prompts(classnames, attribute_cfg, logger, dataset_name):
-    attribute_texts = load_attribute_descriptions(classnames, attribute_cfg, logger, dataset_name)
-
-    template = attribute_cfg.get('template', "a video about {}.")
-    attr_template = attribute_cfg.get('attribute_template', None)
-    finalize_with_period = attribute_cfg.get('append_period', True)
-
-    prompts = []
-    for name, attr_text in zip(classnames, attribute_texts):
-        attr_text = attr_text.strip()
-        attr_text = attr_text.rstrip('.')
-
-        if template.count('{}') >= 2:
-            if attr_text:
-                prompt = template.format(name, attr_text)
-            else:
-                prompt = template.format(name, '')
-        else:
-            base_prompt = template.format(name)
-            if attr_template is not None and attr_template.count('{}') >= 1 and attr_text:
-                formatted_attr = attr_template.format(attr_text)
-            else:
-                formatted_attr = attr_text
-
-            prompt = base_prompt
-            if formatted_attr:
-                prompt = f"{prompt} {formatted_attr}".strip()
-
-        if finalize_with_period and prompt and prompt[-1] not in {'.', '!', '?'}:
-            prompt = f"{prompt}."
-
-        prompts.append(prompt)
-
-    tokenized = torch.cat([clip.tokenize(p) for p in prompts])
-    return tokenized, prompts
 
 def get_parser():
     parser = argparse.ArgumentParser()
@@ -497,35 +460,61 @@ def main(args):
     classnames = [c for _, c in train_data.classes]
 
     attribute_prompt_cfg = config.network.get('action_prompt', config.network.get('attribute_prompt', None))
-    using_attribute_prompts = False
-    classes = None
-    n_class = len(classnames)
+    attribute_prompt_enabled = False
+    if isinstance(attribute_prompt_cfg, dict):
+        attribute_prompt_enabled = bool(attribute_prompt_cfg.get('enable', False))
+    elif isinstance(attribute_prompt_cfg, bool):
+        attribute_prompt_enabled = attribute_prompt_cfg
+        attribute_prompt_cfg = {}
 
-    if isinstance(attribute_prompt_cfg, dict) and attribute_prompt_cfg.get('enable', False):
-        try:
-            classes, prompt_strings = build_attribute_prompts(
-                classnames,
-                attribute_prompt_cfg,
-                logger,
-                config.data.dataset,
+    if attribute_prompt_enabled:
+        attribute_words = load_attribute_descriptions(
+            classnames,
+            attribute_prompt_cfg,
+            logger,
+            config.data.dataset,
+        )
+        if not any(attribute_words):
+            raise ValueError("Attribute prompt enabled but no valid attribute descriptions were loaded")
+
+        attr_ctx_tokens = attribute_prompt_cfg.get('attribute_ctx_tokens', attribute_prompt_cfg.get('attribute_ctx', 2))
+        if attr_ctx_tokens is None:
+            attr_ctx_tokens = 2
+        if isinstance(attr_ctx_tokens, (int, float)):
+            attr_ctx_tokens = int(attr_ctx_tokens)
+            attr_ctx_tokens_list = [attr_ctx_tokens] * len(attribute_words)
+        else:
+            attr_ctx_tokens_list = [int(v) for v in attr_ctx_tokens]
+
+        if len(attr_ctx_tokens_list) != len(attribute_words):
+            raise ValueError("Length of attribute_ctx_tokens must match number of attributes")
+
+        num_ctx_tokens = int(attribute_prompt_cfg.get('n_ctx', attribute_prompt_cfg.get('context_tokens', 4)))
+        template = attribute_prompt_cfg.get('template', "a video about {}.")
+        if "{}" not in template:
+            raise ValueError("attribute prompt template must contain '{}' placeholder")
+        class_specific = bool(attribute_prompt_cfg.get('class_specific', True))
+
+        attribute_prompt_learner = AttributePromptLearner(
+            classnames=classnames,
+            clip_model=model,
+            num_ctx_tokens=num_ctx_tokens,
+            attributes=attribute_words,
+            attribute_ctx_tokens=attr_ctx_tokens_list,
+            template=template,
+            class_specific=class_specific,
+        )
+        model.attach_attribute_prompt(attribute_prompt_learner)
+        classes = None
+        n_class = len(classnames)
+        if dist.get_rank() == 0:
+            logger.info("Attribute prompt branch enabled")
+            logger.info(
+                f"Attribute prompt tokens -> context: {num_ctx_tokens}, attribute_ctx: {attr_ctx_tokens_list}, class_specific: {class_specific}"
             )
-            using_attribute_prompts = True
-            if dist.get_rank() == 0:
-                logger.info("Attribute prompt strings loaded from vocabulary")
-                preview = attribute_prompt_cfg.get('log_preview', 3)
-                if preview:
-                    for idx, text in enumerate(prompt_strings[:preview]):
-                        logger.info(f"Prompt[{idx}]: {text}")
-        except FileNotFoundError as exc:
-            using_attribute_prompts = False
-            if dist.get_rank() == 0:
-                logger.warning(f"Attribute prompt vocabulary missing ({exc}); falling back to default prompts")
-
-    if not using_attribute_prompts:
+    else:
         classes, n_class = text_prompt(train_data)
-
-    attribute_prompt_enabled = using_attribute_prompts
-    classes = classes.to(device)
+        classes = classes.to(device)
 
     coapt_bias_cfg = config.network.get('coapt_bias', None)
     if coapt_bias_cfg is None and isinstance(attribute_prompt_cfg, dict):
@@ -564,6 +553,8 @@ def main(args):
         for name, param in model.named_parameters():
             if "visual" not in name and "logit_scale" not in name and "beta" not in name:
                 if coapt_bias_enabled and "coapt_bias" in name:
+                    continue
+                if attribute_prompt_enabled and "attribute_prompt_learner" in name:
                     continue
                 param.requires_grad_(False)
   
@@ -694,10 +685,11 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
 
         with autocast():
             if config.solver.loss_type in ['NCE', 'DS']:
-                if classes is None:
-                    raise RuntimeError("Text classes tensor is required for training")
-                indices = list_id.to(device, dtype=torch.long)
-                text_inputs = classes[indices]
+                if attribute_prompt_enabled:
+                    text_inputs = list_id.to(device, dtype=torch.long)
+                else:
+                    indices = list_id.to(device, dtype=torch.long)
+                    text_inputs = classes[indices]
 
                 image_embedding, cls_embedding, text_embedding, logit_scale = model(images, residuals, mvs, text_inputs, return_token=True)
                 
@@ -791,10 +783,12 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
         images= images.view(-1,c,h,w) # omit the Image.fromarray if the images already in PIL format, change this line to images=list_image if using preprocess inside the dataset class
 
-        if classes is None:
-            raise RuntimeError("Text classes tensor is required for training")
-        indices = list_id.to(device, dtype=torch.long)
-        text_inputs = classes[indices]
+        if attribute_prompt_enabled:
+            text_inputs = list_id.to(device, dtype=torch.long)
+        else:
+            texts = classes
+            indices = list_id.to(device, dtype=torch.long)
+            text_inputs = texts[indices]
 
 
 
@@ -811,10 +805,13 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
 
     with torch.no_grad():
         clip_model = model.module if hasattr(model, "module") else model
-        if classes is None:
-            raise RuntimeError("Text classes tensor is required for evaluation")
-        text_inputs = classes.to(device)
-        base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
+        if attribute_prompt_enabled:
+            base_cls_feature, text_features = clip_model.encode_attribute_prompts(return_token=True)
+        else:
+            if classes is None:
+                raise RuntimeError("Text classes tensor is required when attribute prompt is disabled")
+            text_inputs = classes.to(device)
+            base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
         print("")
         for i,(image, mv, residual, class_id) in enumerate(val_loader):
@@ -887,10 +884,13 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
 
     with torch.no_grad():
         clip_model = model.module if hasattr(model, "module") else model
-        if classes is None:
-            raise RuntimeError("Text classes tensor is required for evaluation")
-        text_inputs = classes.to(device)
-        base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
+        if attribute_prompt_enabled:
+            base_cls_feature, text_features = clip_model.encode_attribute_prompts(return_token=True)
+        else:
+            if classes is None:
+                raise RuntimeError("Text classes tensor is required when attribute prompt is disabled")
+            text_inputs = classes.to(device)
+            base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
         for i, (image, class_id) in enumerate(val_loader):
             if image.shape[2] == 2:

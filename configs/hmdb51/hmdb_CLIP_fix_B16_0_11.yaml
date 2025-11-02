@@ -36,6 +36,16 @@ network:
     fix_video: True 
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    action_prompt:
+        enable: False
+        vocab_root: '/home/stu_b/CoAPT-main/VOCAB/gpt-L'
+        dataset_key: HMDB51
+        seed_index: 1
+        num_attributes: 16
+        attribute_ctx: 2
+        n_ctx: 4
+        class_specific: True
+        template: "a video about {}."
     coapt_bias:
         enable: True
         layers: [1024, 512, 512]
