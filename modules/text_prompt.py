@@ -149,6 +149,133 @@ class AttributePromptLearner(nn.Module):
         return self.tokenized_prompts[indices]
 
 
+class TemplateAttributePromptLearner(nn.Module):
+    """Prompt learner that keeps template tokens trainable while freezing class and attribute tokens."""
+
+    def __init__(self, classnames, prompt_strings, clip_model, template):
+        super().__init__()
+
+        if not prompt_strings or len(prompt_strings) != len(classnames):
+            raise ValueError("prompt_strings must provide one prompt per class")
+
+        if template.count("{}") != 1:
+            raise ValueError("TemplateAttributePromptLearner currently supports templates with exactly one '{}' placeholder")
+
+        self._tokenizer = _Tokenizer()
+        self.classnames = [name.replace("_", " ") for name in classnames]
+        self.prompts = list(prompt_strings)
+        self.n_cls = len(self.classnames)
+
+        token_embedding = clip_model.token_embedding
+        dtype = token_embedding.weight.dtype
+
+        tokenized_prompts = torch.cat([clip.tokenize(p) for p in self.prompts])
+        with torch.no_grad():
+            embedding = token_embedding(tokenized_prompts).type(dtype)
+
+        self.register_buffer("tokenized_prompts", tokenized_prompts)
+        self.register_buffer("base_embedding", embedding)
+
+        template_prompts = [template.format(name) for name in self.classnames]
+        template_tokenized = torch.cat([clip.tokenize(p) for p in template_prompts])
+
+        class_token_lists = [self._tokenizer.encode(name) for name in self.classnames]
+        eos_token = 49407  # CLIP end-of-text id
+
+        template_tokens_ref = template_tokenized[0].tolist()
+        template_class_pos = _find_subsequence(template_tokens_ref, class_token_lists[0])
+        if not template_class_pos:
+            raise ValueError("Failed to locate class tokens inside template prompt")
+
+        prefix_start = 1
+        prefix_end = template_class_pos[0]
+        prefix_len = max(0, prefix_end - prefix_start)
+
+        suffix_start_template = template_class_pos[-1] + 1
+        try:
+            eos_index = template_tokens_ref.index(eos_token)
+        except ValueError as exc:
+            raise ValueError("Template prompt is missing EOS token") from exc
+        suffix_len = max(0, eos_index - suffix_start_template)
+
+        # Verify consistency across classes for template pieces
+        for idx in range(1, self.n_cls):
+            tokens_template = template_tokenized[idx].tolist()
+            class_pos = _find_subsequence(tokens_template, class_token_lists[idx])
+            if not class_pos:
+                raise ValueError(f"Failed to locate class tokens in template for class index {idx}")
+            if class_pos[0] != prefix_end:
+                raise ValueError("Inconsistent template prefix length across classes")
+            other_suffix_start = class_pos[-1] + 1
+            if suffix_len != max(0, tokens_template.index(eos_token) - other_suffix_start):
+                raise ValueError("Inconsistent template suffix length across classes")
+
+        self.prefix_slice = slice(prefix_start, prefix_end)
+        self.suffix_len = suffix_len
+
+        if prefix_len > 0:
+            prefix_init = embedding[0, self.prefix_slice, :].clone()
+            self.template_prefix = nn.Parameter(prefix_init)
+        else:
+            self.register_parameter("template_prefix", None)
+
+        if suffix_len > 0:
+            suffix_tokens = template_tokens_ref[suffix_start_template:suffix_start_template + suffix_len]
+            suffix_init = embedding[0, suffix_start_template:suffix_start_template + suffix_len, :].clone()
+            self.template_suffix = nn.Parameter(suffix_init)
+            self.register_buffer("template_suffix_tokens", torch.tensor(suffix_tokens, dtype=torch.long))
+        else:
+            self.register_parameter("template_suffix", None)
+            self.register_buffer("template_suffix_tokens", torch.empty(0, dtype=torch.long))
+
+        suffix_starts = []
+        for cls_idx in range(self.n_cls):
+            tokens = tokenized_prompts[cls_idx].tolist()
+            class_positions = _find_subsequence(tokens, class_token_lists[cls_idx])
+            if not class_positions:
+                raise ValueError(f"Failed to locate class tokens in full prompt for class index {cls_idx}")
+            if prefix_len > 0:
+                prompt_prefix = tokens[self.prefix_slice.start:self.prefix_slice.stop]
+                template_prefix = template_tokens_ref[self.prefix_slice.start:self.prefix_slice.stop]
+                if prompt_prefix != template_prefix:
+                    raise ValueError("Prompt prefix tokens differ from template prefix tokens")
+            suffix_start = class_positions[-1] + 1
+            if self.suffix_len > 0:
+                prompt_suffix = tokens[suffix_start:suffix_start + self.suffix_len]
+                if prompt_suffix != template_tokens_ref[suffix_start_template:suffix_start_template + self.suffix_len]:
+                    raise ValueError("Prompt suffix tokens differ from template suffix tokens")
+            suffix_starts.append(suffix_start)
+
+        self.register_buffer("suffix_starts", torch.tensor(suffix_starts, dtype=torch.long))
+
+    def forward(self, class_ids=None):
+        if class_ids is None:
+            indices = torch.arange(self.n_cls, device=self.base_embedding.device)
+        else:
+            indices = class_ids.to(self.base_embedding.device, dtype=torch.long)
+
+        prompts = self.base_embedding[indices].clone()
+
+        if self.template_prefix is not None:
+            prefix = self.template_prefix.unsqueeze(0).expand(prompts.size(0), -1, -1)
+            prompts[:, self.prefix_slice, :] = prefix
+
+        if self.template_suffix is not None and self.suffix_len > 0:
+            suffix = self.template_suffix
+            for batch_idx, cls_idx in enumerate(indices.tolist()):
+                start = int(self.suffix_starts[cls_idx].item())
+                end = start + self.suffix_len
+                prompts[batch_idx, start:end, :] = suffix
+
+        return prompts
+
+    def get_tokenized_prompts(self, class_ids=None):
+        if class_ids is None:
+            indices = torch.arange(self.n_cls, device=self.tokenized_prompts.device)
+        else:
+            indices = class_ids.to(self.tokenized_prompts.device, dtype=torch.long)
+        return self.tokenized_prompts[indices]
+
 class TextPromptLearner(nn.Module):
     def __init__(self, classnames, token_embedding, num_prompts, CSC=False, ctx_pos='end'):
         super().__init__()

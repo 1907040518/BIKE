@@ -31,14 +31,14 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False
+    fix_video: True
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
     action_prompt:
         enable: True
-        vocab_root: '/home/stu_b/BIKE/attributes/llama3.1:8b'
+        vocab_root: '/home/stu_b/BIKE/attributes'
         dataset_key: UCF101
-        seed_index: 2
+        seed_index: 1
         num_attributes: 16
         attribute_ctx: 2
         n_ctx: 4

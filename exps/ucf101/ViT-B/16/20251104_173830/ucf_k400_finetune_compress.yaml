@@ -31,7 +31,7 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False
+    fix_video: True
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
     action_prompt:
