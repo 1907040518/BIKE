@@ -1,21 +1,11 @@
 from collections import OrderedDict
 from typing import Tuple, Union
 
-import inspect
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.utils.checkpoint import checkpoint as torch_checkpoint
-
-
-_CHECKPOINT_HAS_REENTRANT = "use_reentrant" in inspect.signature(torch_checkpoint).parameters
-
-
-def checkpoint(function, *args, **kwargs):
-    if _CHECKPOINT_HAS_REENTRANT:
-        return torch_checkpoint(function, *args, use_reentrant=False, **kwargs)
-    return torch_checkpoint(function, *args, **kwargs)
+from torch.utils.checkpoint import checkpoint
 
 
 class Bottleneck(nn.Module):
@@ -566,105 +556,6 @@ class CMFMPlus(nn.Module):
 
         return video_embed
 
-
-class AttributeSemanticDecomposer(nn.Module):
-    """通过注意力机制学习属性与多模态语义的关联。"""
-
-    def __init__(self, text_dim=512, num_modalities=3, hidden_dim=256, num_heads=4, attn_dropout=0.0):
-        super().__init__()
-        if num_modalities <= 0:
-            raise ValueError("num_modalities must be positive")
-
-        self.num_modalities = num_modalities
-        self.modal_queries = nn.Parameter(torch.randn(num_modalities, text_dim))
-        nn.init.normal_(self.modal_queries, std=0.02)
-
-        self.attention = nn.MultiheadAttention(
-            embed_dim=text_dim,
-            num_heads=num_heads,
-            dropout=attn_dropout,
-            batch_first=True,
-        )
-        self.score_mlp = nn.Sequential(
-            nn.Linear(text_dim, hidden_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim, 1),
-        )
-
-    def forward(self, attribute_tokens: torch.Tensor):
-        if attribute_tokens.dim() != 3:
-            raise ValueError("attribute_tokens must be (B, L, D)")
-
-        batch_size = attribute_tokens.size(0)
-        queries = self.modal_queries.unsqueeze(0).expand(batch_size, -1, -1)
-
-        attn_output, attn_weights = self.attention(queries, attribute_tokens, attribute_tokens)
-        scores = self.score_mlp(attn_output).squeeze(-1)
-
-        return attn_output, scores, attn_weights
-
-
-class AttributeGuidedFusion(nn.Module):
-    """基于属性语义，对 I-frame、MV、Residual 动态融合。"""
-
-    def __init__(
-        self,
-        visual_dim=512,
-        semantic_dim=512,
-        hidden_dim=256,
-        num_modalities=3,
-        num_heads=4,
-        attn_dropout=0.0,
-    ):
-        super().__init__()
-        if num_modalities != 3:
-            raise ValueError("This fusion module expects exactly three modalities: I-frame, MV, Residual")
-
-        self.num_modalities = num_modalities
-        self.semantic_decomposer = AttributeSemanticDecomposer(
-            text_dim=semantic_dim,
-            num_modalities=num_modalities,
-            hidden_dim=hidden_dim,
-            num_heads=num_heads,
-            attn_dropout=attn_dropout,
-        )
-
-        self.modality_adapters = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(semantic_dim, hidden_dim),
-                nn.ReLU(inplace=True),
-                nn.Linear(hidden_dim, visual_dim),
-            )
-            for _ in range(num_modalities)
-        ])
-        self.modality_norms = nn.ModuleList([nn.LayerNorm(visual_dim) for _ in range(num_modalities)])
-
-    def forward(
-        self,
-        iframe_feats: torch.Tensor,
-        mv_feats: torch.Tensor,
-        residual_feats: torch.Tensor,
-        attribute_tokens: torch.Tensor,
-    ):
-        if iframe_feats.dim() != 3 or mv_feats.dim() != 3 or residual_feats.dim() != 3:
-            raise ValueError("visual features must be (B, T, D)")
-
-        attr_repr, scores, attn_weights = self.semantic_decomposer(attribute_tokens)
-        weights = torch.softmax(scores, dim=-1)  # (B, 3)
-
-        modalities = [iframe_feats, mv_feats, residual_feats]
-        adapted_modalities = []
-        for idx, feat in enumerate(modalities):
-            guidance = self.modality_adapters[idx](attr_repr[:, idx, :]).unsqueeze(1)
-            adapted = self.modality_norms[idx](feat + guidance)
-            adapted_modalities.append(adapted)
-
-        stacked = torch.stack(adapted_modalities, dim=2)  # (B, T, 3, D)
-        weight_view = weights.unsqueeze(1).unsqueeze(-1)
-        fused = (stacked * weight_view).sum(dim=2)
-
-        return fused, weights, attn_weights
-
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
         super().__init__()
@@ -1038,10 +929,6 @@ class CLIP(nn.Module):
 
         self.T = T
         self.attribute_prompt_learner = None
-        self.attribute_guided_fusion = None
-        self.detach_attribute_semantics = False
-        self._last_fusion_weights = None
-        self._last_fusion_attention = None
 
         self.initialize_parameters()
 
@@ -1088,26 +975,19 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res=None, mv=None):
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
-        if res is None:
-            res_feat = torch.zeros_like(image_feat)
+        
+        # 编码残差信息
+        if self.residual_encoder is not None:
+            res_feat = self.residual_encoder(res.type(self.dtype))
+            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
         else:
-            if self.residual_encoder is not None:
-                res_feat = self.residual_encoder(res.type(self.dtype))
-            else:
-                res_feat = self.visual(res.type(self.dtype))
-
-        if mv is None:
-            mvs_feats = torch.zeros_like(image_feat)
-        else:
-            if self.mvs_encoder is not None:
-                mvs_feats = self.mvs_encoder(mv.type(self.dtype))
-            else:
-                mvs_feats = self.visual(mv.type(self.dtype))
-
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            res_feat = self.visual(res.type(self.dtype))
+        
+        
         return image_feat, res_feat, mvs_feats
 
 
@@ -1135,25 +1015,6 @@ class CLIP(nn.Module):
     def attach_attribute_prompt(self, prompt_learner):
         self.attribute_prompt_learner = prompt_learner
 
-    def configure_attribute_guided_fusion(self, enable=True, hidden_dim=256, num_heads=4, dropout=0.0, detach_text=False):    # 调整dropout 防止过拟合
-        if enable:
-            embed_dim = self.text_projection.shape[1]
-            self.attribute_guided_fusion = AttributeGuidedFusion(
-                visual_dim=embed_dim,
-                semantic_dim=embed_dim,
-                hidden_dim=hidden_dim,
-                num_modalities=3,
-                num_heads=num_heads,
-                attn_dropout=dropout,
-            )
-            self.detach_attribute_semantics = bool(detach_text)
-        else:
-            self.attribute_guided_fusion = None
-            self.detach_attribute_semantics = False
-
-        self._last_fusion_weights = None
-        self._last_fusion_attention = None
-
     def encode_attribute_prompts(self, class_ids=None, return_token=False):
         if self.attribute_prompt_learner is None:
             raise RuntimeError("Attribute prompt learner has not been attached to the model.")
@@ -1167,7 +1028,7 @@ class CLIP(nn.Module):
         return self._encode_text_from_embeddings(prompts, tokenized, return_token)
 
 
-    def forward(self, image, residual=None, mv=None, text=None, return_token=False):
+    def forward(self, image, residual, mv, text=None, return_token=False):
         image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
 
         if self.attribute_prompt_learner is not None:
@@ -1181,43 +1042,11 @@ class CLIP(nn.Module):
         else:
             cls_feat, text_feats = self.encode_text(text, return_token)
 
-        fusion_applied = False
-        merged_feats = image_feats
+        weights = F.softmax(self.beta, dim=0)
 
-        if self.attribute_guided_fusion is not None and text_feats is not None and text is not None:
-            batch_size = cls_feat.shape[0]
-            total_visual = image_feats.shape[0]
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 
-            if batch_size > 0 and total_visual % batch_size == 0:
-                temporal = total_visual // batch_size
-                iframe_seq = image_feats.view(batch_size, temporal, -1)
-                residual_seq = residual_feats.view(batch_size, temporal, -1)
-                mv_seq = mvs_feats.view(batch_size, temporal, -1)
 
-                attribute_tokens = text_feats.detach() if self.detach_attribute_semantics else text_feats
-
-                fused_feats, fusion_weights, fusion_attn = self.attribute_guided_fusion(
-                    iframe_seq,
-                    mv_seq,
-                    residual_seq,
-                    attribute_tokens,
-                )
-
-                merged_feats = fused_feats.view(total_visual, -1)
-                self._last_fusion_weights = fusion_weights
-                self._last_fusion_attention = fusion_attn
-                fusion_applied = True
-            else:
-                self._last_fusion_weights = None
-                self._last_fusion_attention = None
-        else:
-            self._last_fusion_weights = None
-            self._last_fusion_attention = None
-
-        if not fusion_applied:
-            weights = F.softmax(self.beta, dim=0)
-            merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
-            self._last_fusion_weights = weights.unsqueeze(0)
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 
@@ -1275,7 +1104,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-    dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

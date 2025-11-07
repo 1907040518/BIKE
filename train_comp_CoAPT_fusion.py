@@ -602,7 +602,7 @@ def main(args):
     lr_scheduler = _lr_scheduler(config, optimizer)
 
     if args.distributed:
-        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
+        model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
 
         if config.network.sim_header == "None" and config.network.interaction in ['DP', 'VCS']:
             video_head_nomodule = video_head
@@ -856,15 +856,11 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
-            if attribute_prompt_enabled and getattr(clip_model, "attribute_guided_fusion", None) is not None:
-                prompt_inputs = classes[class_id].to(device)
-                fused_flat, _, _, _ = clip_model(image_input, residual_input, mv_input, prompt_inputs, return_token=True)
-                merged_feats = fused_flat.view(b, t, -1)
-            else:
-                image_features, res_features, mvs_features = clip_model.encode_image(image_input, residual_input, mv_input)
-                weights = F.softmax(clip_model.beta, dim=0)
-                merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-                merged_feats = merged_feats.view(b, t, -1)
+            image_features, res_features, mvs_features = clip_model.encode_image(image_input, residual_input, mv_input)
+            weights = F.softmax(clip_model.beta, dim=0)
+            merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
+
+            merged_feats = merged_feats.view(b, t, -1)
 
             cls_feature = base_cls_feature
             if coapt_module is not None:
@@ -924,30 +920,22 @@ def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, 
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
         for i, (image, class_id) in enumerate(val_loader):
             if image.shape[2] == 2:
-                image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 2 h w
+                image = image.view((-1,config.data.num_segments,2)+image.size()[-2:])  # bt 3 h w
             else:
                 image = image.view((-1,config.data.num_segments,3)+image.size()[-2:])  # bt 3 h w
-
+    
+            # image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             b, t, c, h, w = image.size()
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c, h, w)
-
-            if attribute_prompt_enabled and getattr(clip_model, "attribute_guided_fusion", None) is not None:
-                prompt_inputs = classes[class_id].to(device)
-                fused_flat, _, _, _ = clip_model(image_input, None, None, prompt_inputs, return_token=True)
-                merged_feats = fused_flat.view(b, t, -1)
-            else:
-                image_features, res_features, mvs_features = clip_model.encode_image(image_input)
-                weights = F.softmax(clip_model.beta, dim=0)
-                merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-                merged_feats = merged_feats.view(b, t, -1)
+            image_features = clip_model.encode_image(image_input).view(b, t, -1)
 
             cls_feature = base_cls_feature
             if coapt_module is not None:
-                video_token = merged_feats.mean(dim=1)
+                video_token = image_features.mean(dim=1)
                 cls_feature = coapt_module(video_token, base_cls_feature)
 
-            similarity = video_head(merged_feats, text_features, cls_feature)
+            similarity = video_head(image_features, text_features, cls_feature)
 
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)  # [bs, 16, 400]
             similarity = similarity.mean(dim=1, keepdim=False)  # [bs, 400]

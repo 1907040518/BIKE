@@ -148,204 +148,124 @@ class AttributePromptLearner(nn.Module):
             indices = class_ids.to(self.tokenized_prompts.device, dtype=torch.long)
         return self.tokenized_prompts[indices]
 
-class CoAPTAttributePromptLearner(nn.Module):
-    """Prompt learner that assigns trainable tokens to class names and per-class attributes."""
 
-    def __init__(
-        self,
-        classnames,
-        clip_model,
-        attributes_per_class,
-        num_ctx_tokens,
-        attribute_ctx_tokens,
-        class_specific=True,
-    ):
+class TemplateAttributePromptLearner(nn.Module):
+    """Prompt learner that keeps template tokens trainable while freezing class and attribute tokens."""
+
+    def __init__(self, classnames, prompt_strings, clip_model, template):
         super().__init__()
 
-        if not isinstance(classnames, (list, tuple)) or len(classnames) == 0:
-            raise ValueError("classnames must be a non-empty sequence")
-        if not isinstance(attributes_per_class, (list, tuple)) or len(attributes_per_class) != len(classnames):
-            raise ValueError("attributes_per_class must align with classnames")
+        if not prompt_strings or len(prompt_strings) != len(classnames):
+            raise ValueError("prompt_strings must provide one prompt per class")
+
+        if template.count("{}") != 1:
+            raise ValueError("TemplateAttributePromptLearner currently supports templates with exactly one '{}' placeholder")
 
         self._tokenizer = _Tokenizer()
         self.classnames = [name.replace("_", " ") for name in classnames]
+        self.prompts = list(prompt_strings)
         self.n_cls = len(self.classnames)
-        self.class_specific = bool(class_specific)
-
-        processed_attributes = []
-        max_attr_count = 0
-        for attrs in attributes_per_class:
-            if isinstance(attrs, str):
-                attrs = attrs.split()
-            attrs = [str(attr).strip() for attr in attrs if str(attr).strip()]
-            processed_attributes.append(attrs)
-            max_attr_count = max(max_attr_count, len(attrs))
-
-        self.n_attributes = max_attr_count
-        if self.n_attributes == 0:
-            raise ValueError("attributes_per_class must contain at least one attribute")
-
-        # Pad attribute lists so every class shares the same attribute count.
-        for idx, attrs in enumerate(processed_attributes):
-            if len(attrs) < self.n_attributes:
-                processed_attributes[idx] = attrs + [""] * (self.n_attributes - len(attrs))
-
-        self.attributes_per_class = processed_attributes
 
         token_embedding = clip_model.token_embedding
         dtype = token_embedding.weight.dtype
-        ctx_dim = token_embedding.weight.shape[1]
 
-        if isinstance(attribute_ctx_tokens, int):
-            attribute_ctx_tokens = [attribute_ctx_tokens] * self.n_attributes
-        elif len(attribute_ctx_tokens) != self.n_attributes:
-            raise ValueError("attribute_ctx_tokens must match the number of attributes")
-
-        if num_ctx_tokens < 0:
-            raise ValueError("num_ctx_tokens must be non-negative")
-        if any(n < 0 for n in attribute_ctx_tokens):
-            raise ValueError("attribute_ctx_tokens must be non-negative")
-
-        self.n_ctx_main = int(num_ctx_tokens)
-        self.attribute_ctx_counts = [int(n) for n in attribute_ctx_tokens]
-
-        prompts = []
-        self.class_token_lengths = []
-        attribute_token_lengths = []
-        for class_idx, (name, attrs) in enumerate(zip(self.classnames, self.attributes_per_class)):
-            parts = []
-            if self.n_ctx_main > 0:
-                parts.append(" ".join(["X"] * self.n_ctx_main))
-            parts.append(name)
-
-            class_token_len = len(self._tokenizer.encode(name))
-            self.class_token_lengths.append(class_token_len)
-
-            attr_token_len_row = []
-            for attr, n_ctx in zip(attrs, self.attribute_ctx_counts):
-                attr_piece = []
-                if n_ctx > 0:
-                    attr_piece.append(" ".join(["X"] * n_ctx))
-                if attr:
-                    attr_piece.append(attr)
-                parts.append(" ".join(attr_piece).strip())
-                attr_token_len_row.append(len(self._tokenizer.encode(attr)) if attr else 0)
-
-            attribute_token_lengths.append(attr_token_len_row)
-            prompt = " ".join(part for part in parts if part).strip()
-            prompts.append(prompt)
-
-        tokenized_prompts = torch.cat([clip.tokenize(p) for p in prompts])
+        tokenized_prompts = torch.cat([clip.tokenize(p) for p in self.prompts])
         with torch.no_grad():
             embedding = token_embedding(tokenized_prompts).type(dtype)
 
         self.register_buffer("tokenized_prompts", tokenized_prompts)
-        self.register_buffer("base_prompts", embedding)
+        self.register_buffer("base_embedding", embedding)
 
-        if self.n_ctx_main > 0:
-            main_positions = torch.arange(1, 1 + self.n_ctx_main)
+        template_prompts = [template.format(name) for name in self.classnames]
+        template_tokenized = torch.cat([clip.tokenize(p) for p in template_prompts])
+
+        class_token_lists = [self._tokenizer.encode(name) for name in self.classnames]
+        eos_token = 49407  # CLIP end-of-text id
+
+        template_tokens_ref = template_tokenized[0].tolist()
+        template_class_pos = _find_subsequence(template_tokens_ref, class_token_lists[0])
+        if not template_class_pos:
+            raise ValueError("Failed to locate class tokens inside template prompt")
+
+        prefix_start = 1
+        prefix_end = template_class_pos[0]
+        prefix_len = max(0, prefix_end - prefix_start)
+
+        suffix_start_template = template_class_pos[-1] + 1
+        try:
+            eos_index = template_tokens_ref.index(eos_token)
+        except ValueError as exc:
+            raise ValueError("Template prompt is missing EOS token") from exc
+        suffix_len = max(0, eos_index - suffix_start_template)
+
+        # Verify consistency across classes for template pieces
+        for idx in range(1, self.n_cls):
+            tokens_template = template_tokenized[idx].tolist()
+            class_pos = _find_subsequence(tokens_template, class_token_lists[idx])
+            if not class_pos:
+                raise ValueError(f"Failed to locate class tokens in template for class index {idx}")
+            if class_pos[0] != prefix_end:
+                raise ValueError("Inconsistent template prefix length across classes")
+            other_suffix_start = class_pos[-1] + 1
+            if suffix_len != max(0, tokens_template.index(eos_token) - other_suffix_start):
+                raise ValueError("Inconsistent template suffix length across classes")
+
+        self.prefix_slice = slice(prefix_start, prefix_end)
+        self.suffix_len = suffix_len
+
+        if prefix_len > 0:
+            prefix_init = embedding[0, self.prefix_slice, :].clone()
+            self.template_prefix = nn.Parameter(prefix_init)
         else:
-            main_positions = torch.zeros(0, dtype=torch.long)
-        self.register_buffer("main_ctx_positions", main_positions)
+            self.register_parameter("template_prefix", None)
 
-        attribute_ctx_positions = []
-        for n_ctx in self.attribute_ctx_counts:
-            if n_ctx > 0:
-                attribute_ctx_positions.append(torch.zeros(self.n_cls, n_ctx, dtype=torch.long))
-            else:
-                attribute_ctx_positions.append(torch.zeros(self.n_cls, 0, dtype=torch.long))
-
-        for class_idx in range(self.n_cls):
-            offset = 1  # skip SOS token
-            if self.n_ctx_main > 0:
-                offset += self.n_ctx_main
-            offset += self.class_token_lengths[class_idx]
-
-            for attr_idx, (attr_len, n_ctx) in enumerate(zip(attribute_token_lengths[class_idx], self.attribute_ctx_counts)):
-                if n_ctx > 0:
-                    positions = torch.arange(offset, offset + n_ctx, dtype=torch.long)
-                    attribute_ctx_positions[attr_idx][class_idx] = positions
-                offset += n_ctx
-                offset += attr_len
-
-        self.attribute_ctx_position_names = []
-        for idx, positions in enumerate(attribute_ctx_positions):
-            buffer_name = f"attribute_ctx_positions_{idx}"
-            self.register_buffer(buffer_name, positions)
-            self.attribute_ctx_position_names.append(buffer_name)
-
-        ctx_main_init = None
-        if self.n_ctx_main > 0:
-            gathered = []
-            for class_idx in range(self.n_cls):
-                positions = self.main_ctx_positions.to(torch.long)
-                gathered.append(embedding[class_idx, positions, :])
-            gathered = torch.stack(gathered, dim=0)
-            if self.class_specific:
-                ctx_main_init = gathered
-            else:
-                ctx_main_init = gathered.mean(dim=0)
+        if suffix_len > 0:
+            suffix_tokens = template_tokens_ref[suffix_start_template:suffix_start_template + suffix_len]
+            suffix_init = embedding[0, suffix_start_template:suffix_start_template + suffix_len, :].clone()
+            self.template_suffix = nn.Parameter(suffix_init)
+            self.register_buffer("template_suffix_tokens", torch.tensor(suffix_tokens, dtype=torch.long))
         else:
-            if self.class_specific:
-                ctx_main_init = embedding.new_zeros(self.n_cls, 0, ctx_dim)
-            else:
-                ctx_main_init = embedding.new_zeros(0, ctx_dim)
+            self.register_parameter("template_suffix", None)
+            self.register_buffer("template_suffix_tokens", torch.empty(0, dtype=torch.long))
 
-        if self.class_specific:
-            self.ctx_main = nn.Parameter(ctx_main_init.clone())
-        else:
-            self.ctx_main = nn.Parameter(ctx_main_init.clone())
+        suffix_starts = []
+        for cls_idx in range(self.n_cls):
+            tokens = tokenized_prompts[cls_idx].tolist()
+            class_positions = _find_subsequence(tokens, class_token_lists[cls_idx])
+            if not class_positions:
+                raise ValueError(f"Failed to locate class tokens in full prompt for class index {cls_idx}")
+            if prefix_len > 0:
+                prompt_prefix = tokens[self.prefix_slice.start:self.prefix_slice.stop]
+                template_prefix = template_tokens_ref[self.prefix_slice.start:self.prefix_slice.stop]
+                if prompt_prefix != template_prefix:
+                    raise ValueError("Prompt prefix tokens differ from template prefix tokens")
+            suffix_start = class_positions[-1] + 1
+            if self.suffix_len > 0:
+                prompt_suffix = tokens[suffix_start:suffix_start + self.suffix_len]
+                if prompt_suffix != template_tokens_ref[suffix_start_template:suffix_start_template + self.suffix_len]:
+                    raise ValueError("Prompt suffix tokens differ from template suffix tokens")
+            suffix_starts.append(suffix_start)
 
-        self.attribute_ctx = nn.ParameterList()
-        for idx, n_ctx in enumerate(self.attribute_ctx_counts):
-            if n_ctx == 0:
-                if self.class_specific:
-                    param = embedding.new_zeros(self.n_cls, 0, ctx_dim)
-                else:
-                    param = embedding.new_zeros(0, ctx_dim)
-                self.attribute_ctx.append(nn.Parameter(param, requires_grad=True))
-                continue
-
-            positions = getattr(self, self.attribute_ctx_position_names[idx])
-            gathered = []
-            for class_idx in range(self.n_cls):
-                gathered.append(embedding[class_idx, positions[class_idx], :])
-            gathered = torch.stack(gathered, dim=0)
-            if self.class_specific:
-                init = gathered
-            else:
-                init = gathered.mean(dim=0)
-            self.attribute_ctx.append(nn.Parameter(init.clone()))
-
-    def _expand_param(self, param, indices):
-        if param.dim() == 3:
-            return param[indices]
-        if param.dim() == 2:
-            return param.unsqueeze(0).expand(indices.size(0), -1, -1)
-        raise ValueError("Unsupported parameter shape for context expansion")
+        self.register_buffer("suffix_starts", torch.tensor(suffix_starts, dtype=torch.long))
 
     def forward(self, class_ids=None):
         if class_ids is None:
-            indices = torch.arange(self.n_cls, device=self.base_prompts.device)
+            indices = torch.arange(self.n_cls, device=self.base_embedding.device)
         else:
-            indices = class_ids.to(self.base_prompts.device, dtype=torch.long)
+            indices = class_ids.to(self.base_embedding.device, dtype=torch.long)
 
-        prompts = self.base_prompts[indices].clone()
-        batch_indices = torch.arange(indices.size(0), device=prompts.device).unsqueeze(-1)
+        prompts = self.base_embedding[indices].clone()
 
-        if self.n_ctx_main > 0 and self.main_ctx_positions.numel() > 0:
-            ctx_main = self._expand_param(self.ctx_main, indices)
-            positions = self.main_ctx_positions.unsqueeze(0).expand(indices.size(0), -1)
-            prompts[batch_indices, positions] = ctx_main
+        if self.template_prefix is not None:
+            prefix = self.template_prefix.unsqueeze(0).expand(prompts.size(0), -1, -1)
+            prompts[:, self.prefix_slice, :] = prefix
 
-        for name, ctx_param in zip(self.attribute_ctx_position_names, self.attribute_ctx):
-            positions = getattr(self, name)[indices]
-            if positions.numel() == 0:
-                continue
-            ctx_blocks = self._expand_param(ctx_param, indices)
-            if ctx_blocks.numel() == 0:
-                continue
-            prompts[batch_indices, positions] = ctx_blocks
+        if self.template_suffix is not None and self.suffix_len > 0:
+            suffix = self.template_suffix
+            for batch_idx, cls_idx in enumerate(indices.tolist()):
+                start = int(self.suffix_starts[cls_idx].item())
+                end = start + self.suffix_len
+                prompts[batch_idx, start:end, :] = suffix
 
         return prompts
 
@@ -355,7 +275,6 @@ class CoAPTAttributePromptLearner(nn.Module):
         else:
             indices = class_ids.to(self.tokenized_prompts.device, dtype=torch.long)
         return self.tokenized_prompts[indices]
-
 
 class TextPromptLearner(nn.Module):
     def __init__(self, classnames, token_embedding, num_prompts, CSC=False, ctx_pos='end'):

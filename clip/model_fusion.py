@@ -1,21 +1,11 @@
 from collections import OrderedDict
 from typing import Tuple, Union
 
-import inspect
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.utils.checkpoint import checkpoint as torch_checkpoint
-
-
-_CHECKPOINT_HAS_REENTRANT = "use_reentrant" in inspect.signature(torch_checkpoint).parameters
-
-
-def checkpoint(function, *args, **kwargs):
-    if _CHECKPOINT_HAS_REENTRANT:
-        return torch_checkpoint(function, *args, use_reentrant=False, **kwargs)
-    return torch_checkpoint(function, *args, **kwargs)
+from torch.utils.checkpoint import checkpoint
 
 
 class Bottleneck(nn.Module):
@@ -1088,25 +1078,21 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res=None, mv=None):
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
-        if res is None:
-            res_feat = torch.zeros_like(image_feat)
+        
+        # 编码残差信息
+        if self.residual_encoder is not None:
+            res_feat = self.residual_encoder(res.type(self.dtype))
         else:
-            if self.residual_encoder is not None:
-                res_feat = self.residual_encoder(res.type(self.dtype))
-            else:
-                res_feat = self.visual(res.type(self.dtype))
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            res_feat = self.visual(res.type(self.dtype))
 
-        if mv is None:
-            mvs_feats = torch.zeros_like(image_feat)
+        if self.mvs_encoder is not None:
+            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
         else:
-            if self.mvs_encoder is not None:
-                mvs_feats = self.mvs_encoder(mv.type(self.dtype))
-            else:
-                mvs_feats = self.visual(mv.type(self.dtype))
+            mvs_feats = self.visual(mv.type(self.dtype))
 
         return image_feat, res_feat, mvs_feats
 
@@ -1167,7 +1153,7 @@ class CLIP(nn.Module):
         return self._encode_text_from_embeddings(prompts, tokenized, return_token)
 
 
-    def forward(self, image, residual=None, mv=None, text=None, return_token=False):
+    def forward(self, image, residual, mv, text=None, return_token=False):
         image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
 
         if self.attribute_prompt_learner is not None:
