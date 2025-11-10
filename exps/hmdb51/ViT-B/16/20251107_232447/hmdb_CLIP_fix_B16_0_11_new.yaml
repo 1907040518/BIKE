@@ -1,0 +1,72 @@
+pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+# pretrain: 
+resume:
+seed: 1024
+data:
+    dataset: hmdb51
+    modality: residual
+    num_segments: 8
+    seg_length: 1
+    batch_size: 32
+    workers: 4
+    num_classes: 51
+    image_tmpl: 'image_{:06d}.jpg'
+    train_root: '/mnt/data/hmdb51/mpeg4_videos'
+    val_root: '/mnt/data/hmdb51/mpeg4_videos'
+    train_list: 'lists/hmdb51/train_rgb_split_1.txt'
+    val_list: 'lists/hmdb51/val_rgb_split_1.txt'
+    label_list: 'lists/hmdb51/hmdb51_labels.csv'
+    input_size: 224
+    random_shift: True
+    output_path: exps
+    GOP_SIZE: 12
+network:
+    arch: ViT-B/16
+    init: True 
+    tm: False
+    drop_out: 0.0 
+    emb_dropout: 0.0 
+    sim_header: Transf
+    S_Align: DP
+    M_Align: DP
+    interaction: DP
+    joint_st: False
+    drop: 0      
+    fix_text: True  
+    fix_video: False 
+    residual_layers_to_use: [0, 11]
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    action_prompt:
+        enable: True
+        vocab_root: '/home/stu_b/BIKE/attributes/llama3.1:8b'
+        dataset_key: HMDB51
+        seed_index: 2
+        num_attributes: 16
+        attribute_ctx: 2
+        n_ctx: 4
+        class_specific: True
+        template: "a video about {}."
+    coapt_bias:
+        enable: False
+        layers: [1024, 512, 512]
+    attribute_guided_fusion:
+        enable: True
+        hidden_dim: 256
+        num_heads: 4
+        dropout: 0.0
+        detach_text: True
+solver:
+    type: cosine
+    epochs: 30
+    start_epoch: 0
+    optim: adamw
+    lr: 5.e-5
+    lr_warmup_step: 5
+    weight_decay: 0.2
+    loss_type: NCE
+    evaluate: False
+    clip_ratio: 0.1
+    grad_accumulation_steps: 1
+logging:
+    print_freq: 10
+    eval_freq: 2

@@ -1,0 +1,123 @@
+[11/10 11:54:40] BIKE-Test INFO: ------------------------------------
+[11/10 11:54:40] BIKE-Test INFO: Environment Versions:
+[11/10 11:54:40] BIKE-Test INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/10 11:54:40] BIKE-Test INFO: - PyTorch: 2.4.1+cu118
+[11/10 11:54:40] BIKE-Test INFO: - TorchVision: 0.19.1+cu118
+[11/10 11:54:40] BIKE-Test INFO: ------------------------------------
+[11/10 11:54:40] BIKE-Test INFO: Configuration:
+[11/10 11:54:40] BIKE-Test INFO: {'data': {'GOP_SIZE': 12,
+          'batch_size': 32,
+          'dataset': 'sthv2',
+          'image_tmpl': 'image_{:06d}.jpg',
+          'input_size': 224,
+          'label_list': '/home/stu_b/BIKE/lists/sthv2/sthv2_labels.csv',
+          'modality': 'residual',
+          'num_classes': 174,
+          'num_segments': 8,
+          'output_path': 'exps',
+          'random_shift': True,
+          'seg_length': 1,
+          'train_list': '/home/stu_b/BIKE/lists/sthv2/train_rgb.txt',
+          'train_root': '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2',
+          'val_list': '/home/stu_b/BIKE/lists/sthv2/val_rgb.txt',
+          'val_root': '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2',
+          'workers': 4},
+ 'logging': {'eval_freq': 2, 'print_freq': 10},
+ 'network': {'M_Align': 'DP',
+             'S_Align': 'DP',
+             'action_prompt': {'attribute_ctx': 2,
+                               'class_specific': True,
+                               'dataset_key': 'SOMETHING_SOMETHING_V2',
+                               'enable': True,
+                               'n_ctx': 4,
+                               'num_attributes': 16,
+                               'seed_index': 1,
+                               'template': 'a video about {}.',
+                               'vocab_root': '/home/stu_b/BIKE/attributes/qwen'},
+             'arch': 'ViT-B/16',
+             'attribute_guided_fusion': {'detach_text': True,
+                                         'dropout': 0.0,
+                                         'enable': True,
+                                         'hidden_dim': 256,
+                                         'num_heads': 4},
+             'coapt_bias': {'enable': False, 'layers': [1024, 512, 512]},
+             'drop': 0,
+             'drop_out': 0.0,
+             'emb_dropout': 0.0,
+             'fix_text': True,
+             'fix_video': False,
+             'init': True,
+             'interaction': 'DP',
+             'joint_st': False,
+             'mvs_layers_to_use': [0, 11],
+             'residual_layers_to_use': [0, 11],
+             'sim_header': 'Transf',
+             'tm': False},
+ 'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+ 'resume': None,
+ 'seed': 1024,
+ 'solver': {'clip_ratio': 0.1,
+            'epochs': 30,
+            'evaluate': False,
+            'grad_accumulation_steps': 1,
+            'loss_type': 'NCE',
+            'lr': 5e-05,
+            'lr_warmup_step': 5,
+            'mv_lr_ratio': 1,
+            'optim': 'adamw',
+            'start_epoch': 0,
+            'type': 'cosine',
+            'weight_decay': 0.2}}
+[11/10 11:54:43] BIKE-Test INFO: Evaluation modality: residual
+[11/10 11:54:44] BIKE-Test INFO: Loaded attribute descriptions from /home/stu_b/BIKE/attributes/qwen/SOMETHING_SOMETHING_V2_1.json
+[11/10 11:54:44] BIKE-Test INFO: Attribute prompt strings loaded from vocabulary
+[11/10 11:54:44] BIKE-Test INFO: Attribute-guided fusion enabled
+[11/10 11:54:44] BIKE-Test INFO: Fusion kwargs: {'dropout': 0.0, 'hidden_dim': 256, 'num_heads': 4, 'detach_text': True}
+[11/10 11:54:45] BIKE-Test INFO: Loaded checkpoint '/home/stu_b/BIKE/exps/sthv2/ViT-B/16/20251109_204046/model_best.pt' (epoch 1)
+[11/10 11:54:54] BIKE-Test INFO: Test: [0/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:55:06] BIKE-Test INFO: Test: [10/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:55:21] BIKE-Test INFO: Test: [20/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:55:35] BIKE-Test INFO: Test: [30/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:55:50] BIKE-Test INFO: Test: [40/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:56:05] BIKE-Test INFO: Test: [50/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:56:21] BIKE-Test INFO: Test: [60/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:56:35] BIKE-Test INFO: Test: [70/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:56:50] BIKE-Test INFO: Test: [80/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:57:05] BIKE-Test INFO: Test: [90/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:57:20] BIKE-Test INFO: Test: [100/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:57:35] BIKE-Test INFO: Test: [110/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:57:49] BIKE-Test INFO: Test: [120/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:58:04] BIKE-Test INFO: Test: [130/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:58:19] BIKE-Test INFO: Test: [140/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:58:34] BIKE-Test INFO: Test: [150/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:58:49] BIKE-Test INFO: Test: [160/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:59:05] BIKE-Test INFO: Test: [170/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:59:19] BIKE-Test INFO: Test: [180/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:59:36] BIKE-Test INFO: Test: [190/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 11:59:52] BIKE-Test INFO: Test: [200/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:00:07] BIKE-Test INFO: Test: [210/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:00:22] BIKE-Test INFO: Test: [220/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:00:39] BIKE-Test INFO: Test: [230/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:00:54] BIKE-Test INFO: Test: [240/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:01:10] BIKE-Test INFO: Test: [250/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:01:24] BIKE-Test INFO: Test: [260/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:01:39] BIKE-Test INFO: Test: [270/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:01:55] BIKE-Test INFO: Test: [280/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:02:10] BIKE-Test INFO: Test: [290/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:02:24] BIKE-Test INFO: Test: [300/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:02:40] BIKE-Test INFO: Test: [310/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:02:57] BIKE-Test INFO: Test: [320/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:03:11] BIKE-Test INFO: Test: [330/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:03:26] BIKE-Test INFO: Test: [340/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:03:40] BIKE-Test INFO: Test: [350/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:03:55] BIKE-Test INFO: Test: [360/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:04:09] BIKE-Test INFO: Test: [370/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:04:24] BIKE-Test INFO: Test: [380/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:04:39] BIKE-Test INFO: Test: [390/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:04:54] BIKE-Test INFO: Test: [400/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:05:08] BIKE-Test INFO: Test: [410/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:05:23] BIKE-Test INFO: Test: [420/425]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:05:29] BIKE-Test INFO: Testing Results: Prec@1 100.000 Prec@5 100.000
+[11/10 12:05:29] BIKE-Test INFO: Final Test Prec@1: 100.000
+[11/10 12:05:29] BIKE-Test INFO: Final Test Prec@5: 100.000

@@ -1,0 +1,112 @@
+[11/10 20:24:00] BIKE INFO: ------------------------------------
+[11/10 20:24:00] BIKE INFO: Environment Versions:
+[11/10 20:24:00] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/10 20:24:00] BIKE INFO: - PyTorch: 2.4.1+cu118
+[11/10 20:24:00] BIKE INFO: - TorchVison: 0.19.1+cu118
+[11/10 20:24:00] BIKE INFO: ------------------------------------
+[11/10 20:24:00] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 64,
+                'dataset': 'sthv2',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': '/home/stu_b/BIKE/lists/sthv2/sthv2_labels.csv',
+                'modality': 'residual',
+                'num_classes': 174,
+                'num_segments': 8,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': '/home/stu_b/BIKE/lists/sthv2/train_rgb.txt',
+                'train_root': '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2',
+                'val_list': '/home/stu_b/BIKE/lists/sthv2/val_rgb.txt',
+                'val_root': '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'SOMETHING_SOMETHING_V2',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 2,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/stu_b/BIKE/attributes/qwen'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'detach_text': True,
+                                                  'dropout': 0.0,
+                                                  'enable': True,
+                                                  'hidden_dim': 256,
+                                                  'num_heads': 4},
+                   'coapt_bias': {'enable': False, 'layers': [1024, 512, 512]},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 30,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'mv_lr_ratio': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[11/10 20:24:00] BIKE INFO: ------------------------------------
+[11/10 20:24:00] BIKE INFO: storing name: exps/sthv2/ViT-B/16/20251110_202356
+[11/10 20:24:03] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x70221ccbffd0>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7021f5fa1580>]
+[11/10 20:24:03] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7021f5fa1f40>, <Coviar.transforms.GroupCenterCrop object at 0x7021f5fa19d0>]
+[11/10 20:24:04] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[11/10 20:24:05] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers DotMap()
+[11/10 20:24:05] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers DotMap()
+[11/10 20:24:05] BIKE INFO: Loaded attribute descriptions from /home/stu_b/BIKE/attributes/qwen/SOMETHING_SOMETHING_V2_2.json
+[11/10 20:24:05] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[11/10 20:24:05] BIKE INFO: Prompt[0]: a video about Approaching something with your camera. approaching camera object interacting manipulating observing capturing tracking analyzing monitoring recording visualizing documenting surveying scanning inspecting.
+[11/10 20:24:05] BIKE INFO: Prompt[1]: a video about Attaching something to something. attach fasten secure connect link tie bolt clamp screw weld rivet staple hook latch zip join.
+[11/10 20:24:05] BIKE INFO: Prompt[2]: a video about Bending something so that it deforms. bend twist flex curve arch kink warp mold shape deform strain stress crumple stretch compress.
+[11/10 20:24:05] BIKE INFO: Attribute-guided fusion enabled
+[11/10 20:24:05] BIKE INFO: Attribute fusion config: {'detach_text': True, 'dropout': 0.0, 'hidden_dim': 256, 'num_heads': 4}
+[11/10 20:24:19] BIKE INFO: Test: [0/194]	Prec@1 1.562 (1.562)	Prec@5 9.375 (9.375)
+[11/10 20:24:41] BIKE INFO: Test: [10/194]	Prec@1 1.562 (2.415)	Prec@5 3.906 (5.895)
+[11/10 20:25:09] BIKE INFO: Test: [20/194]	Prec@1 3.125 (2.641)	Prec@5 7.031 (6.250)
+[11/10 20:25:33] BIKE INFO: Test: [30/194]	Prec@1 2.344 (2.319)	Prec@5 3.906 (5.645)
+[11/10 20:26:00] BIKE INFO: Test: [40/194]	Prec@1 1.562 (2.325)	Prec@5 4.688 (5.640)
+[11/10 20:26:24] BIKE INFO: Test: [50/194]	Prec@1 4.688 (2.344)	Prec@5 10.156 (5.653)
+[11/10 20:26:51] BIKE INFO: Test: [60/194]	Prec@1 2.344 (2.446)	Prec@5 2.344 (5.699)
+[11/10 20:27:15] BIKE INFO: Test: [70/194]	Prec@1 3.906 (2.333)	Prec@5 9.375 (5.579)
+[11/10 20:27:42] BIKE INFO: Test: [80/194]	Prec@1 2.344 (2.305)	Prec@5 7.812 (5.623)
+[11/10 20:28:05] BIKE INFO: Test: [90/194]	Prec@1 0.781 (2.232)	Prec@5 5.469 (5.555)
+[11/10 20:28:32] BIKE INFO: Test: [100/194]	Prec@1 3.125 (2.243)	Prec@5 6.250 (5.507)
+[11/10 20:28:56] BIKE INFO: Test: [110/194]	Prec@1 3.906 (2.287)	Prec@5 7.031 (5.567)
+[11/10 20:29:24] BIKE INFO: Test: [120/194]	Prec@1 0.781 (2.253)	Prec@5 2.344 (5.520)
+[11/10 20:29:48] BIKE INFO: Test: [130/194]	Prec@1 4.688 (2.254)	Prec@5 10.156 (5.534)
+[11/10 20:30:15] BIKE INFO: Test: [140/194]	Prec@1 2.344 (2.255)	Prec@5 6.250 (5.541)
+[11/10 20:30:39] BIKE INFO: Test: [150/194]	Prec@1 0.781 (2.230)	Prec@5 1.562 (5.536)
+[11/10 20:31:06] BIKE INFO: Test: [160/194]	Prec@1 1.562 (2.247)	Prec@5 7.031 (5.537)
+[11/10 20:31:30] BIKE INFO: Test: [170/194]	Prec@1 0.781 (2.243)	Prec@5 6.250 (5.528)
+[11/10 20:31:56] BIKE INFO: Test: [180/194]	Prec@1 5.469 (2.292)	Prec@5 11.719 (5.603)
+[11/10 20:32:20] BIKE INFO: Test: [190/194]	Prec@1 2.344 (2.270)	Prec@5 6.250 (5.591)
+[11/10 20:32:28] BIKE INFO: Testing Results: Prec@1 2.256 Prec@5 5.590
+[11/10 20:32:28] BIKE INFO: Testing: 2.2560335782607863/2.2560335782607863
+[11/10 20:32:28] BIKE INFO: Saving:
+[11/10 20:32:42] BIKE INFO: Test: [0/194]	Prec@1 3.125 (3.125)	Prec@5 9.375 (9.375)
+[11/10 20:33:05] BIKE INFO: Test: [10/194]	Prec@1 2.344 (2.486)	Prec@5 3.906 (6.179)
+[11/10 20:33:32] BIKE INFO: Test: [20/194]	Prec@1 3.125 (2.679)	Prec@5 6.250 (6.250)
+[11/10 20:33:56] BIKE INFO: Test: [30/194]	Prec@1 1.562 (2.419)	Prec@5 3.906 (5.696)
+[11/10 20:34:24] BIKE INFO: Test: [40/194]	Prec@1 0.000 (2.363)	Prec@5 3.125 (5.583)

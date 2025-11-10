@@ -1,0 +1,83 @@
+[11/10 12:02:19] BIKE-Test INFO: ------------------------------------
+[11/10 12:02:19] BIKE-Test INFO: Environment Versions:
+[11/10 12:02:19] BIKE-Test INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/10 12:02:19] BIKE-Test INFO: - PyTorch: 2.4.1+cu118
+[11/10 12:02:19] BIKE-Test INFO: - TorchVision: 0.19.1+cu118
+[11/10 12:02:19] BIKE-Test INFO: ------------------------------------
+[11/10 12:02:19] BIKE-Test INFO: Configuration:
+[11/10 12:02:19] BIKE-Test INFO: {'data': {'GOP_SIZE': 12,
+          'batch_size': 32,
+          'dataset': 'hmdb51',
+          'image_tmpl': 'image_{:06d}.jpg',
+          'input_size': 224,
+          'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+          'modality': 'residual',
+          'num_classes': 51,
+          'num_segments': 8,
+          'output_path': 'exps_few',
+          'random_shift': True,
+          'seg_length': 1,
+          'shot': 4,
+          'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+          'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+          'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+          'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+          'workers': 4},
+ 'logging': {'eval_freq': 2, 'print_freq': 10},
+ 'network': {'M_Align': 'DP',
+             'S_Align': 'DP',
+             'action_prompt': {'attribute_ctx': 2,
+                               'class_specific': True,
+                               'dataset_key': 'HMDB51',
+                               'enable': True,
+                               'n_ctx': 4,
+                               'num_attributes': 16,
+                               'seed_index': 2,
+                               'template': 'a video about {}.',
+                               'vocab_root': '/home/stu_b/BIKE/attributes/llama3.1:8b'},
+             'arch': 'ViT-B/16',
+             'attribute_guided_fusion': {'detach_text': True,
+                                         'dropout': 0.0,
+                                         'enable': True,
+                                         'hidden_dim': 256,
+                                         'num_heads': 4},
+             'coapt_bias': {'enable': False, 'layers': [1024, 512, 512]},
+             'drop': 0,
+             'drop_out': 0.0,
+             'emb_dropout': 0.0,
+             'fix_text': True,
+             'fix_video': False,
+             'init': True,
+             'interaction': 'DP',
+             'joint_st': False,
+             'mvs_layers_to_use': [0, 11],
+             'residual_layers_to_use': [0, 11],
+             'sim_header': 'Transf',
+             'tm': False},
+ 'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+ 'resume': None,
+ 'seed': 1024,
+ 'solver': {'clip_ratio': 0.1,
+            'epochs': 30,
+            'evaluate': False,
+            'grad_accumulation_steps': 1,
+            'loss_type': 'NCE',
+            'lr': 5e-05,
+            'lr_warmup_step': 5,
+            'optim': 'adamw',
+            'start_epoch': 0,
+            'type': 'cosine',
+            'weight_decay': 0.2}}
+[11/10 12:02:22] BIKE-Test INFO: Evaluation modality: residual
+[11/10 12:02:22] BIKE-Test INFO: Loaded attribute descriptions from /home/stu_b/BIKE/attributes/llama3.1:8b/HMDB51_2.json
+[11/10 12:02:22] BIKE-Test INFO: Attribute prompt strings loaded from vocabulary
+[11/10 12:02:22] BIKE-Test INFO: Attribute-guided fusion enabled
+[11/10 12:02:22] BIKE-Test INFO: Fusion kwargs: {'dropout': 0.0, 'hidden_dim': 256, 'num_heads': 4, 'detach_text': True}
+[11/10 12:02:23] BIKE-Test INFO: Loaded checkpoint '/home/stu_b/BIKE/exps/hmdb51/ViT-B/16/20251108_161046/model_best.pt' (epoch 25)
+[11/10 12:02:35] BIKE-Test INFO: Test: [0/24]	Prec@1 100.000 (100.000)	Prec@5 100.000 (100.000)
+[11/10 12:02:49] BIKE-Test INFO: Test: [10/24]	Prec@1 100.000 (98.011)	Prec@5 100.000 (99.290)
+[11/10 12:03:05] BIKE-Test INFO: Test: [20/24]	Prec@1 64.062 (95.387)	Prec@5 89.062 (98.661)
+[11/10 12:03:09] BIKE-Test INFO: Testing Results: Prec@1 94.379 Prec@5 98.366
+[11/10 12:03:09] BIKE-Test INFO: Final Test Prec@1: 94.379
+[11/10 12:03:09] BIKE-Test INFO: Final Test Prec@5: 98.366

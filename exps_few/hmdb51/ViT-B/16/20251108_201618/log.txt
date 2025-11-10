@@ -1,0 +1,354 @@
+[11/08 20:16:23] BIKE INFO: ------------------------------------
+[11/08 20:16:23] BIKE INFO: Environment Versions:
+[11/08 20:16:23] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/08 20:16:23] BIKE INFO: - PyTorch: 2.4.1+cu118
+[11/08 20:16:23] BIKE INFO: - TorchVison: 0.19.1+cu118
+[11/08 20:16:23] BIKE INFO: ------------------------------------
+[11/08 20:16:23] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'hmdb51',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+                'modality': 'residual',
+                'num_classes': 51,
+                'num_segments': 16,
+                'output_path': 'exps_few',
+                'random_shift': True,
+                'seg_length': 1,
+                'shot': 1,
+                'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/hmdb51/mpeg4_videos',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'HMDB51',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 2,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/stu_b/BIKE/attributes/llama3.1:8b'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'detach_text': True,
+                                                  'dropout': 0.0,
+                                                  'enable': True,
+                                                  'hidden_dim': 256,
+                                                  'num_heads': 4},
+                   'coapt_bias': {'enable': False, 'layers': [1024, 512, 512]},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 30,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[11/08 20:16:23] BIKE INFO: ------------------------------------
+[11/08 20:16:23] BIKE INFO: storing name: exps_few/hmdb51/ViT-B/16/20251108_201618
+[11/08 20:16:25] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x71fe407c7ee0>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x71fe2ffd45b0>]
+[11/08 20:16:25] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x71fe2ffd4a00>, <Coviar.transforms.GroupCenterCrop object at 0x71fe2ffd4f40>]
+[11/08 20:16:26] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[11/08 20:16:27] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers DotMap()
+[11/08 20:16:27] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers DotMap()
+[11/08 20:16:27] BIKE INFO: Loaded attribute descriptions from /home/stu_b/BIKE/attributes/llama3.1:8b/HMDB51_2.json
+[11/08 20:16:27] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[11/08 20:16:27] BIKE INFO: Prompt[0]: a video about brush hair. Moving Slow Gentle Small Upward Forward Smooth Soft Side Curved Twisting Waving Horizontal Vertical Fast Quick.
+[11/08 20:16:27] BIKE INFO: Prompt[1]: a video about cartwheel. Rotating Twisting Rolling Flicking Smooth Continuous Quick Dynamic Spinning Inward Downward Forward Synchronized Fast Agile Bouncy.
+[11/08 20:16:27] BIKE INFO: Prompt[2]: a video about catch. Arm Outward Extension Wide Hand Open Forward Lean Stretch Reaching Downward Fast Quick Focused Concentrated Grip.
+[11/08 20:16:27] BIKE INFO: Attribute-guided fusion enabled
+[11/08 20:16:27] BIKE INFO: Attribute fusion config: {'num_heads': 4, 'dropout': 0.0, 'detach_text': True, 'hidden_dim': 256}
+[11/08 20:16:43] BIKE INFO: Epoch: [0][0/55], lr: 0.00e+00, eta: 7:02:13	Time 15.344 (15.344)	Data 11.174 (11.174)	Loss 2.8522 (2.8522)
+[11/08 20:17:17] BIKE INFO: Epoch: [0][10/55], lr: 1.64e-06, eta: 2:01:12	Time 3.388 (4.431)	Data 0.097 (1.119)	Loss 2.6634 (2.7399)
+[11/08 20:17:50] BIKE INFO: Epoch: [0][20/55], lr: 3.45e-06, eta: 1:46:27	Time 3.372 (3.916)	Data 0.106 (0.645)	Loss 2.5622 (2.6362)
+[11/08 20:18:23] BIKE INFO: Epoch: [0][30/55], lr: 5.27e-06, eta: 1:40:43	Time 3.321 (3.728)	Data 0.098 (0.472)	Loss 1.7276 (2.4644)
+[11/08 20:18:57] BIKE INFO: Epoch: [0][40/55], lr: 7.09e-06, eta: 1:37:36	Time 3.350 (3.635)	Data 0.111 (0.382)	Loss 1.6575 (2.2849)
+[11/08 20:19:30] BIKE INFO: Epoch: [0][50/55], lr: 8.91e-06, eta: 1:35:29	Time 3.327 (3.578)	Data 0.107 (0.329)	Loss 1.1837 (2.0971)
+[11/08 20:19:59] BIKE INFO: Epoch: [1][0/55], lr: 1.00e-05, eta: 6:40:06	Time 15.042 (15.042)	Data 11.224 (11.224)	Loss 1.0186 (1.0186)
+[11/08 20:20:33] BIKE INFO: Epoch: [1][10/55], lr: 1.16e-05, eta: 1:56:41	Time 3.378 (4.415)	Data 0.179 (1.135)	Loss 0.4376 (0.6362)
+[11/08 20:21:06] BIKE INFO: Epoch: [1][20/55], lr: 1.35e-05, eta: 1:42:40	Time 3.365 (3.909)	Data 0.125 (0.645)	Loss 0.2106 (0.4796)
+[11/08 20:21:40] BIKE INFO: Epoch: [1][30/55], lr: 1.53e-05, eta: 1:37:13	Time 3.314 (3.725)	Data 0.091 (0.471)	Loss 0.1097 (0.3702)
+[11/08 20:22:13] BIKE INFO: Epoch: [1][40/55], lr: 1.71e-05, eta: 1:34:14	Time 3.364 (3.634)	Data 0.106 (0.381)	Loss 0.0636 (0.2973)
+[11/08 20:22:46] BIKE INFO: Epoch: [1][50/55], lr: 1.89e-05, eta: 1:32:08	Time 3.328 (3.576)	Data 0.117 (0.328)	Loss 0.0479 (0.2497)
+[11/08 20:23:13] BIKE INFO: Test: [0/24]	Prec@1 51.562 (51.562)	Prec@5 95.312 (95.312)
+[11/08 20:23:36] BIKE INFO: Test: [10/24]	Prec@1 70.312 (62.784)	Prec@5 89.062 (86.364)
+[11/08 20:24:04] BIKE INFO: Test: [20/24]	Prec@1 65.625 (64.955)	Prec@5 85.938 (86.756)
+[11/08 20:24:08] BIKE INFO: Testing Results: Prec@1 59.542 Prec@5 85.752
+[11/08 20:24:08] BIKE INFO: Testing: 59.54248366511725/59.54248366511725
+[11/08 20:24:08] BIKE INFO: Saving:
+[11/08 20:24:26] BIKE INFO: Epoch: [2][0/55], lr: 2.00e-05, eta: 6:06:49	Time 14.283 (14.283)	Data 11.101 (11.101)	Loss 0.0688 (0.0688)
+[11/08 20:24:59] BIKE INFO: Epoch: [2][10/55], lr: 2.16e-05, eta: 1:50:39	Time 3.330 (4.337)	Data 0.096 (1.123)	Loss 0.0329 (0.0413)
+[11/08 20:25:33] BIKE INFO: Epoch: [2][20/55], lr: 2.35e-05, eta: 1:37:59	Time 3.375 (3.866)	Data 0.143 (0.644)	Loss 0.0453 (0.0433)
+[11/08 20:26:06] BIKE INFO: Epoch: [2][30/55], lr: 2.53e-05, eta: 1:33:10	Time 3.345 (3.700)	Data 0.108 (0.470)	Loss 0.0343 (0.0416)
+[11/08 20:26:40] BIKE INFO: Epoch: [2][40/55], lr: 2.71e-05, eta: 1:30:22	Time 3.362 (3.612)	Data 0.104 (0.384)	Loss 0.0457 (0.0415)
+[11/08 20:27:13] BIKE INFO: Epoch: [2][50/55], lr: 2.89e-05, eta: 1:28:26	Time 3.336 (3.559)	Data 0.097 (0.330)	Loss 0.0479 (0.0417)
+[11/08 20:27:41] BIKE INFO: Epoch: [3][0/55], lr: 3.00e-05, eta: 5:50:18	Time 14.144 (14.144)	Data 10.336 (10.336)	Loss 0.0234 (0.0234)
+[11/08 20:28:14] BIKE INFO: Epoch: [3][10/55], lr: 3.16e-05, eta: 1:46:25	Time 3.335 (4.326)	Data 0.101 (1.041)	Loss 0.0412 (0.0405)
+[11/08 20:28:48] BIKE INFO: Epoch: [3][20/55], lr: 3.35e-05, eta: 1:34:09	Time 3.335 (3.854)	Data 0.111 (0.595)	Loss 0.0293 (0.0396)
+[11/08 20:29:21] BIKE INFO: Epoch: [3][30/55], lr: 3.53e-05, eta: 1:29:30	Time 3.393 (3.688)	Data 0.183 (0.440)	Loss 0.0305 (0.0385)
+[11/08 20:29:54] BIKE INFO: Epoch: [3][40/55], lr: 3.71e-05, eta: 1:26:45	Time 3.320 (3.600)	Data 0.109 (0.358)	Loss 0.0290 (0.0375)
+[11/08 20:30:28] BIKE INFO: Epoch: [3][50/55], lr: 3.89e-05, eta: 1:24:54	Time 3.325 (3.547)	Data 0.100 (0.310)	Loss 0.0206 (0.0355)
+[11/08 20:30:55] BIKE INFO: Test: [0/24]	Prec@1 57.812 (57.812)	Prec@5 98.438 (98.438)
+[11/08 20:31:17] BIKE INFO: Test: [10/24]	Prec@1 73.438 (64.489)	Prec@5 87.500 (88.068)
+[11/08 20:31:45] BIKE INFO: Test: [20/24]	Prec@1 76.562 (66.890)	Prec@5 87.500 (88.393)
+[11/08 20:31:48] BIKE INFO: Testing Results: Prec@1 61.438 Prec@5 86.993
+[11/08 20:31:49] BIKE INFO: Testing: 61.43790852665122/61.43790852665122
+[11/08 20:31:49] BIKE INFO: Saving:
+[11/08 20:32:14] BIKE INFO: Epoch: [4][0/55], lr: 4.00e-05, eta: 5:47:27	Time 14.568 (14.568)	Data 11.402 (11.402)	Loss 0.0284 (0.0284)
+[11/08 20:32:47] BIKE INFO: Epoch: [4][10/55], lr: 4.16e-05, eta: 1:43:47	Time 3.371 (4.383)	Data 0.119 (1.168)	Loss 0.0253 (0.0289)
+[11/08 20:33:21] BIKE INFO: Epoch: [4][20/55], lr: 4.35e-05, eta: 1:31:59	Time 3.371 (3.912)	Data 0.128 (0.683)	Loss 0.0241 (0.0268)
+[11/08 20:33:55] BIKE INFO: Epoch: [4][30/55], lr: 4.53e-05, eta: 1:27:16	Time 3.334 (3.737)	Data 0.128 (0.503)	Loss 0.0145 (0.0254)
+[11/08 20:34:29] BIKE INFO: Epoch: [4][40/55], lr: 4.71e-05, eta: 1:24:38	Time 3.396 (3.651)	Data 0.132 (0.410)	Loss 0.0223 (0.0266)
+[11/08 20:35:03] BIKE INFO: Epoch: [4][50/55], lr: 4.89e-05, eta: 1:22:47	Time 3.398 (3.597)	Data 0.194 (0.358)	Loss 0.0130 (0.0262)
+[11/08 20:35:30] BIKE INFO: Epoch: [5][0/55], lr: 5.00e-05, eta: 5:16:12	Time 13.788 (13.788)	Data 9.896 (9.896)	Loss 0.0256 (0.0256)
+[11/08 20:36:03] BIKE INFO: Epoch: [5][10/55], lr: 5.00e-05, eta: 1:37:25	Time 3.315 (4.279)	Data 0.124 (1.022)	Loss 0.0252 (0.0262)
+[11/08 20:36:36] BIKE INFO: Epoch: [5][20/55], lr: 5.00e-05, eta: 1:26:16	Time 3.300 (3.817)	Data 0.112 (0.592)	Loss 0.0311 (0.0248)
+[11/08 20:37:09] BIKE INFO: Epoch: [5][30/55], lr: 4.99e-05, eta: 1:21:57	Time 3.308 (3.654)	Data 0.120 (0.440)	Loss 0.0188 (0.0246)
+[11/08 20:37:43] BIKE INFO: Epoch: [5][40/55], lr: 4.99e-05, eta: 1:19:29	Time 3.305 (3.570)	Data 0.113 (0.362)	Loss 0.0224 (0.0243)
+[11/08 20:38:16] BIKE INFO: Epoch: [5][50/55], lr: 4.98e-05, eta: 1:17:45	Time 3.281 (3.518)	Data 0.112 (0.314)	Loss 0.0426 (0.0239)
+[11/08 20:38:42] BIKE INFO: Test: [0/24]	Prec@1 56.250 (56.250)	Prec@5 92.188 (92.188)
+[11/08 20:39:03] BIKE INFO: Test: [10/24]	Prec@1 65.625 (63.352)	Prec@5 87.500 (86.648)
+[11/08 20:39:30] BIKE INFO: Test: [20/24]	Prec@1 70.312 (66.518)	Prec@5 89.062 (88.095)
+[11/08 20:39:34] BIKE INFO: Testing Results: Prec@1 61.503 Prec@5 86.209
+[11/08 20:39:34] BIKE INFO: Testing: 61.50326799380234/61.50326799380234
+[11/08 20:39:34] BIKE INFO: Saving:
+[11/08 20:39:58] BIKE INFO: Epoch: [6][0/55], lr: 4.98e-05, eta: 5:06:46	Time 13.934 (13.934)	Data 10.794 (10.794)	Loss 0.0165 (0.0165)
+[11/08 20:40:32] BIKE INFO: Epoch: [6][10/55], lr: 4.97e-05, eta: 1:33:53	Time 3.317 (4.297)	Data 0.114 (1.107)	Loss 0.0178 (0.0178)
+[11/08 20:41:05] BIKE INFO: Epoch: [6][20/55], lr: 4.96e-05, eta: 1:23:12	Time 3.358 (3.838)	Data 0.127 (0.638)	Loss 0.0117 (0.0192)
+[11/08 20:41:39] BIKE INFO: Epoch: [6][30/55], lr: 4.95e-05, eta: 1:19:19	Time 3.393 (3.687)	Data 0.150 (0.477)	Loss 0.0251 (0.0195)
+[11/08 20:42:13] BIKE INFO: Epoch: [6][40/55], lr: 4.94e-05, eta: 1:17:04	Time 3.386 (3.610)	Data 0.163 (0.396)	Loss 0.0187 (0.0203)
+[11/08 20:42:46] BIKE INFO: Epoch: [6][50/55], lr: 4.93e-05, eta: 1:15:28	Time 3.378 (3.563)	Data 0.137 (0.346)	Loss 0.0246 (0.0208)
+[11/08 20:43:14] BIKE INFO: Epoch: [7][0/55], lr: 4.92e-05, eta: 4:54:58	Time 13.980 (13.980)	Data 10.579 (10.579)	Loss 0.0104 (0.0104)
+[11/08 20:43:47] BIKE INFO: Epoch: [7][10/55], lr: 4.91e-05, eta: 1:29:44	Time 3.316 (4.287)	Data 0.109 (1.078)	Loss 0.0232 (0.0164)
+[11/08 20:44:20] BIKE INFO: Epoch: [7][20/55], lr: 4.89e-05, eta: 1:19:23	Time 3.339 (3.823)	Data 0.138 (0.619)	Loss 0.0225 (0.0159)
+[11/08 20:44:53] BIKE INFO: Epoch: [7][30/55], lr: 4.87e-05, eta: 1:15:18	Time 3.321 (3.656)	Data 0.109 (0.458)	Loss 0.0093 (0.0154)
+[11/08 20:45:26] BIKE INFO: Epoch: [7][40/55], lr: 4.86e-05, eta: 1:12:57	Time 3.324 (3.571)	Data 0.125 (0.374)	Loss 0.0161 (0.0160)
+[11/08 20:45:59] BIKE INFO: Epoch: [7][50/55], lr: 4.84e-05, eta: 1:11:18	Time 3.306 (3.518)	Data 0.104 (0.323)	Loss 0.0140 (0.0154)
+[11/08 20:46:25] BIKE INFO: Test: [0/24]	Prec@1 54.688 (54.688)	Prec@5 92.188 (92.188)
+[11/08 20:46:47] BIKE INFO: Test: [10/24]	Prec@1 67.188 (62.926)	Prec@5 89.062 (87.074)
+[11/08 20:47:13] BIKE INFO: Test: [20/24]	Prec@1 70.312 (65.848)	Prec@5 89.062 (87.202)
+[11/08 20:47:17] BIKE INFO: Testing Results: Prec@1 60.915 Prec@5 85.752
+[11/08 20:47:17] BIKE INFO: Testing: 60.915032649819366/61.50326799380234
+[11/08 20:47:17] BIKE INFO: Saving:
+[11/08 20:47:36] BIKE INFO: Epoch: [8][0/55], lr: 4.82e-05, eta: 4:41:30	Time 13.948 (13.948)	Data 10.796 (10.796)	Loss 0.0082 (0.0082)
+[11/08 20:48:09] BIKE INFO: Epoch: [8][10/55], lr: 4.81e-05, eta: 1:25:05	Time 3.296 (4.251)	Data 0.105 (1.083)	Loss 0.0102 (0.0112)
+[11/08 20:48:42] BIKE INFO: Epoch: [8][20/55], lr: 4.78e-05, eta: 1:15:22	Time 3.292 (3.797)	Data 0.104 (0.622)	Loss 0.0103 (0.0117)
+[11/08 20:49:15] BIKE INFO: Epoch: [8][30/55], lr: 4.76e-05, eta: 1:11:34	Time 3.299 (3.637)	Data 0.107 (0.458)	Loss 0.0173 (0.0125)
+[11/08 20:49:48] BIKE INFO: Epoch: [8][40/55], lr: 4.73e-05, eta: 1:09:22	Time 3.310 (3.554)	Data 0.126 (0.374)	Loss 0.0148 (0.0128)
+[11/08 20:50:21] BIKE INFO: Epoch: [8][50/55], lr: 4.71e-05, eta: 1:07:49	Time 3.298 (3.505)	Data 0.123 (0.323)	Loss 0.0120 (0.0127)
+[11/08 20:50:48] BIKE INFO: Epoch: [9][0/55], lr: 4.69e-05, eta: 4:26:04	Time 13.810 (13.810)	Data 10.601 (10.601)	Loss 0.0092 (0.0092)
+[11/08 20:51:21] BIKE INFO: Epoch: [9][10/55], lr: 4.67e-05, eta: 1:21:35	Time 3.292 (4.272)	Data 0.114 (1.072)	Loss 0.0093 (0.0107)
+[11/08 20:51:55] BIKE INFO: Epoch: [9][20/55], lr: 4.64e-05, eta: 1:12:29	Time 3.304 (3.828)	Data 0.117 (0.619)	Loss 0.0083 (0.0105)
+[11/08 20:52:28] BIKE INFO: Epoch: [9][30/55], lr: 4.61e-05, eta: 1:08:50	Time 3.370 (3.668)	Data 0.118 (0.454)	Loss 0.0113 (0.0100)
+[11/08 20:53:01] BIKE INFO: Epoch: [9][40/55], lr: 4.57e-05, eta: 1:06:40	Time 3.329 (3.585)	Data 0.127 (0.371)	Loss 0.0097 (0.0099)
+[11/08 20:53:34] BIKE INFO: Epoch: [9][50/55], lr: 4.54e-05, eta: 1:05:06	Time 3.296 (3.532)	Data 0.115 (0.321)	Loss 0.0081 (0.0096)
+[11/08 20:54:00] BIKE INFO: Test: [0/24]	Prec@1 54.688 (54.688)	Prec@5 90.625 (90.625)
+[11/08 20:54:22] BIKE INFO: Test: [10/24]	Prec@1 75.000 (65.767)	Prec@5 87.500 (88.352)
+[11/08 20:54:48] BIKE INFO: Test: [20/24]	Prec@1 71.875 (66.964)	Prec@5 89.062 (88.616)
+[11/08 20:54:51] BIKE INFO: Testing Results: Prec@1 61.373 Prec@5 86.732
+[11/08 20:54:51] BIKE INFO: Testing: 61.372548989688646/61.50326799380234
+[11/08 20:54:51] BIKE INFO: Saving:
+[11/08 20:55:10] BIKE INFO: Epoch: [10][0/55], lr: 4.52e-05, eta: 4:13:09	Time 13.796 (13.796)	Data 10.621 (10.621)	Loss 0.0091 (0.0091)
+[11/08 20:55:43] BIKE INFO: Epoch: [10][10/55], lr: 4.49e-05, eta: 1:17:22	Time 3.282 (4.255)	Data 0.111 (1.080)	Loss 0.0088 (0.0078)
+[11/08 20:56:16] BIKE INFO: Epoch: [10][20/55], lr: 4.46e-05, eta: 1:08:33	Time 3.295 (3.805)	Data 0.119 (0.625)	Loss 0.0064 (0.0079)
+[11/08 20:56:49] BIKE INFO: Epoch: [10][30/55], lr: 4.42e-05, eta: 1:04:57	Time 3.287 (3.639)	Data 0.104 (0.460)	Loss 0.0084 (0.0082)
+[11/08 20:57:22] BIKE INFO: Epoch: [10][40/55], lr: 4.38e-05, eta: 1:02:51	Time 3.304 (3.555)	Data 0.108 (0.374)	Loss 0.0085 (0.0082)
+[11/08 20:57:55] BIKE INFO: Epoch: [10][50/55], lr: 4.35e-05, eta: 1:01:22	Time 3.296 (3.504)	Data 0.105 (0.323)	Loss 0.0055 (0.0080)
+[11/08 20:58:22] BIKE INFO: Epoch: [11][0/55], lr: 4.32e-05, eta: 3:58:28	Time 13.679 (13.679)	Data 10.495 (10.495)	Loss 0.0087 (0.0087)
+[11/08 20:58:55] BIKE INFO: Epoch: [11][10/55], lr: 4.29e-05, eta: 1:13:34	Time 3.286 (4.262)	Data 0.105 (1.071)	Loss 0.0056 (0.0075)
+[11/08 20:59:28] BIKE INFO: Epoch: [11][20/55], lr: 4.25e-05, eta: 1:05:05	Time 3.298 (3.806)	Data 0.109 (0.616)	Loss 0.0067 (0.0073)
+[11/08 21:00:01] BIKE INFO: Epoch: [11][30/55], lr: 4.21e-05, eta: 1:01:41	Time 3.296 (3.643)	Data 0.105 (0.453)	Loss 0.0075 (0.0073)
+[11/08 21:00:34] BIKE INFO: Epoch: [11][40/55], lr: 4.16e-05, eta: 0:59:43	Time 3.309 (3.562)	Data 0.116 (0.371)	Loss 0.0051 (0.0070)
+[11/08 21:01:07] BIKE INFO: Epoch: [11][50/55], lr: 4.12e-05, eta: 0:58:16	Time 3.276 (3.510)	Data 0.099 (0.320)	Loss 0.0079 (0.0071)
+[11/08 21:01:34] BIKE INFO: Test: [0/24]	Prec@1 48.438 (48.438)	Prec@5 82.812 (82.812)
+[11/08 21:01:55] BIKE INFO: Test: [10/24]	Prec@1 70.312 (64.489)	Prec@5 89.062 (87.500)
+[11/08 21:02:21] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.220)	Prec@5 87.500 (87.872)
+[11/08 21:02:25] BIKE INFO: Testing Results: Prec@1 60.392 Prec@5 85.752
+[11/08 21:02:25] BIKE INFO: Testing: 60.3921568552653/61.50326799380234
+[11/08 21:02:25] BIKE INFO: Saving:
+[11/08 21:02:44] BIKE INFO: Epoch: [12][0/55], lr: 4.09e-05, eta: 3:56:18	Time 14.307 (14.307)	Data 11.104 (11.104)	Loss 0.0062 (0.0062)
+[11/08 21:03:17] BIKE INFO: Epoch: [12][10/55], lr: 4.05e-05, eta: 1:10:19	Time 3.323 (4.302)	Data 0.106 (1.111)	Loss 0.0056 (0.0058)
+[11/08 21:03:50] BIKE INFO: Epoch: [12][20/55], lr: 4.01e-05, eta: 1:02:03	Time 3.320 (3.834)	Data 0.117 (0.638)	Loss 0.0059 (0.0057)
+[11/08 21:04:24] BIKE INFO: Epoch: [12][30/55], lr: 3.96e-05, eta: 0:58:49	Time 3.328 (3.673)	Data 0.101 (0.468)	Loss 0.0054 (0.0056)
+[11/08 21:04:57] BIKE INFO: Epoch: [12][40/55], lr: 3.92e-05, eta: 0:56:52	Time 3.342 (3.588)	Data 0.115 (0.380)	Loss 0.0067 (0.0056)
+[11/08 21:05:30] BIKE INFO: Epoch: [12][50/55], lr: 3.87e-05, eta: 0:55:26	Time 3.316 (3.535)	Data 0.098 (0.326)	Loss 0.0045 (0.0056)
+[11/08 21:05:58] BIKE INFO: Epoch: [13][0/55], lr: 3.84e-05, eta: 3:41:42	Time 14.212 (14.212)	Data 10.691 (10.691)	Loss 0.0093 (0.0093)
+[11/08 21:06:31] BIKE INFO: Epoch: [13][10/55], lr: 3.80e-05, eta: 1:06:48	Time 3.309 (4.329)	Data 0.112 (1.077)	Loss 0.0060 (0.0058)
+[11/08 21:07:05] BIKE INFO: Epoch: [13][20/55], lr: 3.75e-05, eta: 0:58:46	Time 3.318 (3.850)	Data 0.103 (0.615)	Loss 0.0056 (0.0056)
+[11/08 21:07:38] BIKE INFO: Epoch: [13][30/55], lr: 3.70e-05, eta: 0:55:35	Time 3.326 (3.682)	Data 0.121 (0.453)	Loss 0.0048 (0.0054)
+[11/08 21:08:11] BIKE INFO: Epoch: [13][40/55], lr: 3.65e-05, eta: 0:53:42	Time 3.357 (3.597)	Data 0.122 (0.370)	Loss 0.0082 (0.0054)
+[11/08 21:08:45] BIKE INFO: Epoch: [13][50/55], lr: 3.60e-05, eta: 0:52:23	Time 3.418 (3.548)	Data 0.178 (0.321)	Loss 0.0055 (0.0056)
+[11/08 21:09:12] BIKE INFO: Test: [0/24]	Prec@1 54.688 (54.688)	Prec@5 92.188 (92.188)
+[11/08 21:09:34] BIKE INFO: Test: [10/24]	Prec@1 76.562 (66.903)	Prec@5 87.500 (87.926)
+[11/08 21:10:03] BIKE INFO: Test: [20/24]	Prec@1 67.188 (67.485)	Prec@5 90.625 (87.872)
+[11/08 21:10:07] BIKE INFO: Testing Results: Prec@1 61.503 Prec@5 86.013
+[11/08 21:10:07] BIKE INFO: Testing: 61.50326791900435/61.50326799380234
+[11/08 21:10:07] BIKE INFO: Saving:
+[11/08 21:10:27] BIKE INFO: Epoch: [14][0/55], lr: 3.56e-05, eta: 3:29:40	Time 14.280 (14.280)	Data 11.109 (11.109)	Loss 0.0046 (0.0046)
+[11/08 21:11:01] BIKE INFO: Epoch: [14][10/55], lr: 3.52e-05, eta: 1:03:08	Time 3.370 (4.349)	Data 0.140 (1.128)	Loss 0.0076 (0.0052)
+[11/08 21:11:34] BIKE INFO: Epoch: [14][20/55], lr: 3.47e-05, eta: 0:55:36	Time 3.348 (3.875)	Data 0.124 (0.650)	Loss 0.0038 (0.0050)
+[11/08 21:12:08] BIKE INFO: Epoch: [14][30/55], lr: 3.41e-05, eta: 0:52:34	Time 3.346 (3.707)	Data 0.109 (0.482)	Loss 0.0040 (0.0050)
+[11/08 21:12:41] BIKE INFO: Epoch: [14][40/55], lr: 3.36e-05, eta: 0:50:45	Time 3.338 (3.621)	Data 0.113 (0.395)	Loss 0.0062 (0.0049)
+[11/08 21:13:15] BIKE INFO: Epoch: [14][50/55], lr: 3.31e-05, eta: 0:49:23	Time 3.344 (3.566)	Data 0.106 (0.340)	Loss 0.0052 (0.0050)
+[11/08 21:13:43] BIKE INFO: Epoch: [15][0/55], lr: 3.27e-05, eta: 3:19:44	Time 14.509 (14.509)	Data 11.313 (11.313)	Loss 0.0042 (0.0042)
+[11/08 21:14:16] BIKE INFO: Epoch: [15][10/55], lr: 3.22e-05, eta: 0:59:22	Time 3.345 (4.366)	Data 0.111 (1.139)	Loss 0.0038 (0.0053)
+[11/08 21:14:50] BIKE INFO: Epoch: [15][20/55], lr: 3.17e-05, eta: 0:52:10	Time 3.343 (3.884)	Data 0.117 (0.658)	Loss 0.0059 (0.0050)
+[11/08 21:15:23] BIKE INFO: Epoch: [15][30/55], lr: 3.11e-05, eta: 0:49:16	Time 3.370 (3.714)	Data 0.135 (0.483)	Loss 0.0046 (0.0050)
+[11/08 21:15:57] BIKE INFO: Epoch: [15][40/55], lr: 3.06e-05, eta: 0:47:28	Time 3.321 (3.624)	Data 0.120 (0.394)	Loss 0.0048 (0.0048)
+[11/08 21:16:30] BIKE INFO: Epoch: [15][50/55], lr: 3.00e-05, eta: 0:46:08	Time 3.349 (3.568)	Data 0.117 (0.339)	Loss 0.0059 (0.0046)
+[11/08 21:16:57] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 87.500 (87.500)
+[11/08 21:17:19] BIKE INFO: Test: [10/24]	Prec@1 68.750 (64.631)	Prec@5 89.062 (87.500)
+[11/08 21:17:46] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.443)	Prec@5 87.500 (87.277)
+[11/08 21:17:50] BIKE INFO: Testing Results: Prec@1 61.111 Prec@5 85.359
+[11/08 21:17:50] BIKE INFO: Testing: 61.111111056259254/61.50326799380234
+[11/08 21:17:50] BIKE INFO: Saving:
+[11/08 21:18:09] BIKE INFO: Epoch: [16][0/55], lr: 2.97e-05, eta: 2:57:59	Time 13.851 (13.851)	Data 10.679 (10.679)	Loss 0.0042 (0.0042)
+[11/08 21:18:42] BIKE INFO: Epoch: [16][10/55], lr: 2.92e-05, eta: 0:54:24	Time 3.326 (4.289)	Data 0.107 (1.077)	Loss 0.0055 (0.0042)
+[11/08 21:19:16] BIKE INFO: Epoch: [16][20/55], lr: 2.86e-05, eta: 0:48:02	Time 3.358 (3.838)	Data 0.133 (0.623)	Loss 0.0038 (0.0041)
+[11/08 21:19:49] BIKE INFO: Epoch: [16][30/55], lr: 2.80e-05, eta: 0:45:29	Time 3.336 (3.683)	Data 0.112 (0.462)	Loss 0.0043 (0.0042)
+[11/08 21:20:23] BIKE INFO: Epoch: [16][40/55], lr: 2.75e-05, eta: 0:43:54	Time 3.368 (3.604)	Data 0.153 (0.379)	Loss 0.0036 (0.0041)
+[11/08 21:20:57] BIKE INFO: Epoch: [16][50/55], lr: 2.69e-05, eta: 0:42:41	Time 3.317 (3.553)	Data 0.119 (0.327)	Loss 0.0047 (0.0042)
+[11/08 21:21:25] BIKE INFO: Epoch: [17][0/55], lr: 2.66e-05, eta: 2:56:19	Time 14.775 (14.775)	Data 11.278 (11.278)	Loss 0.0042 (0.0042)
+[11/08 21:21:59] BIKE INFO: Epoch: [17][10/55], lr: 2.61e-05, eta: 0:51:49	Time 3.370 (4.404)	Data 0.168 (1.149)	Loss 0.0035 (0.0041)
+[11/08 21:22:32] BIKE INFO: Epoch: [17][20/55], lr: 2.55e-05, eta: 0:45:13	Time 3.364 (3.899)	Data 0.109 (0.659)	Loss 0.0035 (0.0040)
+[11/08 21:23:05] BIKE INFO: Epoch: [17][30/55], lr: 2.49e-05, eta: 0:42:32	Time 3.317 (3.720)	Data 0.115 (0.487)	Loss 0.0055 (0.0043)
+[11/08 21:23:39] BIKE INFO: Epoch: [17][40/55], lr: 2.43e-05, eta: 0:40:53	Time 3.382 (3.629)	Data 0.132 (0.397)	Loss 0.0037 (0.0044)
+[11/08 21:24:12] BIKE INFO: Epoch: [17][50/55], lr: 2.38e-05, eta: 0:39:40	Time 3.316 (3.574)	Data 0.109 (0.343)	Loss 0.0037 (0.0043)
+[11/08 21:24:39] BIKE INFO: Test: [0/24]	Prec@1 51.562 (51.562)	Prec@5 87.500 (87.500)
+[11/08 21:25:02] BIKE INFO: Test: [10/24]	Prec@1 70.312 (64.631)	Prec@5 87.500 (87.926)
+[11/08 21:25:30] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.369)	Prec@5 90.625 (88.021)
+[11/08 21:25:34] BIKE INFO: Testing Results: Prec@1 60.719 Prec@5 86.078
+[11/08 21:25:34] BIKE INFO: Testing: 60.71895419351416/61.50326799380234
+[11/08 21:25:34] BIKE INFO: Saving:
+[11/08 21:25:52] BIKE INFO: Epoch: [18][0/55], lr: 2.34e-05, eta: 2:28:01	Time 13.436 (13.436)	Data 10.273 (10.273)	Loss 0.0047 (0.0047)
+[11/08 21:26:25] BIKE INFO: Epoch: [18][10/55], lr: 2.29e-05, eta: 0:46:04	Time 3.325 (4.247)	Data 0.101 (1.043)	Loss 0.0039 (0.0039)
+[11/08 21:26:59] BIKE INFO: Epoch: [18][20/55], lr: 2.23e-05, eta: 0:40:50	Time 3.353 (3.822)	Data 0.098 (0.599)	Loss 0.0040 (0.0038)
+[11/08 21:27:32] BIKE INFO: Epoch: [18][30/55], lr: 2.18e-05, eta: 0:38:34	Time 3.341 (3.668)	Data 0.142 (0.445)	Loss 0.0032 (0.0037)
+[11/08 21:28:06] BIKE INFO: Epoch: [18][40/55], lr: 2.12e-05, eta: 0:37:11	Time 3.445 (3.594)	Data 0.208 (0.370)	Loss 0.0034 (0.0037)
+[11/08 21:28:40] BIKE INFO: Epoch: [18][50/55], lr: 2.07e-05, eta: 0:36:07	Time 3.322 (3.548)	Data 0.104 (0.322)	Loss 0.0034 (0.0037)
+[11/08 21:29:08] BIKE INFO: Epoch: [19][0/55], lr: 2.03e-05, eta: 2:24:47	Time 14.336 (14.336)	Data 10.416 (10.416)	Loss 0.0043 (0.0043)
+[11/08 21:29:41] BIKE INFO: Epoch: [19][10/55], lr: 1.98e-05, eta: 0:43:08	Time 3.316 (4.343)	Data 0.120 (1.065)	Loss 0.0036 (0.0037)
+[11/08 21:30:15] BIKE INFO: Epoch: [19][20/55], lr: 1.93e-05, eta: 0:37:48	Time 3.357 (3.872)	Data 0.118 (0.616)	Loss 0.0028 (0.0035)
+[11/08 21:30:48] BIKE INFO: Epoch: [19][30/55], lr: 1.87e-05, eta: 0:35:33	Time 3.328 (3.704)	Data 0.106 (0.456)	Loss 0.0037 (0.0035)
+[11/08 21:31:22] BIKE INFO: Epoch: [19][40/55], lr: 1.81e-05, eta: 0:34:08	Time 3.376 (3.619)	Data 0.141 (0.375)	Loss 0.0032 (0.0036)
+[11/08 21:31:55] BIKE INFO: Epoch: [19][50/55], lr: 1.76e-05, eta: 0:33:02	Time 3.311 (3.565)	Data 0.098 (0.325)	Loss 0.0026 (0.0035)
+[11/08 21:32:22] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 85.938 (85.938)
+[11/08 21:32:44] BIKE INFO: Test: [10/24]	Prec@1 73.438 (64.489)	Prec@5 90.625 (87.358)
+[11/08 21:33:11] BIKE INFO: Test: [20/24]	Prec@1 65.625 (66.369)	Prec@5 90.625 (88.170)
+[11/08 21:33:14] BIKE INFO: Testing Results: Prec@1 60.784 Prec@5 86.144
+[11/08 21:33:15] BIKE INFO: Testing: 60.78431375540939/61.50326799380234
+[11/08 21:33:15] BIKE INFO: Saving:
+[11/08 21:33:34] BIKE INFO: Epoch: [20][0/55], lr: 1.73e-05, eta: 2:06:36	Time 13.787 (13.787)	Data 10.575 (10.575)	Loss 0.0033 (0.0033)
+[11/08 21:34:07] BIKE INFO: Epoch: [20][10/55], lr: 1.68e-05, eta: 0:38:38	Time 3.328 (4.286)	Data 0.098 (1.081)	Loss 0.0033 (0.0034)
+[11/08 21:34:41] BIKE INFO: Epoch: [20][20/55], lr: 1.63e-05, eta: 0:33:57	Time 3.373 (3.837)	Data 0.145 (0.623)	Loss 0.0034 (0.0033)
+[11/08 21:35:14] BIKE INFO: Epoch: [20][30/55], lr: 1.57e-05, eta: 0:31:55	Time 3.309 (3.677)	Data 0.115 (0.460)	Loss 0.0032 (0.0032)
+[11/08 21:35:48] BIKE INFO: Epoch: [20][40/55], lr: 1.52e-05, eta: 0:30:39	Time 3.360 (3.599)	Data 0.129 (0.378)	Loss 0.0032 (0.0033)
+[11/08 21:36:21] BIKE INFO: Epoch: [20][50/55], lr: 1.47e-05, eta: 0:29:38	Time 3.321 (3.549)	Data 0.120 (0.329)	Loss 0.0044 (0.0034)
+[11/08 21:36:49] BIKE INFO: Epoch: [21][0/55], lr: 1.44e-05, eta: 1:57:13	Time 14.180 (14.180)	Data 10.677 (10.677)	Loss 0.0033 (0.0033)
+[11/08 21:37:22] BIKE INFO: Epoch: [21][10/55], lr: 1.39e-05, eta: 0:35:02	Time 3.325 (4.327)	Data 0.117 (1.081)	Loss 0.0028 (0.0033)
+[11/08 21:37:56] BIKE INFO: Epoch: [21][20/55], lr: 1.34e-05, eta: 0:30:37	Time 3.337 (3.861)	Data 0.126 (0.626)	Loss 0.0029 (0.0032)
+[11/08 21:38:29] BIKE INFO: Epoch: [21][30/55], lr: 1.29e-05, eta: 0:28:41	Time 3.358 (3.694)	Data 0.120 (0.462)	Loss 0.0036 (0.0032)
+[11/08 21:39:03] BIKE INFO: Epoch: [21][40/55], lr: 1.24e-05, eta: 0:27:24	Time 3.338 (3.607)	Data 0.118 (0.378)	Loss 0.0026 (0.0032)
+[11/08 21:39:36] BIKE INFO: Epoch: [21][50/55], lr: 1.19e-05, eta: 0:26:26	Time 3.316 (3.556)	Data 0.101 (0.327)	Loss 0.0041 (0.0032)
+[11/08 21:40:03] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 84.375 (84.375)
+[11/08 21:40:25] BIKE INFO: Test: [10/24]	Prec@1 71.875 (65.625)	Prec@5 89.062 (87.926)
+[11/08 21:40:52] BIKE INFO: Test: [20/24]	Prec@1 65.625 (66.815)	Prec@5 89.062 (87.574)
+[11/08 21:40:56] BIKE INFO: Testing Results: Prec@1 61.242 Prec@5 85.359
+[11/08 21:40:56] BIKE INFO: Testing: 61.24183009527867/61.50326799380234
+[11/08 21:40:56] BIKE INFO: Saving:
+[11/08 21:41:19] BIKE INFO: Epoch: [22][0/55], lr: 1.16e-05, eta: 1:48:01	Time 14.697 (14.697)	Data 11.480 (11.480)	Loss 0.0041 (0.0041)
+[11/08 21:41:52] BIKE INFO: Epoch: [22][10/55], lr: 1.12e-05, eta: 0:31:17	Time 3.322 (4.357)	Data 0.113 (1.155)	Loss 0.0027 (0.0034)
+[11/08 21:42:25] BIKE INFO: Epoch: [22][20/55], lr: 1.07e-05, eta: 0:27:10	Time 3.334 (3.873)	Data 0.115 (0.663)	Loss 0.0034 (0.0035)
+[11/08 21:42:58] BIKE INFO: Epoch: [22][30/55], lr: 1.02e-05, eta: 0:25:19	Time 3.351 (3.696)	Data 0.114 (0.485)	Loss 0.0035 (0.0034)
+[11/08 21:43:32] BIKE INFO: Epoch: [22][40/55], lr: 9.78e-06, eta: 0:24:07	Time 3.330 (3.610)	Data 0.118 (0.396)	Loss 0.0029 (0.0032)
+[11/08 21:44:05] BIKE INFO: Epoch: [22][50/55], lr: 9.33e-06, eta: 0:23:11	Time 3.338 (3.558)	Data 0.117 (0.343)	Loss 0.0027 (0.0032)
+[11/08 21:44:33] BIKE INFO: Epoch: [23][0/55], lr: 9.06e-06, eta: 1:32:44	Time 14.416 (14.416)	Data 11.216 (11.216)	Loss 0.0030 (0.0030)
+[11/08 21:45:07] BIKE INFO: Epoch: [23][10/55], lr: 8.67e-06, eta: 0:27:22	Time 3.335 (4.369)	Data 0.121 (1.137)	Loss 0.0028 (0.0030)
+[11/08 21:45:40] BIKE INFO: Epoch: [23][20/55], lr: 8.24e-06, eta: 0:23:39	Time 3.338 (3.878)	Data 0.112 (0.651)	Loss 0.0027 (0.0031)
+[11/08 21:46:14] BIKE INFO: Epoch: [23][30/55], lr: 7.82e-06, eta: 0:22:00	Time 3.351 (3.709)	Data 0.116 (0.482)	Loss 0.0031 (0.0031)
+[11/08 21:46:48] BIKE INFO: Epoch: [23][40/55], lr: 7.41e-06, eta: 0:20:53	Time 3.354 (3.624)	Data 0.108 (0.396)	Loss 0.0040 (0.0031)
+[11/08 21:47:21] BIKE INFO: Epoch: [23][50/55], lr: 7.01e-06, eta: 0:19:59	Time 3.323 (3.570)	Data 0.115 (0.343)	Loss 0.0029 (0.0030)
+[11/08 21:47:48] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 85.938 (85.938)
+[11/08 21:48:11] BIKE INFO: Test: [10/24]	Prec@1 71.875 (63.920)	Prec@5 89.062 (87.642)
+[11/08 21:48:39] BIKE INFO: Test: [20/24]	Prec@1 71.875 (65.997)	Prec@5 87.500 (87.351)
+[11/08 21:48:43] BIKE INFO: Testing Results: Prec@1 60.327 Prec@5 85.229
+[11/08 21:48:43] BIKE INFO: Testing: 60.32679733076906/61.50326799380234
+[11/08 21:48:43] BIKE INFO: Saving:
+[11/08 21:49:06] BIKE INFO: Epoch: [24][0/55], lr: 6.78e-06, eta: 1:21:20	Time 14.744 (14.744)	Data 11.574 (11.574)	Loss 0.0026 (0.0026)
+[11/08 21:49:40] BIKE INFO: Epoch: [24][10/55], lr: 6.43e-06, eta: 0:23:40	Time 3.414 (4.427)	Data 0.139 (1.177)	Loss 0.0026 (0.0028)
+[11/08 21:50:14] BIKE INFO: Epoch: [24][20/55], lr: 6.05e-06, eta: 0:20:26	Time 3.400 (3.943)	Data 0.137 (0.683)	Loss 0.0032 (0.0029)
+[11/08 21:50:48] BIKE INFO: Epoch: [24][30/55], lr: 5.68e-06, eta: 0:18:54	Time 3.412 (3.768)	Data 0.132 (0.507)	Loss 0.0036 (0.0029)
+[11/08 21:51:23] BIKE INFO: Epoch: [24][40/55], lr: 5.33e-06, eta: 0:17:51	Time 3.419 (3.682)	Data 0.152 (0.417)	Loss 0.0029 (0.0029)
+[11/08 21:51:56] BIKE INFO: Epoch: [24][50/55], lr: 4.98e-06, eta: 0:16:57	Time 3.372 (3.622)	Data 0.118 (0.360)	Loss 0.0029 (0.0029)
+[11/08 21:52:25] BIKE INFO: Epoch: [25][0/55], lr: 4.77e-06, eta: 1:05:59	Time 14.345 (14.345)	Data 11.101 (11.101)	Loss 0.0031 (0.0031)
+[11/08 21:52:58] BIKE INFO: Epoch: [25][10/55], lr: 4.48e-06, eta: 0:19:20	Time 3.363 (4.361)	Data 0.101 (1.132)	Loss 0.0028 (0.0029)
+[11/08 21:53:32] BIKE INFO: Epoch: [25][20/55], lr: 4.16e-06, eta: 0:16:34	Time 3.348 (3.886)	Data 0.130 (0.659)	Loss 0.0030 (0.0029)
+[11/08 21:54:05] BIKE INFO: Epoch: [25][30/55], lr: 3.85e-06, eta: 0:15:14	Time 3.380 (3.718)	Data 0.114 (0.487)	Loss 0.0041 (0.0029)
+[11/08 21:54:39] BIKE INFO: Epoch: [25][40/55], lr: 3.55e-06, eta: 0:14:18	Time 3.384 (3.636)	Data 0.137 (0.400)	Loss 0.0026 (0.0029)
+[11/08 21:55:13] BIKE INFO: Epoch: [25][50/55], lr: 3.26e-06, eta: 0:13:29	Time 3.330 (3.580)	Data 0.105 (0.347)	Loss 0.0031 (0.0029)
+[11/08 21:55:40] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 87.500 (87.500)
+[11/08 21:56:02] BIKE INFO: Test: [10/24]	Prec@1 71.875 (65.341)	Prec@5 92.188 (87.926)
+[11/08 21:56:30] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.815)	Prec@5 90.625 (88.170)
+[11/08 21:56:34] BIKE INFO: Testing Results: Prec@1 61.176 Prec@5 85.817
+[11/08 21:56:34] BIKE INFO: Testing: 61.17647060568816/61.50326799380234
+[11/08 21:56:34] BIKE INFO: Saving:
+[11/08 21:56:56] BIKE INFO: Epoch: [26][0/55], lr: 3.09e-06, eta: 0:51:53	Time 14.086 (14.086)	Data 10.891 (10.891)	Loss 0.0028 (0.0028)
+[11/08 21:57:29] BIKE INFO: Epoch: [26][10/55], lr: 2.85e-06, eta: 0:15:17	Time 3.384 (4.348)	Data 0.126 (1.114)	Loss 0.0028 (0.0029)
+[11/08 21:58:03] BIKE INFO: Epoch: [26][20/55], lr: 2.59e-06, eta: 0:13:01	Time 3.340 (3.886)	Data 0.120 (0.646)	Loss 0.0030 (0.0030)
+[11/08 21:58:37] BIKE INFO: Epoch: [26][30/55], lr: 2.34e-06, eta: 0:11:51	Time 3.376 (3.724)	Data 0.132 (0.480)	Loss 0.0026 (0.0030)
+[11/08 21:59:11] BIKE INFO: Epoch: [26][40/55], lr: 2.11e-06, eta: 0:10:59	Time 3.359 (3.644)	Data 0.112 (0.395)	Loss 0.0022 (0.0029)
+[11/08 21:59:45] BIKE INFO: Epoch: [26][50/55], lr: 1.88e-06, eta: 0:10:14	Time 3.375 (3.594)	Data 0.128 (0.344)	Loss 0.0030 (0.0029)
+[11/08 22:00:13] BIKE INFO: Epoch: [27][0/55], lr: 1.76e-06, eta: 0:40:07	Time 14.501 (14.501)	Data 11.226 (11.226)	Loss 0.0033 (0.0033)
+[11/08 22:00:47] BIKE INFO: Epoch: [27][10/55], lr: 1.57e-06, eta: 0:11:25	Time 3.366 (4.395)	Data 0.130 (1.143)	Loss 0.0028 (0.0029)
+[11/08 22:01:21] BIKE INFO: Epoch: [27][20/55], lr: 1.38e-06, eta: 0:09:30	Time 3.373 (3.907)	Data 0.116 (0.661)	Loss 0.0026 (0.0029)
+[11/08 22:01:54] BIKE INFO: Epoch: [27][30/55], lr: 1.20e-06, eta: 0:08:27	Time 3.349 (3.733)	Data 0.110 (0.487)	Loss 0.0024 (0.0029)
+[11/08 22:02:28] BIKE INFO: Epoch: [27][40/55], lr: 1.03e-06, eta: 0:07:39	Time 3.361 (3.644)	Data 0.125 (0.400)	Loss 0.0028 (0.0029)
+[11/08 22:03:02] BIKE INFO: Epoch: [27][50/55], lr: 8.73e-07, eta: 0:06:56	Time 3.314 (3.588)	Data 0.113 (0.344)	Loss 0.0025 (0.0029)
+[11/08 22:03:29] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 84.375 (84.375)
+[11/08 22:03:52] BIKE INFO: Test: [10/24]	Prec@1 73.438 (64.915)	Prec@5 90.625 (87.642)
+[11/08 22:04:18] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.443)	Prec@5 87.500 (87.202)
+[11/08 22:04:22] BIKE INFO: Testing Results: Prec@1 60.850 Prec@5 84.967
+[11/08 22:04:22] BIKE INFO: Testing: 60.849673232533576/61.50326799380234
+[11/08 22:04:22] BIKE INFO: Saving:
+[11/08 22:04:43] BIKE INFO: Epoch: [28][0/55], lr: 7.85e-07, eta: 0:26:06	Time 14.112 (14.112)	Data 10.943 (10.943)	Loss 0.0029 (0.0029)
+[11/08 22:05:16] BIKE INFO: Epoch: [28][10/55], lr: 6.63e-07, eta: 0:07:15	Time 3.354 (4.311)	Data 0.129 (1.107)	Loss 0.0030 (0.0028)
+[11/08 22:05:50] BIKE INFO: Epoch: [28][20/55], lr: 5.38e-07, eta: 0:05:50	Time 3.359 (3.852)	Data 0.107 (0.636)	Loss 0.0028 (0.0028)
+[11/08 22:06:23] BIKE INFO: Epoch: [28][30/55], lr: 4.27e-07, eta: 0:04:58	Time 3.406 (3.691)	Data 0.177 (0.468)	Loss 0.0035 (0.0028)
+[11/08 22:06:57] BIKE INFO: Epoch: [28][40/55], lr: 3.28e-07, eta: 0:04:15	Time 3.357 (3.606)	Data 0.105 (0.381)	Loss 0.0029 (0.0028)
+[11/08 22:07:30] BIKE INFO: Epoch: [28][50/55], lr: 2.42e-07, eta: 0:03:36	Time 3.313 (3.553)	Data 0.100 (0.328)	Loss 0.0023 (0.0028)
+[11/08 22:07:58] BIKE INFO: Epoch: [29][0/55], lr: 1.97e-07, eta: 0:13:10	Time 14.112 (14.112)	Data 10.737 (10.737)	Loss 0.0029 (0.0029)
+[11/08 22:08:32] BIKE INFO: Epoch: [29][10/55], lr: 1.38e-07, eta: 0:03:20	Time 3.401 (4.365)	Data 0.168 (1.101)	Loss 0.0027 (0.0030)
+[11/08 22:09:05] BIKE INFO: Epoch: [29][20/55], lr: 8.45e-08, eta: 0:02:19	Time 3.362 (3.889)	Data 0.138 (0.639)	Loss 0.0035 (0.0029)
+[11/08 22:09:39] BIKE INFO: Epoch: [29][30/55], lr: 4.41e-08, eta: 0:01:36	Time 3.357 (3.720)	Data 0.121 (0.474)	Loss 0.0027 (0.0028)
+[11/08 22:10:13] BIKE INFO: Epoch: [29][40/55], lr: 1.67e-08, eta: 0:00:58	Time 3.359 (3.636)	Data 0.158 (0.389)	Loss 0.0026 (0.0028)
+[11/08 22:10:46] BIKE INFO: Epoch: [29][50/55], lr: 2.35e-09, eta: 0:00:21	Time 3.333 (3.585)	Data 0.116 (0.338)	Loss 0.0031 (0.0028)
+[11/08 22:11:13] BIKE INFO: Test: [0/24]	Prec@1 53.125 (53.125)	Prec@5 85.938 (85.938)
+[11/08 22:11:37] BIKE INFO: Test: [10/24]	Prec@1 73.438 (65.341)	Prec@5 92.188 (87.926)
+[11/08 22:12:04] BIKE INFO: Test: [20/24]	Prec@1 67.188 (66.443)	Prec@5 90.625 (87.872)
+[11/08 22:12:08] BIKE INFO: Testing Results: Prec@1 60.784 Prec@5 85.686
+[11/08 22:12:08] BIKE INFO: Testing: 60.784313718010395/61.50326799380234
+[11/08 22:12:08] BIKE INFO: Saving:

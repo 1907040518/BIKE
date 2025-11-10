@@ -1,0 +1,92 @@
+[11/07 21:18:20] BIKE INFO: ------------------------------------
+[11/07 21:18:20] BIKE INFO: Environment Versions:
+[11/07 21:18:20] BIKE INFO: - Python: 3.8.20 (default, Oct  3 2024, 15:24:27) 
+[GCC 11.2.0]
+[11/07 21:18:20] BIKE INFO: - PyTorch: 2.4.1+cu118
+[11/07 21:18:20] BIKE INFO: - TorchVison: 0.19.1+cu118
+[11/07 21:18:20] BIKE INFO: ------------------------------------
+[11/07 21:18:20] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'ucf101',
+                'image_tmpl': 'img_{:05d}.jpg',
+                'input_size': 224,
+                'label_list': 'lists/ucf101/ucf_labels.csv',
+                'modality': 'residual',
+                'num_classes': 101,
+                'num_segments': 8,
+                'output_path': 'exps',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': 'lists/ucf101/train_rgb_split_1.txt',
+                'train_root': '/mnt/data/ucf101/Cucf101',
+                'val_list': 'lists/ucf101/val_rgb_split_1.txt',
+                'val_root': '/mnt/data/ucf101/Cucf101',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'UCF101',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 2,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/stu_b/BIKE/attributes/llama3.1:8b'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'detach_text': True,
+                                                  'dropout': 0.0,
+                                                  'enable': True,
+                                                  'hidden_dim': 256,
+                                                  'num_heads': 4},
+                   'coapt_bias': {'enable': False, 'layers': [1024, 512, 512]},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False,
+                   'video_prompt': False},
+    'pretrain': '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 30,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[11/07 21:18:20] BIKE INFO: ------------------------------------
+[11/07 21:18:20] BIKE INFO: storing name: exps/ucf101/ViT-B/16/20251107_211816
+[11/07 21:18:22] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x73b579e85160>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x73b5645d4550>]
+[11/07 21:18:22] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x73b5645d4f40>, <Coviar.transforms.GroupCenterCrop object at 0x73b5645d49a0>]
+[11/07 21:18:23] BIKE INFO: => loading pretrain checkpoint '/home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[11/07 21:18:24] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers DotMap()
+[11/07 21:18:24] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers DotMap()
+[11/07 21:18:24] BIKE INFO: Loaded attribute descriptions from /home/stu_b/BIKE/attributes/llama3.1:8b/UCF101_2.json
+[11/07 21:18:24] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[11/07 21:18:24] BIKE INFO: Prompt[0]: a video about Apply Eye Makeup. Hand Moving Slow Smooth Horizontal Upward Tilted Sideways Flicking Gliding Brush Makeup Pencil Lids Eyelashes Wiggling.
+[11/07 21:18:24] BIKE INFO: Prompt[1]: a video about Apply Lipstick. Vertical Close-up Focused Smooth Gentle Circular Rotating Upward Twisting Pivoting Handheld Horizontal Side-to-side Slow Precise Delicate.
+[11/07 21:18:24] BIKE INFO: Prompt[2]: a video about Archery. Standing Holding Steady Straight Forward Arm Backward Focused Calm Stable Still Aiming Tense Relaxed Vertical Horizontal.
+[11/07 21:18:24] BIKE INFO: Attribute-guided fusion enabled
+[11/07 21:18:24] BIKE INFO: Attribute fusion config: {'detach_text': True, 'num_heads': 4, 'dropout': 0.0, 'hidden_dim': 256}
+[11/07 21:18:32] BIKE INFO: Epoch: [0][0/149], lr: 0.00e+00, eta: 10:12:49	Time 8.224 (8.224)	Data 5.794 (5.794)	Loss 1.4726 (1.4726)
+[11/07 21:18:50] BIKE INFO: Epoch: [0][10/149], lr: 6.04e-07, eta: 2:51:08	Time 1.691 (2.302)	Data 0.058 (0.594)	Loss 1.4445 (1.4229)
+[11/07 21:19:07] BIKE INFO: Epoch: [0][20/149], lr: 1.28e-06, eta: 2:29:49	Time 1.698 (2.020)	Data 0.059 (0.344)	Loss 1.2948 (1.4239)
+[11/07 21:19:24] BIKE INFO: Epoch: [0][30/149], lr: 1.95e-06, eta: 2:22:05	Time 1.717 (1.920)	Data 0.055 (0.252)	Loss 1.2264 (1.3957)
+[11/07 21:19:41] BIKE INFO: Epoch: [0][40/149], lr: 2.62e-06, eta: 2:18:15	Time 1.729 (1.872)	Data 0.059 (0.205)	Loss 1.0734 (1.3292)
+[11/07 21:19:58] BIKE INFO: Epoch: [0][50/149], lr: 3.29e-06, eta: 2:15:47	Time 1.712 (1.843)	Data 0.054 (0.176)	Loss 0.9570 (1.2593)
+[11/07 21:20:15] BIKE INFO: Epoch: [0][60/149], lr: 3.96e-06, eta: 2:13:53	Time 1.710 (1.821)	Data 0.061 (0.157)	Loss 0.9104 (1.2011)
+[11/07 21:20:32] BIKE INFO: Epoch: [0][70/149], lr: 4.63e-06, eta: 2:12:27	Time 1.709 (1.806)	Data 0.058 (0.143)	Loss 0.5705 (1.1315)
+[11/07 21:20:49] BIKE INFO: Epoch: [0][80/149], lr: 5.30e-06, eta: 2:11:17	Time 1.694 (1.794)	Data 0.054 (0.133)	Loss 0.5125 (1.0597)
+[11/07 21:21:07] BIKE INFO: Epoch: [0][90/149], lr: 5.97e-06, eta: 2:10:25	Time 1.715 (1.786)	Data 0.056 (0.126)	Loss 0.4154 (0.9952)

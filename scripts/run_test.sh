@@ -1,12 +1,8 @@
-#!/usr/bin/env bash
-if [ -f $1 ]; then
-  config=$1
-else
-  echo "need a config file"
-  exit
-fi
 
-now=$(date +"%Y%m%d_%H%M%S")
-python -m torch.distributed.launch --master_port 1237 --nproc_per_node=1 \
-         train_compress.py  --config ${config} --log_time $now
-         
+
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 --master_port=12023 \
+  test_comp_CoAPT.py \
+  --config /home/stu_b/BIKE/configs/hmdb51/hmdb_CLIP_fix_B16_0_11_new.yaml \
+  --weights /home/stu_b/BIKE/exps/hmdb51/ViT-B/16/20251108_161046/model_best.pt \
+  --test-list /home/stu_b/BIKE/lists/hmdb51/val_rgb_split_2.txt
+
