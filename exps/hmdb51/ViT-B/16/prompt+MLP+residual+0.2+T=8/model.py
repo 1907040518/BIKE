@@ -576,24 +576,24 @@ class AttributeSemanticDecomposer(nn.Module):
             nn.Linear(text_dim, hidden_dim),
             nn.ReLU(inplace=True),
             nn.Linear(hidden_dim, 3),
-            nn.Softmax(dim=-1),
+            nn.Tanh(),  # 🔥 改为Tanh，输出[-1, 1]的调制信号，而非绝对权重
         )
 
     def forward(self, attribute_tokens: torch.Tensor):
         if attribute_tokens.dim() != 3:
             raise ValueError("attribute_tokens must be (B, L, D)")
 
-        semantic_weights = self.attr_to_semantic(attribute_tokens)
+        semantic_modulation = self.attr_to_semantic(attribute_tokens)  # (B, L, 3)
 
-        appearance_attrs = attribute_tokens * semantic_weights[..., 0:1]
-        motion_attrs = attribute_tokens * semantic_weights[..., 1:2]
-        interaction_attrs = attribute_tokens * semantic_weights[..., 2:3]
+        appearance_attrs = attribute_tokens * semantic_modulation[..., 0:1]
+        motion_attrs = attribute_tokens * semantic_modulation[..., 1:2]
+        interaction_attrs = attribute_tokens * semantic_modulation[..., 2:3]
 
         appearance_repr = appearance_attrs.mean(dim=1)
         motion_repr = motion_attrs.mean(dim=1)
         interaction_repr = interaction_attrs.mean(dim=1)
 
-        return appearance_repr, motion_repr, interaction_repr, semantic_weights
+        return appearance_repr, motion_repr, interaction_repr, semantic_modulation
 
 
 class AttributeGuidedFusion(nn.Module):
@@ -607,12 +607,15 @@ class AttributeGuidedFusion(nn.Module):
         num_modalities=3,
         num_heads=4,
         attn_dropout=0.0,
+        residual_scale=0.1,  # 🔥 新增：控制属性调制的强度
     ):
         super().__init__()
         if num_modalities != 3:
             raise ValueError("This fusion module expects exactly three modalities: I-frame, MV, Residual")
 
         self.num_modalities = num_modalities
+        self.residual_scale = residual_scale  # 🔥 保存调制强度
+        
         self.semantic_decomposer = AttributeSemanticDecomposer(
             text_dim=semantic_dim,
             hidden_dim=hidden_dim,
@@ -634,26 +637,63 @@ class AttributeGuidedFusion(nn.Module):
         mv_feats: torch.Tensor,
         residual_feats: torch.Tensor,
         attribute_tokens: torch.Tensor,
+        base_weights: torch.Tensor,  # 🔥 新增：传入可学习的base_weights (model.beta)
     ):
+        """
+        Args:
+            iframe_feats: (B, T, D) I-frame特征
+            mv_feats: (B, T, D) Motion Vector特征
+            residual_feats: (B, T, D) Residual特征
+            attribute_tokens: (B, L, D) 属性词token嵌入
+            base_weights: (3,) 可学习的基础权重 (model.beta)
+        
+        Returns:
+            fused: (B, T, D) 融合后的特征
+            final_weights: (B, 3) 最终使用的融合权重
+            semantic_modulation: (B, L, 3) 属性的语义调制信号
+        """
         if iframe_feats.dim() != 3 or mv_feats.dim() != 3 or residual_feats.dim() != 3:
             raise ValueError("visual features must be (B, T, D)")
 
-        app_repr, motion_repr, inter_repr, semantic_weights = self.semantic_decomposer(attribute_tokens)
-        weights = semantic_weights.mean(dim=1)  # (B, 3)
-
+        B = iframe_feats.shape[0]
+        
+        # 🔥 步骤1：获取属性语义调制信号
+        app_repr, motion_repr, inter_repr, semantic_modulation = self.semantic_decomposer(attribute_tokens)
+        # semantic_modulation: (B, L, 3) 范围[-1, 1]
+        
+        # 对所有token取平均，得到batch级的调制信号
+        attribute_modulation = semantic_modulation.mean(dim=1)  # (B, 3)
+        
+        # 🔥 步骤2：计算最终权重 = base_weights + residual_scale * attribute_modulation
+        # 先对base_weights做softmax归一化
+        base_weights_softmax = F.softmax(base_weights, dim=0)  # (3,)
+        base_weights_batch = base_weights_softmax.unsqueeze(0).expand(B, -1)  # (B, 3)
+        
+        # 残差调制：base + scale * modulation
+        adjusted_weights = base_weights_batch + self.residual_scale * attribute_modulation  # (B, 3)
+        
+        # 重新归一化，确保权重和为1
+        final_weights = F.softmax(adjusted_weights, dim=-1)  # (B, 3)
+        
+        # 🔥 步骤3：使用属性语义增强每个模态
         modalities = [iframe_feats, mv_feats, residual_feats]
         attr_reprs = [app_repr, motion_repr, inter_repr]
         adapted_modalities = []
+        
         for idx, feat in enumerate(modalities):
-            guidance = self.modality_adapters[idx](attr_reprs[idx]).unsqueeze(1)
-            adapted = self.modality_norms[idx](feat + guidance)
+            # 将语义表示映射到视觉空间作为引导信号
+            guidance = self.modality_adapters[idx](attr_reprs[idx]).unsqueeze(1)  # (B, 1, D)
+            # 残差连接 + 归一化
+            adapted = self.modality_norms[idx](feat + guidance)  # (B, T, D)
             adapted_modalities.append(adapted)
 
+        # 🔥 步骤4：使用最终权重进行加权融合
         stacked = torch.stack(adapted_modalities, dim=2)  # (B, T, 3, D)
-        weight_view = weights.unsqueeze(1).unsqueeze(-1)
-        fused = (stacked * weight_view).sum(dim=2)
+        weight_view = final_weights.unsqueeze(1).unsqueeze(-1)  # (B, 1, 3, 1)
+        fused = (stacked * weight_view).sum(dim=2)  # (B, T, D)
 
-        return fused, weights, semantic_weights
+        return fused, final_weights, semantic_modulation
+
 
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
@@ -1125,7 +1165,7 @@ class CLIP(nn.Module):
     def attach_attribute_prompt(self, prompt_learner):
         self.attribute_prompt_learner = prompt_learner
 
-    def configure_attribute_guided_fusion(self, enable=True, hidden_dim=256, num_heads=4, dropout=0.0, detach_text=False):    # 调整dropout 防止过拟合
+    def configure_attribute_guided_fusion(self, enable=True, hidden_dim=256, num_heads=4, dropout=0.0, detach_text=False, residual_scale=0.1):    # 调整dropout 防止过拟合
         if enable:
             embed_dim = self.text_projection.shape[1]
             self.attribute_guided_fusion = AttributeGuidedFusion(
@@ -1135,6 +1175,7 @@ class CLIP(nn.Module):
                 num_modalities=3,
                 num_heads=num_heads,
                 attn_dropout=dropout,
+                residual_scale=residual_scale
             )
             self.detach_attribute_semantics = bool(detach_text)
         else:
@@ -1191,6 +1232,7 @@ class CLIP(nn.Module):
                     mv_seq,
                     residual_seq,
                     attribute_tokens,
+                    base_weights=self.beta,  # 🔥 传入可学习的基础权重
                 )
 
                 merged_feats = fused_feats.view(total_visual, -1)

@@ -437,7 +437,7 @@ class Video_dataset(data.Dataset):
         # print(iframe.shape)
         # print(res.shape)
         # print(mv.shape)
-        return iframe,res,mv, label
+        return iframe,mv,res, label
 
 
     def _load_image(self, directory, idx):

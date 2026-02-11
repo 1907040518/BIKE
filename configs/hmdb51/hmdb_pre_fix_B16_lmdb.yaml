@@ -1,5 +1,4 @@
 pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
-# pretrain: 
 resume:
 seed: 1024
 data:
@@ -11,18 +10,22 @@ data:
     workers: 4
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/mnt/data/hmdb51/mpeg4_videos'
-    val_root: '/mnt/data/hmdb51/mpeg4_videos'
-    train_list: 'lists/hmdb51/train_rgb_split_1.txt'
-    val_list: 'lists/hmdb51/val_rgb_split_1.txt'
+    train_root: '/home/stu_b/dataset/hmdb51/mpeg4_videos'
+    val_root: '/home/stu_b/dataset/hmdb51/mpeg4_videos'
+    train_list: '/mnt/data/hmdb51/HMDB51_lmdb/annotation_file/hmdb51_train.txt'
+    val_list: '/mnt/data/hmdb51/HMDB51_lmdb/annotation_file/hmdb51_test.txt'
     label_list: 'lists/hmdb51/hmdb51_labels.csv'
+    # 新添加的LMDB路径配置
+    iframe_db_path: "/mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_frames.lmdb"
+    mv_db_path: "/mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_mvs.lmdb"
+    res_db_path: "/mnt/data/hmdb51/HMDB51_lmdb/hmdb51_compressed_residuals.lmdb"
     input_size: 224
     random_shift: True
     output_path: exps
     GOP_SIZE: 12
 network:
     arch: ViT-B/16
-    init: True 
+    init: True
     tm: False
     drop_out: 0.0 
     emb_dropout: 0.0 
@@ -40,7 +43,7 @@ network:
         enable: True
         vocab_root: '/home/stu_b/BIKE/attributes/qwen'
         dataset_key: HMDB51
-        seed_index: 4
+        seed_index: 1
         num_attributes: 16
         attribute_ctx: 2
         n_ctx: 4
@@ -50,7 +53,7 @@ network:
         enable: False
         layers: [1024, 512, 512]
     attribute_guided_fusion:
-        enable: False
+        enable: True
         hidden_dim: 256
         num_heads: 4
         residual_scale: 0.2

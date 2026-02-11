@@ -5,7 +5,7 @@ seed: 1024
 data:
     dataset: hmdb51
     modality: residual
-    num_segments: 16
+    num_segments: 8
     seg_length: 1
     batch_size: 32
     workers: 4
@@ -40,7 +40,7 @@ network:
         enable: True
         vocab_root: '/home/stu_b/BIKE/attributes/qwen'
         dataset_key: HMDB51
-        seed_index: 4
+        seed_index: 1
         num_attributes: 16
         attribute_ctx: 2
         n_ctx: 4
@@ -53,7 +53,7 @@ network:
         enable: False
         hidden_dim: 256
         num_heads: 4
-        residual_scale: 0.2
+        residual_scale_init: 0.1 # 初始残差缩放（可调）
         dropout: 0.0
         detach_text: True
 solver:

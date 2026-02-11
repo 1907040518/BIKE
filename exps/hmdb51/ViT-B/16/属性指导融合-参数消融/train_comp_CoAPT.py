@@ -362,14 +362,14 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video3 import Video_dataset
-        train_data = Video_dataset(
+        from datasets.compress_3 import Video_compress_dataset
+        train_data = Video_compress_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))
-        val_data = Video_dataset(
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
+        val_data = Video_compress_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
@@ -565,7 +565,7 @@ def main(args):
 
     if isinstance(attribute_fusion_cfg, dict):
         attribute_fusion_enabled = bool(attribute_fusion_cfg.get('enable', attribute_prompt_enabled))
-        allowed_keys = {"hidden_dim", "num_heads", "dropout", "detach_text", "residual_scale"}
+        allowed_keys = {"hidden_dim", "num_heads", "dropout", "detach_text"}
         fusion_kwargs = {k: attribute_fusion_cfg[k] for k in allowed_keys if k in attribute_fusion_cfg}
     elif attribute_fusion_cfg is not None:
         attribute_fusion_enabled = bool(attribute_fusion_cfg)
@@ -823,7 +823,6 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
         text_inputs = classes[indices]
 
 
-
 def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger,
              return_sim=False, coapt_bias_enabled=False, attribute_prompt_enabled=False):
     top1 = AverageMeter()
@@ -836,13 +835,15 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
     clip_model = model.module if hasattr(model, "module") else model
 
     with torch.no_grad():
-        clip_model = model.module if hasattr(model, "module") else model
         if classes is None:
             raise RuntimeError("Text classes tensor is required for evaluation")
+        
         text_inputs = classes.to(device)
         base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
-        print("")
+        
+        # 🔥 获取基础权重（所有类别共享）
+        base_weights = F.softmax(clip_model.beta, dim=0)  # (3,)
         
         for i, (image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
@@ -850,44 +851,78 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
             
             b, t, c_i, h, w = image.size()
-            b, t, c_m, h, w = mv.size()
+            _, _, c_m, _, _ = mv.size()
 
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
+            # 编码视觉特征（一次性）
+            image_features, res_features, mvs_features = clip_model.encode_image(
+                image_input, residual_input, mv_input
+            )
+            image_features = image_features.view(b, t, -1)
+            res_features = res_features.view(b, t, -1)
+            mvs_features = mvs_features.view(b, t, -1)
+
             if attribute_prompt_enabled and getattr(clip_model, "attribute_guided_fusion", None) is not None:
-                prompt_inputs = classes[class_id].to(device)
+                # 🔥 方案A：遍历所有类别（精度更高但慢）
+                batch_similarities = []
                 
-                # 🔥 关键修改: 返回值从4个变量改名
-                fused_flat, modality_weights, semantic_weights, _ = clip_model(
-                    image_input, residual_input, mv_input, prompt_inputs, return_token=True
-                )
-                # fused_flat: [B*T, D] - 融合后的特征
-                # modality_weights: [B, 3] - 模态级别权重
-                # semantic_weights: [B, L, 3] - 属性级别语义权重 (新版)
-                # _: 其他返回值 (如果有)
+                for cls_idx in range(n_class):
+                    cls_text_tokens = text_features[cls_idx:cls_idx+1].expand(b, -1, -1)  # (B, L, D)
+                    
+                    # 使用属性引导融合
+                    fused_feats, final_weights, _ = clip_model.attribute_guided_fusion(
+                        image_features,
+                        mvs_features,
+                        res_features,
+                        cls_text_tokens,
+                        base_weights,  # 传入基础权重
+                    )
+                    
+                    # 计算相似度
+                    cls_cls_feat = base_cls_feature[cls_idx:cls_idx+1]
+                    cls_text_feat = text_features[cls_idx:cls_idx+1]
+                    
+                    if coapt_module is not None:
+                        video_token = fused_feats.mean(dim=1)
+                        cls_cls_feat_batch = coapt_module(video_token, cls_cls_feat.expand(b, -1))
+                    else:
+                        cls_cls_feat_batch = cls_cls_feat.expand(b, -1)
+                    
+                    cls_sim = video_head(fused_feats, cls_text_feat.expand(b, -1, -1), cls_cls_feat_batch)
+                    
+                    # 统一维度
+                    if cls_sim.dim() == 3:
+                        cls_sim = cls_sim.mean(dim=1)
+                    elif cls_sim.dim() == 2 and cls_sim.size(1) > 1:
+                        cls_sim = cls_sim.mean(dim=1, keepdim=True)
+                    elif cls_sim.dim() == 1:
+                        cls_sim = cls_sim.unsqueeze(1)
+                    
+                    batch_similarities.append(cls_sim)
                 
-                merged_feats = fused_flat.view(b, t, -1)
+                similarity = torch.cat(batch_similarities, dim=1)  # (B, n_class)
+                similarity = F.softmax(similarity, dim=-1)
+                
             else:
-                image_features, res_features, mvs_features = clip_model.encode_image(
-                    image_input, residual_input, mv_input
-                )
-                weights = F.softmax(clip_model.beta, dim=0)
-                merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-                merged_feats = merged_feats.view(b, t, -1)
+                # 降级：使用基础权重
+                merged_feats = (base_weights[0] * image_features + 
+                               base_weights[1] * res_features + 
+                               base_weights[2] * mvs_features)
 
-            cls_feature = base_cls_feature
-            if coapt_module is not None:
-                video_token = merged_feats.mean(dim=1)
-                cls_feature = coapt_module(video_token, base_cls_feature)
+                cls_feature = base_cls_feature
+                if coapt_module is not None:
+                    video_token = merged_feats.mean(dim=1)
+                    cls_feature = coapt_module(video_token, base_cls_feature)
 
-            similarity = video_head(merged_feats, text_features, cls_feature)
+                similarity = video_head(merged_feats, text_features, cls_feature)
+                similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
+                similarity = similarity.mean(dim=1, keepdim=False)
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
-            similarity = similarity.mean(dim=1, keepdim=False)
-
+            # 后续评估逻辑不变...
             if return_sim:
                 sims = allgather(similarity)
                 labels = gather_labels(class_id)
@@ -902,11 +937,11 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             top5.update(prec5.item(), class_id.size(0))
 
             if i % config.logging.print_freq == 0:
-                logger.info(
-                    ('Test: [{0}/{1}]\t'
-                     'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                     'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                         i, len(val_loader), top1=top1, top5=top5)))
+                logger.info((
+                    'Test: [{0}/{1}]\t'
+                    'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                    'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'
+                ).format(i, len(val_loader), top1=top1, top5=top5))
     
     logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
         .format(top1=top1, top5=top5)))

@@ -40,8 +40,8 @@ network:
         enable: True
         vocab_root: '/home/stu_b/BIKE/attributes/qwen'
         dataset_key: HMDB51
-        seed_index: 4
-        num_attributes: 16
+        seed_index: 1
+        num_attributes: 8
         attribute_ctx: 2
         n_ctx: 4
         class_specific: True

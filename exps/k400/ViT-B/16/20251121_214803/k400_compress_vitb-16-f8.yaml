@@ -1,6 +1,6 @@
 resume:
 pretrain:
-seed: 512
+seed: 1024
 data:
     dataset: k400
     modality: residual

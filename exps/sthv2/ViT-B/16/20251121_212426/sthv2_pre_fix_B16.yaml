@@ -5,9 +5,9 @@ seed: 1024
 data:
     dataset: sthv2
     modality: residual
-    num_segments: 8
+    num_segments: 16
     seg_length: 1
-    batch_size: 64
+    batch_size: 32
     workers: 4
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'
@@ -38,9 +38,9 @@ network:
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
     action_prompt:
         enable: True
-        vocab_root: '/home/stu_b/BIKE/attributes/qwen'
+        vocab_root: '/home/stu_b/BIKE/attributes/llama3.1:8b'   # llama3.1:8b  qwen
         dataset_key: SOMETHING_SOMETHING_V2
-        seed_index: 2
+        seed_index: 1
         num_attributes: 16
         attribute_ctx: 2
         n_ctx: 4
@@ -50,9 +50,10 @@ network:
         enable: False
         layers: [1024, 512, 512]
     attribute_guided_fusion:
-        enable: True
+        enable: False
         hidden_dim: 256
         num_heads: 4
+        residual_scale: 0.2
         dropout: 0.0
         detach_text: True
 solver:
