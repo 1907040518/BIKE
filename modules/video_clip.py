@@ -142,7 +142,7 @@ class video_header(nn.Module):
             cls_emb = cls_emb / cls_emb.norm(dim=-1, keepdim=True)
 
             if cls_emb.dim() == 2:
-                logit = vid_emb @ cls_emb.t()
+                logit = vid_emb @ cls_emb.t()   # bc x nc -> bn
             elif cls_emb.dim() == 3:
                 logit = torch.einsum('bd,bkd->bk', vid_emb, cls_emb)
             else:

@@ -342,9 +342,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
     for i,(images, list_id) in enumerate(train_loader):
         # print(list_id)
         # exit()
-        if config.solver.type != 'monitor':
-            if (i + 1) == 1 or (i + 1) % 10 == 0:
-                lr_scheduler.step(epoch + i / len(train_loader))
+
         # lr_scheduler.step()
 
         data_time.update(time.time() - end)
@@ -398,7 +396,9 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
             if (i + 1) % config.solver.grad_accumulation_steps == 0:
                 optimizer.step()  # update param
                 optimizer.zero_grad()  # reset gradient
-
+        if config.solver.type != 'monitor':
+            if (i + 1) == 1 or (i + 1) % 10 == 0:
+                lr_scheduler.step(epoch + i / len(train_loader))
         losses.update(loss.item(), logits.size(0))
 
 

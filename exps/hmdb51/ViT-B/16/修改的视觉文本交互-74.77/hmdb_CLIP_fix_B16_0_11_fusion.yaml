@@ -47,7 +47,7 @@ network:
         class_specific: True
         template: "a video about {}."
     attribute_guided_fusion:
-        enable: False
+        enable: true
         hidden_dim: 256
         num_heads: 4
         dropout: 0.1

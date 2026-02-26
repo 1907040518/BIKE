@@ -1,21 +1,11 @@
 from collections import OrderedDict
 from typing import Tuple, Union
 
-import inspect
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.utils.checkpoint import checkpoint as torch_checkpoint
-
-
-_CHECKPOINT_HAS_REENTRANT = "use_reentrant" in inspect.signature(torch_checkpoint).parameters
-
-
-def checkpoint(function, *args, **kwargs):
-    if _CHECKPOINT_HAS_REENTRANT:
-        return torch_checkpoint(function, *args, use_reentrant=False, **kwargs)
-    return torch_checkpoint(function, *args, **kwargs)
+from torch.utils.checkpoint import checkpoint
 
 
 class Bottleneck(nn.Module):
@@ -464,158 +454,107 @@ class Transformer(nn.Module):
 
         return x
 
-class CrossModalAttentionFusion(nn.Module):
-    """
-    Cross-Modal Attention 融合模块：
-    - 每个压缩域模态作为 Query，属性 Token 作为 Key/Value
-    - 权重由视觉全局特征 + 属性全局特征共同决定
-    """
-
-    def __init__(
-        self,
-        visual_dim=512,
-        semantic_dim=512,
-        hidden_dim=256,
-        num_modalities=3,
-        num_heads=4,
-        dropout=0.0,
-    ):
+class CMFMPlus(nn.Module):
+    def __init__(self, feature_dim=768, text_dim=512):
         super().__init__()
-        self.num_modalities = num_modalities
-        self.visual_dim = visual_dim
-        self.semantic_dim = semantic_dim
-        self.hidden_dim = hidden_dim
-        self.num_heads = num_heads
+        self.feature_dim = feature_dim
+        
+        # 三种视觉特征的投影层
+        self.iframe_proj = nn.Linear(feature_dim, feature_dim)
+        self.residual_proj = nn.Linear(feature_dim, feature_dim)
+        self.motion_proj = nn.Linear(feature_dim, feature_dim)
 
-        # ============================================================
-        # Part 1: Cross-Modal Attention（解决痛点二）
-        # 每个模态有独立的 Q 投影，共享 K/V 投影
-        # ============================================================
-        self.q_projs = nn.ModuleList([
-            nn.Linear(visual_dim, hidden_dim) for _ in range(num_modalities)
-        ])
-        self.k_proj = nn.Linear(semantic_dim, hidden_dim)
-        self.v_proj = nn.Linear(semantic_dim, hidden_dim)
-
-        # Attention 输出投影（将 hidden_dim 映射回 visual_dim）
-        self.attn_out_projs = nn.ModuleList([
-            nn.Linear(hidden_dim, visual_dim) for _ in range(num_modalities)
-        ])
-
-        # 残差连接后的 LayerNorm
-        self.attn_norms = nn.ModuleList([
-            nn.LayerNorm(visual_dim) for _ in range(num_modalities)
-        ])
-
-        self.attn_dropout = nn.Dropout(dropout)
-
-        # ============================================================
-        # Part 2: 视觉先验权重生成器（解决痛点一）
-        # 输入：全局视觉 Token + 全局属性 Token → 输出：(B, 3) 权重残差
-        # ============================================================
-        self.weight_generator = nn.Sequential(
-            nn.Linear(visual_dim + semantic_dim, hidden_dim),
-            nn.ReLU(inplace=True),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, num_modalities),
+        # 融合前学习模态权重
+        self.modality_weight = nn.Sequential(
+            nn.Linear(3 * feature_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 3)
         )
 
-        # 权重残差的缩放因子（初始化为较小值，保证训练初期接近基础权重）
-        self.weight_scale = nn.Parameter(torch.tensor(0.1))
+        # 特征融合注意力机制
+        self.cross_attention = nn.MultiheadAttention(
+            embed_dim=feature_dim,
+            num_heads=8,
+            batch_first=True
+        )
+        
+        # 时空建模
+        self.temporal_fusion = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(
+                d_model=feature_dim,
+                nhead=8,
+                dim_feedforward=2048,
+                batch_first=True
+            ),
+            num_layers=2
+        )
 
-        self._init_weights()
+        # 注意力池化层（代替mean pooling）
+        self.pool_query = nn.Parameter(torch.randn(1, 1, feature_dim))
 
-    def _init_weights(self):
-        """小初始化，保证训练初期行为接近基础权重融合"""
-        for proj in self.q_projs:
-            nn.init.xavier_uniform_(proj.weight)
-            nn.init.zeros_(proj.bias)
-        nn.init.xavier_uniform_(self.k_proj.weight)
-        nn.init.zeros_(self.k_proj.bias)
-        nn.init.xavier_uniform_(self.v_proj.weight)
-        nn.init.zeros_(self.v_proj.bias)
-        for proj in self.attn_out_projs:
-            nn.init.xavier_uniform_(proj.weight)
-            nn.init.zeros_(proj.bias)
-        # 权重生成器最后一层初始化为 0 → 初始残差为 0
-        nn.init.zeros_(self.weight_generator[-1].weight)
-        nn.init.zeros_(self.weight_generator[-1].bias)
+        # 视频到文本空间对齐
+        self.video_text_proj = nn.Linear(feature_dim, text_dim)
 
-    def forward(
-        self,
-        iframe_feats: torch.Tensor,      # (B, T, D)
-        mv_feats: torch.Tensor,           # (B, T, D)
-        residual_feats: torch.Tensor,     # (B, T, D)
-        attribute_tokens: torch.Tensor,   # (B, L, D_text)
-        base_weights: torch.Tensor,       # (3,) 基础 beta 权重
-    ):
+    def forward(self, f_iframe, f_res, f_mv, text_feat=None):
         """
-        Returns:
-            fused: (B, T, D) 融合后的特征
-            final_weights: (B, 3) 最终使用的权重
-            weight_residual: (B, 3) 属性调制的残差
+        参数:
+            f_iframe: (B, T, D)
+            f_res:    (B, T, D)
+            f_mv:     (B, T, D)
+            text_feat: (B, text_dim), 可选，用于文本引导
+        返回:
+            video_embed: (B, text_dim)
         """
-        B, T, D = iframe_feats.shape
-        modality_feats = [iframe_feats, mv_feats, residual_feats]  # 3 × (B, T, D)
+        B, T, D = f_iframe.shape
 
-        # ============================================================
-        # Step 1: Cross-Modal Attention — 用属性语义增强每个模态
-        # ============================================================
-        # 共享 K, V
-        K = self.k_proj(attribute_tokens)  # (B, L, hidden_dim)
-        V = self.v_proj(attribute_tokens)  # (B, L, hidden_dim)
+        # 特征投影 + 归一化
+        iframe_feat = F.normalize(self.iframe_proj(f_iframe), dim=-1)
+        residual_feat = F.normalize(self.residual_proj(f_res), dim=-1)
+        motion_feat = F.normalize(self.motion_proj(f_mv), dim=-1)
 
-        enhanced_feats = []
-        for m_idx, feat in enumerate(modality_feats):
-            Q = self.q_projs[m_idx](feat)  # (B, T, hidden_dim)
+        # 计算模态权重
+        stacked_feats = torch.cat([
+            iframe_feat.mean(dim=1), 
+            residual_feat.mean(dim=1), 
+            motion_feat.mean(dim=1)
+        ], dim=-1)  # (B, 3*D)
+        weights = torch.softmax(self.modality_weight(stacked_feats), dim=-1)  # (B, 3)
 
-            # Scaled dot-product attention
-            # Q: (B, T, hidden_dim), K: (B, L, hidden_dim)
-            scale = Q.size(-1) ** 0.5
-            attn_scores = torch.bmm(Q, K.transpose(1, 2)) / scale  # (B, T, L)
-            attn_weights = F.softmax(attn_scores, dim=-1)           # (B, T, L)
-            attn_weights = self.attn_dropout(attn_weights)
+        # 加权融合
+        weights = weights.unsqueeze(-1).unsqueeze(-1)  # (B, 3, 1, 1)
+        weighted_feats = (
+            weights[:, 0] * iframe_feat +
+            weights[:, 1] * residual_feat +
+            weights[:, 2] * motion_feat
+        )  # (B, T, D)
 
-            attn_out = torch.bmm(attn_weights, V)                  # (B, T, hidden_dim)
-            attn_out = self.attn_out_projs[m_idx](attn_out)        # (B, T, D)
+        # 自注意力融合
+        attn_output, _ = self.cross_attention(
+            weighted_feats, weighted_feats, weighted_feats
+        )
 
-            # 残差连接 + LayerNorm
-            enhanced = self.attn_norms[m_idx](feat + attn_out)     # (B, T, D)
-            enhanced_feats.append(enhanced)
+        # 时序建模
+        temporal_output = self.temporal_fusion(attn_output)  # (B, T, D)
 
-        # ============================================================
-        # Step 2: 视觉先验权重生成
-        # 用全局视觉特征 + 全局属性特征共同决定融合权重
-        # ============================================================
-        # 全局视觉 Token：三个模态时间维度平均后再平均
-        global_visual = torch.stack(
-            [f.mean(dim=1) for f in modality_feats], dim=1
-        ).mean(dim=1)  # (B, D)
+        # 可学习注意力池化
+        # query = self.pool_query.expand(B, -1, -1)  # (B, 1, D)
+        # attn_weights = torch.softmax(torch.matmul(query, temporal_output.transpose(1, 2)), dim=-1)  # (B, 1, T)
+        # video_repr = torch.bmm(attn_weights, temporal_output).squeeze(1)  # (B, D)
+        query = self.pool_query.expand(B, T, -1)  # (B, T, D)
+        attn_weights = torch.softmax(torch.sum(query * temporal_output, dim=-1, keepdim=True), dim=1)  # (B, T, 1)
+        video_repr = temporal_output * attn_weights  # (B, T, D)
 
-        # 全局属性 Token：属性序列平均
-        global_attr = attribute_tokens.mean(dim=1)  # (B, D_text)
+        # 可选：引入文本引导调整
+        if text_feat is not None:
+            text_feat = F.normalize(text_feat, dim=-1)
+            video_repr = video_repr + torch.matmul(video_repr, text_feat.unsqueeze(-1)).squeeze(-1).unsqueeze(-1) * text_feat
 
-        # 拼接 → 生成权重残差
-        combined = torch.cat([global_visual, global_attr], dim=-1)  # (B, D + D_text)
-        weight_residual = self.weight_generator(combined)            # (B, 3)
-        weight_residual = weight_residual * self.weight_scale        # 缩放
+        # 投影到文本空间
+        video_embed = self.video_text_proj(video_repr)
+       
+        video_embed = F.normalize(video_embed, dim=-1)
 
-        # ============================================================
-        # Step 3: 基础权重 + 残差 → 最终权重
-        # ============================================================
-        base_weights_batch = base_weights.unsqueeze(0).expand(B, -1)  # (B, 3)
-        adjusted_weights = base_weights_batch + weight_residual        # (B, 3)
-        final_weights = F.softmax(adjusted_weights, dim=-1)            # (B, 3)
-
-        # ============================================================
-        # Step 4: 加权融合（用增强后的特征）
-        # ============================================================
-        enhanced_stack = torch.stack(enhanced_feats, dim=2)            # (B, T, 3, D)
-        weight_view = final_weights.unsqueeze(1).unsqueeze(-1)         # (B, 1, 3, 1)
-        fused = (enhanced_stack * weight_view).sum(dim=2)              # (B, T, D)
-
-        return fused, final_weights, weight_residual
-
+        return video_embed
 
 class VisualTransformer(nn.Module):
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,dropout = None,joint=False, emb_dropout = 0.,T=8):
@@ -990,10 +929,6 @@ class CLIP(nn.Module):
 
         self.T = T
         self.attribute_prompt_learner = None
-        self.attribute_guided_fusion = None
-        self.detach_attribute_semantics = False
-        self._last_fusion_weights = None
-        self._last_fusion_attention = None
 
         self.initialize_parameters()
 
@@ -1040,26 +975,19 @@ class CLIP(nn.Module):
         return self.visual.conv1.weight.dtype
 
 
-    def encode_image(self, images, res=None, mv=None):
+    def encode_image(self, images, res,mv):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
-
-        if res is None:
-            res_feat = torch.zeros_like(image_feat)
+        
+        # 编码残差信息
+        if self.residual_encoder is not None:
+            res_feat = self.residual_encoder(res.type(self.dtype))
+            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
         else:
-            if self.residual_encoder is not None:
-                res_feat = self.residual_encoder(res.type(self.dtype))
-            else:
-                res_feat = self.visual(res.type(self.dtype))
-
-        if mv is None:
-            mvs_feats = torch.zeros_like(image_feat)
-        else:
-            if self.mvs_encoder is not None:
-                mvs_feats = self.mvs_encoder(mv.type(self.dtype))
-            else:
-                mvs_feats = self.visual(mv.type(self.dtype))
-
+            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
+            res_feat = self.visual(res.type(self.dtype))
+        
+        
         return image_feat, res_feat, mvs_feats
 
 
@@ -1087,23 +1015,6 @@ class CLIP(nn.Module):
     def attach_attribute_prompt(self, prompt_learner):
         self.attribute_prompt_learner = prompt_learner
 
-    def configure_attribute_guided_fusion(self, enable=True, hidden_dim=256, num_heads=4, dropout=0.0, detach_text=False):    # 调整dropout 防止过拟合
-        if enable:
-            embed_dim = self.text_projection.shape[1]
-            self.attribute_guided_fusion = AttributeGuidedFusion(
-                visual_dim=embed_dim,
-                semantic_dim=embed_dim,
-                hidden_dim=hidden_dim,
-                num_modalities=3,
-            )
-            self.detach_attribute_semantics = bool(detach_text)
-        else:
-            self.attribute_guided_fusion = None
-            self.detach_attribute_semantics = False
-
-        self._last_fusion_weights = None
-        self._last_fusion_attention = None
-
     def encode_attribute_prompts(self, class_ids=None, return_token=False):
         if self.attribute_prompt_learner is None:
             raise RuntimeError("Attribute prompt learner has not been attached to the model.")
@@ -1116,11 +1027,10 @@ class CLIP(nn.Module):
         tokenized = tokenized.to(device=device)
         return self._encode_text_from_embeddings(prompts, tokenized, return_token)
 
-    def forward(self, image, residual=None, mv=None, text=None, return_token=False):
-        # 编码视觉特征
+
+    def forward(self, image, residual, mv, text=None, return_token=False):
         image_feats, residual_feats, mvs_feats = self.encode_image(image, residual, mv)
 
-        # 编码文本特征
         if self.attribute_prompt_learner is not None:
             if text is None:
                 cls_feat, text_feats = self.encode_attribute_prompts(return_token=return_token)
@@ -1132,42 +1042,11 @@ class CLIP(nn.Module):
         else:
             cls_feat, text_feats = self.encode_text(text, return_token)
 
-        # 获取基础融合权重
-        base_weights = F.softmax(self.beta, dim=0)  # (3,)
-        
-        # 属性引导融合
-        fusion_applied = False
-        if self.attribute_guided_fusion is not None and text_feats is not None:
-            batch_size = cls_feat.shape[0]
-            total_visual = image_feats.shape[0]
+        weights = F.softmax(self.beta, dim=0)
 
-            if batch_size > 0 and total_visual % batch_size == 0:
-                temporal = total_visual // batch_size
-                iframe_seq = image_feats.view(batch_size, temporal, -1)
-                residual_seq = residual_feats.view(batch_size, temporal, -1)
-                mv_seq = mvs_feats.view(batch_size, temporal, -1)
+        merged_feats = weights[0] * image_feats + weights[1] * residual_feats + weights[2] * mvs_feats
 
-                attribute_tokens = text_feats.detach() if self.detach_attribute_semantics else text_feats
 
-                # 🔥 关键修改：传入基础权重
-                fused_feats, final_weights, weight_residual = self.attribute_guided_fusion(
-                    iframe_seq,
-                    mv_seq,
-                    residual_seq,
-                    attribute_tokens,
-                    base_weights,  # 传入基础权重
-                )
-
-                merged_feats = fused_feats.view(total_visual, -1)
-                self._last_fusion_weights = final_weights
-                self._last_weight_residual = weight_residual
-                fusion_applied = True
-
-        # 降级方案：使用基础权重
-        if not fusion_applied:
-            merged_feats = base_weights[0] * image_feats + base_weights[1] * residual_feats + base_weights[2] * mvs_feats
-            self._last_fusion_weights = base_weights.unsqueeze(0)
-            self._last_weight_residual = None
 
         return merged_feats, cls_feat, text_feats, self.logit_scale.exp()
 
@@ -1225,7 +1104,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-    dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

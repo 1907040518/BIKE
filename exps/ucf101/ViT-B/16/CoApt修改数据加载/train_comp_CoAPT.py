@@ -362,14 +362,14 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.compress_3 import Video_compress_dataset
-        train_data = Video_compress_dataset(
+        from datasets.video3 import Video_dataset
+        train_data = Video_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
             image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
-            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation), GOP_SIZE = config.data.GOP_SIZE)
-        val_data = Video_compress_dataset(
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))
+        val_data = Video_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
             random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
@@ -817,6 +817,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
         print("")
+        
         for i, (image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
             mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])

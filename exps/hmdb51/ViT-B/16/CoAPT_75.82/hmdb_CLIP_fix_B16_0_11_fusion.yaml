@@ -49,15 +49,9 @@ network:
     coapt_bias:
         enable: False
         layers: [1024, 512, 512]
-    attribute_guided_fusion:
-        enable: True
-        hidden_dim: 256
-        num_heads: 4
-        dropout: 0.0
-        detach_text: True
 solver:
     type: cosine
-    epochs: 30
+    epochs: 20
     start_epoch: 0
     optim: adamw
     lr: 5.e-5
