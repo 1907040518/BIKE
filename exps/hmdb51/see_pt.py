@@ -1,55 +1,84 @@
-import torch
+import os
 
-# 加载checkpoint
-checkpoint = torch.load("/home/stu_b/BIKE/exps/hmdb51/ViT-B/16/20250711_203840/model_best.pt", map_location='cpu')
+try:
+    import torch
+except ImportError:
+    print("错误: 未找到 torch 库。请使用 'pip install torch' 安装。")
+    exit(1)
 
-print("模型文件中的所有顶级键:")
-print("="*50)
-for key in checkpoint.keys():
-    value = checkpoint[key]
-    print(f"{key}: {type(value).__name__}")
+
+def get_all_keys_with_shapes(data, prefix=""):
+    """
+    递归地遍历字典，提取所有键及其对应的形状（如果是张量）。
+    如果是嵌套字典，键名将被扁平化。
+
+    Args:
+        data: 当前正在检查的项（字典或张量等）。
+        prefix: 嵌套键名的累积前缀。
+
+    Returns:
+        list: 包含格式化字符串（键名: 形状）的列表。
+    """
+    all_keys_shapes = []
     
-    # 如果是字典，进一步查看
-    if isinstance(value, dict):
-        print(f"  包含 {len(value)} 个子项")
-        # 显示前几个子项
-        for i, (sub_key, sub_value) in enumerate(value.items()):
-            if i >= 3:  # 只显示前3个
-                print("    ...")
-                break
-            if isinstance(sub_value, torch.Tensor):
-                print(f"    {sub_key}: 张量 {sub_value.shape}")
-            else:
-                print(f"    {sub_key}: {type(sub_value).__name__}")
-
-print("\n" + "="*50)
-
-# 检查是否有常见的模型权重键名
-model_keys = ['model', 'state_dict', 'model_state_dict', 'net', 'network']
-for key in model_keys:
-    if key in checkpoint:
-        print(f"\n找到模型权重键: '{key}'")
-        model_weights = checkpoint[key]
-        if isinstance(model_weights, dict):
-            print(f"包含 {len(model_weights)} 个参数:")
+    if isinstance(data, dict):
+        for key, value in data.items():
+            current_path = f"{prefix}.{key}" if prefix else str(key)
             
-            # 查找beta参数
-            beta_params = {}
-            for name, param in model_weights.items():
-                if isinstance(param, torch.Tensor) and 'beta' in name.lower():
-                    beta_params[name] = param
-            
-            if beta_params:
-                print(f"\n找到 {len(beta_params)} 个beta参数:")
-                for name, param in beta_params.items():
-                    print(f"  {name}: {param.shape}")
-                    if param.numel() <= 20:  # 如果参数不太多，显示具体值
-                        print(f"    值: {param}")
+            # 如果是字典，递归深入
+            if isinstance(value, dict):
+                all_keys_shapes.extend(get_all_keys_with_shapes(value, prefix=current_path))
+            # 如果是张量，记录其形状
+            elif isinstance(value, torch.Tensor):
+                shape_str = str(list(value.shape))
+                all_keys_shapes.append(f"{current_path}  ->  Shape: {shape_str}")
+            # 如果是其他类型，仅记录键和类型
             else:
-                print("\n未找到beta参数")
-                # 显示所有参数名（查找可能的归一化层参数）
-                print("\n所有参数名:")
-                for name in list(model_weights.keys())[:20]:  # 显示前20个
-                    print(f"  {name}")
-                if len(model_weights) > 20:
-                    print("  ...")
+                 all_keys_shapes.append(f"{current_path}  ->  Type: {type(value).__name__}")
+                 
+    return all_keys_shapes
+
+def inspect_and_save_pt_shapes(pt_file_path, output_txt_path):
+    """
+    加载 .pt 文件，递归提取所有键和形状，并保存到文本文件。
+
+    Args:
+        pt_file_path (str): .pt 文件的路径。
+        output_txt_path (str): 要保存结果的输出 .txt 文件路径。
+    """
+    if not os.path.exists(pt_file_path):
+        print(f"错误: 找不到文件 {pt_file_path}")
+        return
+
+    print(f"正在加载 {pt_file_path} ...这可能需要一点时间。")
+    
+    try:
+        data = torch.load(pt_file_path, weights_only=False, map_location='cpu')
+        
+        # 提取所有键和形状
+        keys_and_shapes = get_all_keys_with_shapes(data)
+        
+        if not keys_and_shapes:
+             print(f"无法提取信息。加载的 .pt 文件可能包含类型为 {type(data)} 的对象，而不是状态字典。")
+             return
+
+        print(f"成功提取了 {len(keys_and_shapes)} 个参数的形状信息。")
+        
+        # 保存所有信息
+        with open(output_txt_path, 'w', encoding='utf-8') as f:
+            f.write(f"在文件 {os.path.basename(pt_file_path)} 中找到的参数及形状:\n")
+            f.write("="*80 + "\n")
+            for item in keys_and_shapes:
+                f.write(f"{item}\n")
+                
+        print(f"\n所有参数形状已成功保存到: {output_txt_path}")
+
+    except Exception as e:
+        print(f"加载或处理 .pt 文件时发生错误: {e}")
+
+# --- 使用示例 ---
+if __name__ == "__main__":
+    INPUT_PT_FILE = "/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/20260301_101921/last_model.pt"  
+    OUTPUT_TEXT_FILE = "/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/20260301_101921/last_model_shapes_list.txt" 
+    
+    inspect_and_save_pt_shapes(INPUT_PT_FILE, OUTPUT_TEXT_FILE)

@@ -8,6 +8,7 @@ import os.path
 import numpy as np
 from numpy.random import randint
 import io
+import logging
 import pandas as pd
 import random
 from PIL import Image
@@ -374,13 +375,29 @@ class Video_dataset(data.Dataset):
                 gop_index_iframe, gop_pos_iframe = self._get_test_frame_index(num_frames, seg,"iframe")
                 gop_index_res, gop_pos_res = self._get_test_frame_index(num_frames, seg,"residual")
                 gop_index_mv, gop_pos_mv = self._get_test_frame_index(num_frames, seg,"mv")
+            try:
+                # 原本的读取代码
+                img_iframe = load(video_path, gop_index_iframe, gop_pos_iframe,
+                        0, self.accumulate)
+                img_res = load(video_path, gop_index_res, gop_pos_res,
+                        2, self.accumulate)
+                img_mv = load(video_path, gop_index_mv, gop_pos_mv,
+                        1, self.accumulate)
+                
+            except SystemError as e:
+                logger = logging.getLogger('BIKE')
+                logger.error(f"\n[CRITICAL DATA ERROR] Failed to load video: {video_path}")
+                logger.error(f"GOP img_res Index: {gop_index_res}, GOP Pos: {gop_pos_res}")
+                logger.error(f"GOP img_iframe Index: {gop_index_iframe}, GOP Pos: {gop_pos_iframe}")
+                logger.error(f"GOP img_mv Index: {gop_index_mv}, GOP Pos: {gop_pos_mv}")
+                logger.error(f"Using zero padding to prevent crash.\n")
+                
+                # 使用黑帧进行兜底 (请根据实际需要的尺寸修改 256, 256)
+                # Coviar 的 load 通常返回 numpy array
+                img_res = np.zeros((256, 256, 3), dtype=np.uint8)
+                img_iframe = np.zeros((256, 256, 3), dtype=np.uint8)
+                img_mv = np.zeros((256, 256, 3), dtype=np.uint8)
 
-            img_iframe = load(video_path, gop_index_iframe, gop_pos_iframe,
-                    0, self.accumulate)
-            img_res = load(video_path, gop_index_res, gop_pos_res,
-                    2, self.accumulate)
-            img_mv = load(video_path, gop_index_mv, gop_pos_mv,
-                    1, self.accumulate)
             
             if img_iframe is None:
                 print('Error: loading video %s failed.' % video_path)

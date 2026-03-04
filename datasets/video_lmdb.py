@@ -3,6 +3,7 @@ import torchvision
 import torch.utils.data as data
 import matplotlib.pyplot as plt
 import os
+import logging
 import os.path
 import numpy as np
 from numpy.random import randint
@@ -320,7 +321,7 @@ class Video_dataset(data.Dataset):
         # LMDB路径
         self.iframe_db_path = iframe_db_path
         self.mv_db_path = mv_db_path
-        self.res_db_path = res_db_path
+        self.residual_db_path = res_db_path
 
         # 归一化参数
         self.input_mean = torch.from_numpy(
@@ -346,21 +347,42 @@ class Video_dataset(data.Dataset):
         self.last_stats_print = time.time()
         self._spatial_shape = None
 
-        self._init_lmdb_managers()
+        # self._init_lmdb_managers()
+        self.lmdb_managers = {}
         self._parse_list()
+
+    def _get_lmdb_manager(self, modality):
+        """
+        懒加载获取 LMDB 句柄。
+        这保证了只在 DataLoader 的 worker 进程真正需要读数据时，才打开 LMDB 环境。
+        """
+        if modality not in self.lmdb_managers:
+            # 获取和训练代码中同名的 logger (自动输出到同一个日志文件)
+            logger = logging.getLogger('BIKE')
+            
+            db_path = getattr(self, f"{modality}_db_path", "")
+            if db_path:
+                # 顺便打印出是哪个子进程 (PID) 打开的数据库，方便后续 debug
+                logger.info(f"[Worker PID: {os.getpid()}] Initializing LMDB for {modality} at {db_path}")
+                self.lmdb_managers[modality] = LMDBManager(db_path)
+            else:
+                logger.error(f"[Worker PID: {os.getpid()}] ERROR: {modality}_db_path is empty or None!")
+                self.lmdb_managers[modality] = None
+                
+        return self.lmdb_managers[modality]
 
     def _init_lmdb_managers(self):
         """初始化LMDB管理器"""
         try:
             print("self.iframe_db_path:", self.iframe_db_path)
             print("self.mv_db_path:", self.mv_db_path)
-            print("self.res_db_path:", self.res_db_path)
+            print("self.residual_db_path:", self.residual_db_path)
             if self.iframe_db_path:
                 self.lmdb_managers['iframe'] = LMDBManager(self.iframe_db_path)
             if self.mv_db_path:
                 self.lmdb_managers['mv'] = LMDBManager(self.mv_db_path)
-            if self.res_db_path:
-                self.lmdb_managers['residual'] = LMDBManager(self.res_db_path)
+            if self.residual_db_path:
+                self.lmdb_managers['residual'] = LMDBManager(self.residual_db_path)
 
             print(f"Initialized LMDB managers for modalities: {list(self.lmdb_managers.keys())}")
         except Exception as e:
@@ -381,9 +403,14 @@ class Video_dataset(data.Dataset):
 
         # 从LMDB加载
         start_time = time.time()
-        manager = self.lmdb_managers.get(modality)
+        # ✅ 使用懒加载获取 manager
+        manager = self._get_lmdb_manager(modality)
+        
+        # 如果因为路径为空导致 manager 没被成功创建
+        start_time = time.time()
         if manager is None:
-            print(f"No LMDB manager for modality: {modality}")
+            logger = logging.getLogger('BIKE')
+            logger.error(f"No LMDB manager for modality: {modality}")
             return None
 
         video_data = manager.read_video_data(video_name)
@@ -497,12 +524,15 @@ class Video_dataset(data.Dataset):
             residual_raw = self._load_frame_from_lmdb(video_name, frame_idx_res, 'residual')
             mv_raw = self._load_frame_from_lmdb(video_name, frame_idx_mv, 'mv')
 
-            # 错误处理
+            # __getitem__ 中的异常处理部分：
             if iframe_raw is None or mv_raw is None or residual_raw is None:
-                print(f'Error: loading video {video_name} failed.')
-                iframe = np.zeros((256, 256, 3), dtype=np.uint8)
-                mv = np.zeros((256, 256, 3), dtype=np.uint8)
-                residual = np.zeros((256, 256, 3), dtype=np.uint8)
+                logger = logging.getLogger('BIKE')
+                logger.warning(f'Error: loading video {video_name} failed. Using zero padding.')
+                
+                # 修复上一次的致命 Bug：一定要赋值给 _raw
+                iframe_raw = np.zeros((256, 256, 3), dtype=np.uint8)
+                mv_raw = np.zeros((256, 256, 3), dtype=np.uint8)
+                residual_raw = np.zeros((256, 256, 3), dtype=np.uint8)
 
             frames_iframe.append(iframe_raw)
             frames_mv.append(mv_raw)
