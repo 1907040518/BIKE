@@ -4,9 +4,9 @@ seed: 512
 data:
     dataset: k400
     modality: residual
-    num_segments: 8
+    num_segments: 16
     seg_length: 1
-    batch_size: 64
+    batch_size: 32
     workers: 8
     num_classes: 400
     image_tmpl: 'img_{:05d}.jpg'
@@ -30,9 +30,29 @@ network:
     joint_st: False
     drop: 0           
     fix_text: True  
-    fix_video: True      
-    residual_layers_to_use: [0, 11]   # [0, 11]  # ViT-B/16使用的层
-    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层  
+    fix_video: False    
+    residual_layers_to_use: [0, 11]
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层 
+    action_prompt:
+        enable: True
+        vocab_root: '/home/stu_b/BIKE/attributes/qwen'
+        dataset_key: KINETICS400
+        seed_index: 1
+        num_attributes: 16
+        attribute_ctx: 2
+        n_ctx: 4
+        class_specific: True
+        template: "a video about {}."
+    coapt_bias:
+        enable: False
+        layers: [1024, 512, 512]
+    attribute_guided_fusion:
+        enable: False
+        hidden_dim: 256
+        num_heads: 4
+        residual_scale: 0.2
+        dropout: 0.0
+        detach_text: True   
 solver:
     type: cosine
     epochs: 30

@@ -79,7 +79,7 @@ def main():
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
     
-    torch.cuda.set_device(2) #训练GPU
+    torch.cuda.set_device(args.gpus[0])
     model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
     # model = torch.nn.DataParallel(model, device_ids=args.gpus).to('cuda:1') 
     # model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()

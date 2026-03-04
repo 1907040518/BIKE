@@ -385,9 +385,23 @@ class Video_dataset(data.Dataset):
             # I帧必须属于同一个 GOP，且位置永远是 0
             gop_index_iframe = gop_index_anchor
             gop_pos_iframe = 0
+            # 👇 新增：在读取前，把当前视频路径写进以自己 PID 命名的文件里
+            with open(f"worker_debug_{os.getpid()}.txt", "w") as f:
+                f.write(video_path)
+            try:
+                # 原本的读取代码
+                iframe = load(video_path, gop_index_iframe, gop_pos_iframe, 0, self.accumulate)
+                residual = load(video_path, gop_index_res, gop_pos_res, 2, self.accumulate)
+                mv = load(video_path, gop_index_mv, gop_pos_mv, 1, self.accumulate)
+            except SystemError as e:
+                logger = logging.getLogger('BIKE')
+                logger.error(f"\n[CRITICAL DATA ERROR] Failed to load video: {video_path}")
+                logger.error(f"GOP img_res Index: {gop_index_res}, GOP Pos: {gop_pos_res}")
+                logger.error(f"GOP img_iframe Index: {gop_index_iframe}, GOP Pos: {gop_pos_iframe}")
+                logger.error(f"GOP img_mv Index: {gop_index_mv}, GOP Pos: {gop_pos_mv}")
+                logger.error(f"Using zero padding to prevent crash.\n")
 
-            # --- 加载 MV ---
-            mv = load(video_path, gop_index_mv, gop_pos_mv, 1, self.accumulate)
+
             if mv is None:
                 print('Error: loading video %s failed.' % video_path)
                 mv = np.zeros((256, 256, 2))
@@ -395,8 +409,7 @@ class Video_dataset(data.Dataset):
                 mv += 128
                 mv = (np.minimum(np.maximum(mv, 0), 255)).astype(np.uint8)
 
-            # --- 加载 Residual ---
-            residual = load(video_path, gop_index_res, gop_pos_res, 2, self.accumulate)
+
             if residual is None:
                 residual = np.zeros((256, 256, 3))
             else:
@@ -404,7 +417,7 @@ class Video_dataset(data.Dataset):
                 residual = (np.minimum(np.maximum(residual, 0), 255)).astype(np.uint8)
 
             # --- 加载 I-frame ---
-            iframe = load(video_path, gop_index_iframe, gop_pos_iframe, 0, self.accumulate)
+
             if iframe is None:
                 iframe = np.zeros((256, 256, 3))
             else:

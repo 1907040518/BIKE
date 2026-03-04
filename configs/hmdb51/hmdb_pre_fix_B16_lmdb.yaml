@@ -53,7 +53,7 @@ network:
         enable: False
         layers: [1024, 512, 512]
     attribute_guided_fusion:
-        enable: True
+        enable: False
         hidden_dim: 256
         num_heads: 4
         residual_scale: 0.2

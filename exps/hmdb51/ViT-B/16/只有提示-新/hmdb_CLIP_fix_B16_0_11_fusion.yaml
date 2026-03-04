@@ -1,4 +1,5 @@
 pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+# pretrain: 
 resume:
 seed: 1024
 data:
@@ -34,16 +35,7 @@ network:
     fix_text: True  
     fix_video: False 
     residual_layers_to_use: [0, 11]
-    mvs_layers_to_use: [0, 11]
-    # ============================================
-    # TextComp 配置
-    # ============================================
-    textcomp:
-        enable: False
-        num_heads: 8
-        num_attributes: 16
-        dropout: 0.1
-        fusion_lr_scale: 2.0    # 融合模块的学习率倍率
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
     action_prompt:
         enable: True
         vocab_root: '/home/stu_b/BIKE/attributes/qwen'
@@ -54,6 +46,13 @@ network:
         n_ctx: 4
         class_specific: True
         template: "a video about {}."
+    attribute_guided_fusion:
+        enable: False
+        hidden_dim: 256
+        num_heads: 4
+        dropout: 0.1
+        detach_text: true
+
 solver:
     type: cosine
     epochs: 30

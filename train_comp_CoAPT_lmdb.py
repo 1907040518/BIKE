@@ -575,32 +575,6 @@ def main(args):
     else:
         model.coapt_bias = None
 
-    attribute_fusion_cfg = config.network.get('attribute_guided_fusion', None)
-    attribute_fusion_enabled = False
-    fusion_kwargs = {}
-
-    if isinstance(attribute_fusion_cfg, dict):
-        attribute_fusion_enabled = bool(attribute_fusion_cfg.get('enable', attribute_prompt_enabled))
-        allowed_keys = {"hidden_dim", "num_heads", "dropout", "detach_text", "residual_scale"}
-        fusion_kwargs = {k: attribute_fusion_cfg[k] for k in allowed_keys if k in attribute_fusion_cfg}
-    elif attribute_fusion_cfg is not None:
-        attribute_fusion_enabled = bool(attribute_fusion_cfg)
-    else:
-        attribute_fusion_enabled = attribute_prompt_enabled
-
-    if attribute_fusion_enabled and not attribute_prompt_enabled and dist.get_rank() == 0:
-        logger.warning("Attribute-guided fusion requires attribute prompts; disabling module.")
-        attribute_fusion_enabled = False
-
-    if attribute_fusion_enabled:
-        model.configure_attribute_guided_fusion(enable=True, **fusion_kwargs)
-        if dist.get_rank() == 0:
-            logger.info("Attribute-guided fusion enabled")
-            if fusion_kwargs:
-                logger.info(f"Attribute fusion config: {fusion_kwargs}")
-    else:
-        model.configure_attribute_guided_fusion(enable=False)
-
 
     if config.network.fix_text:
         for name, param in model.named_parameters():

@@ -15356,7 +15356,6 @@ train_256/blowing_nose/lM7kHgmtKzg_000010_000020 189 26
 train_256/blowing_nose/kPvOVrbfkiA_000005_000015 300 26
 train_256/blowing_nose/G5EafR1m9nM_000005_000015 300 26
 train_256/blowing_nose/3TCUFOidUK0_000008_000018 173 26
-train_256/blowing_nose/76_QxQIqxgE_000000_000010 295 26
 train_256/blowing_nose/rT8zQpYQEQU_000003_000013 167 26
 train_256/blowing_nose/jdiOJ6hK8iQ_000005_000015 299 26
 train_256/blowing_nose/PRbLDDyX2mk_000100_000110 250 26
@@ -40248,7 +40247,6 @@ train_256/climbing_tree/D7RX_UIuRLU_000046_000056 300 68
 train_256/climbing_tree/aKf0_XYzGKc_000022_000032 300 68
 train_256/climbing_tree/c-2oKWhOo5w_000093_000103 300 68
 train_256/climbing_tree/Dg-1sNPROi8_000009_000019 300 68
-train_256/climbing_tree/BYgoznci8SM_000021_000031 148 68
 train_256/climbing_tree/wToj0_l24Sc_000066_000076 120 68
 train_256/climbing_tree/w52utky1_fg_000003_000013 300 68
 train_256/climbing_tree/jZbaEEZQEDA_000012_000022 300 68
@@ -155598,7 +155596,6 @@ train_256/push_up/XvVrqkgojg0_000077_000087 300 260
 train_256/push_up/snB1f65hR5Y_000005_000015 100 260
 train_256/push_up/707MX89uRxI_000000_000010 300 260
 train_256/push_up/nKkFKg5h4pY_000017_000027 300 260
-train_256/push_up/EQsbequjsiY_000154_000164 194 260
 train_256/push_up/DO4bfNrVx4Y_000040_000050 300 260
 train_256/push_up/pk62BpEHQN8_000007_000017 257 260
 train_256/push_up/vUILoI7AwTY_000017_000027 300 260

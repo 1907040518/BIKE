@@ -1,7 +1,7 @@
 import torch
 
 # 加载checkpoint
-checkpoint = torch.load("/home/stu_b/BIKE/exps/hmdb51/ViT-B/16/20250711_203840/model_best.pt", map_location='cpu')
+checkpoint = torch.load("/home/stu_b/BIKE/exps/k400/ViT-B/16/20260228_212812/model_best.pt", map_location='cpu')
 
 print("模型文件中的所有顶级键:")
 print("="*50)

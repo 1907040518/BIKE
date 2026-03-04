@@ -7,7 +7,7 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-export CUDA_VISIBLE_DEVICES=0,4
+export CUDA_VISIBLE_DEVICES=0,1
 
 # 使用torchrun替代torch.distributed.launch
 torchrun --nproc_per_node=2 --master_port=1201 \

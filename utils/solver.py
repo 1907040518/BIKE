@@ -11,10 +11,9 @@ def _optimizer(config, model, video_head, extra_params=None):
         optimizer = optim.Adam([{'params': model.parameters()},  
          {'params': video_head.parameters(), 'lr': config.solver.lr}],
                                lr=config.solver.lr * config.solver.clip_ratio, betas=(0.9, 0.999), eps=1e-8,
-                               weight_decay=0.2)  # Params used from paper, the lr is smaller, more safe for fine tuning to new dataset
+                               weight_decay=0.2)
         print('Adam')
     elif config.solver.optim == 'sgd':
-
         optimizer = optim.SGD([{'params': model.parameters()},  
          {'params': video_head.parameters(), 'lr': config.solver.lr}],
                               config.solver.lr * config.solver.clip_ratio,
@@ -22,37 +21,27 @@ def _optimizer(config, model, video_head, extra_params=None):
                               weight_decay=config.solver.weight_decay)
         print('SGD')
     elif config.solver.optim == 'adamw':
-        backbone_params = []
-        fusion_params = []
-        
+        vision_params = []
+        text_params = []
+
         for name, param in model.named_parameters():
-            if not param.requires_grad:
-                continue
-            
-            # 使用更稳健的判断方式
-            is_fusion = 'attribute_guided_fusion' in name or 'beta' in name
-            
-            if is_fusion:
-                fusion_params.append(param)
+            if 'visual.' in name:
+                vision_params.append(param)
             else:
-                backbone_params.append(param)
+                text_params.append(param)        
 
-        param_groups = [
-            {'params': backbone_params, 'lr': config.solver.lr * config.solver.clip_ratio},
-            {'params': fusion_params, 'lr': config.solver.lr * 10.0}, # 加大到10倍试试
-            {'params': video_head.parameters(), 'lr': config.solver.lr}
-        ]
-
-        optimizer = optim.AdamW(
-            param_groups,
-            betas=(0.9, 0.999), 
-            eps=1e-8,
-            weight_decay=config.solver.weight_decay
-        )
-        print('AdamW with split learning rates.')
+        # print('[INFO] number of visual parameters:', len(vision_params), flush=True)
+        # print('[INFO] number of textual parameters:', len(text_params), flush=True)
+        optimizer = optim.AdamW([{'params': model.parameters(), 'lr': config.solver.lr * config.solver.clip_ratio},
+                                 {'params': video_head.parameters(), 'lr': config.solver.lr}],
+                                betas=(0.9, 0.999), lr=config.solver.lr, eps=1e-8,
+                                weight_decay=config.solver.weight_decay)  # Params used from paper, the lr is smaller, more safe for fine tuning to new dataset
+        # for param_group in optimizer.param_groups:
+        #     print(param_group['lr'])
     else:
         raise ValueError('Unknown optimizer: {}'.format(config.solver.optim))
     return optimizer
+
 
 
 def _lr_scheduler(config, optimizer):
