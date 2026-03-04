@@ -91,22 +91,19 @@ class CoAPTBiasAdapter(nn.Module):
         return text_features + bias
 
 class AllGather(torch.autograd.Function):
-    """An autograd function that performs allgather on a tensor."""
-
     @staticmethod
     def forward(ctx, tensor):
-        output = [torch.empty_like(tensor) for _ in range(dist.get_world_size())]
-        torch.distributed.all_gather(output, tensor)
+        world_size = dist.get_world_size()
+        output = [torch.empty_like(tensor) for _ in range(world_size)]
+        dist.all_gather(output, tensor)
         ctx.rank = dist.get_rank()
         ctx.batch_size = tensor.shape[0]
         return torch.cat(output, dim=0)
 
     @staticmethod
     def backward(ctx, grad_output):
-        return (
-            grad_output[ctx.batch_size * ctx.rank : ctx.batch_size * (ctx.rank + 1)],
-            None,
-        )
+        # 严格只返回一个值，对应 forward 的唯一输入 tensor
+        return grad_output[ctx.batch_size * ctx.rank : ctx.batch_size * (ctx.rank + 1)]
 
 allgather = AllGather.apply
 
@@ -362,36 +359,20 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video_lmdb import Video_dataset as VideoLMDBDataset
-        gop_size = config.data.get('GOP_SIZE', 12)
-        train_data = VideoLMDBDataset(
+        from datasets.video3 import Video_dataset
+        train_data = Video_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            transform=transform_train,
-            random_shift=config.data.random_shift,
-            dense_sample=config.data.dense,
-            num_sample=config.data.get('num_sample', 1),
-            accumulate=(not args.no_accumulation),
-            iframe_db_path=config.data.get('iframe_train_path', ''),
-            mv_db_path=config.data.get('mv_train_path', ''),
-            res_db_path=config.data.get('res_train_path', ''),
-            gop_size=gop_size)
-        val_data = VideoLMDBDataset(
+            image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))
+        val_data = Video_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
-            num_segments=config.data.num_segments,
+            random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            transform=transform_val,
-            random_shift=False,
-            test_mode=True,
-            dense_sample=config.data.dense,
-            num_sample=1,
-            accumulate=(not args.no_accumulation),
-            iframe_db_path=config.data.get('iframe_val_path', ''),
-            mv_db_path=config.data.get('mv_val_path', ''),
-            res_db_path=config.data.get('res_val_path', ''),
-            gop_size=gop_size)
-
+            test_mode=True,    # 测试true
+            image_tmpl=config.data.image_tmpl,
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
 
     ################ Few shot data for training ###########
     if config.data.shot:
@@ -416,16 +397,12 @@ def main(args):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)                       
     train_loader = DataLoader(train_data,
         batch_size=config.data.batch_size, num_workers=config.data.workers,
-        sampler=train_sampler, drop_last=True,
-        # 👇 加入这一行（如果你用的 PyTorch 1.7+）
-        persistent_workers=True)
+        sampler=train_sampler, drop_last=True)
 
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_data, shuffle=False)
     val_loader = DataLoader(val_data,
         batch_size=config.data.batch_size,num_workers=config.data.workers,
-        sampler=val_sampler, drop_last=False,
-        # 👇 加入这一行（如果你用的 PyTorch 1.7+）
-        persistent_workers=True)
+        sampler=val_sampler, drop_last=False)
 
     loss_type = config.solver.loss_type
     if loss_type == 'NCE':
@@ -579,14 +556,59 @@ def main(args):
     else:
         model.coapt_bias = None
 
+    attribute_fusion_cfg = config.network.get('attribute_guided_fusion', None)
+    attribute_fusion_enabled = False
+    fusion_kwargs = {}
 
+    if isinstance(attribute_fusion_cfg, dict):
+        attribute_fusion_enabled = bool(attribute_fusion_cfg.get('enable', attribute_prompt_enabled))
+        allowed_keys = {"hidden_dim", "num_heads", "dropout", "detach_text"}
+        fusion_kwargs = {k: attribute_fusion_cfg[k] for k in allowed_keys if k in attribute_fusion_cfg}
+    elif attribute_fusion_cfg is not None:
+        attribute_fusion_enabled = bool(attribute_fusion_cfg)
+    else:
+        attribute_fusion_enabled = attribute_prompt_enabled
+
+    if attribute_fusion_enabled and not attribute_prompt_enabled and dist.get_rank() == 0:
+        logger.warning("Attribute-guided fusion requires attribute prompts; disabling module.")
+        attribute_fusion_enabled = False
+
+    if attribute_fusion_enabled:
+        model.configure_attribute_guided_fusion(enable=True, **fusion_kwargs)
+        if dist.get_rank() == 0:
+            logger.info("Attribute-guided fusion enabled")
+            if fusion_kwargs:
+                logger.info(f"Attribute fusion config: {fusion_kwargs}")
+    else:
+        model.configure_attribute_guided_fusion(enable=False)
+
+
+    # if config.network.fix_text:
+    #     for name, param in model.named_parameters():
+    #         if "visual" not in name and "logit_scale" not in name and "beta" not in name:
+    #             if coapt_bias_enabled and "coapt_bias" in name:
+    #                 continue
+    #             param.requires_grad_(False)
+
+    # 在 train 脚本初始化模型后的冻结部分
     if config.network.fix_text:
         for name, param in model.named_parameters():
-            if "visual" not in name and "logit_scale" not in name and "beta" not in name:
+            # 1. 如果名字里包含 beta，显式确保它开启梯度
+            if "beta" in name:
+                param.requires_grad_(True)
+                continue 
+                
+            # 2. 原有的冻结逻辑
+            if "visual" not in name and "logit_scale" not in name:
                 if coapt_bias_enabled and "coapt_bias" in name:
                     continue
+                # 这里如果不包含 beta，才冻结
                 param.requires_grad_(False)
-  
+
+    # 建议在 optimizer 定义前强行检查一遍
+    for name, param in model.named_parameters():
+        if "beta" in name:
+            print(f"DEBUG: {name} requires_grad = {param.requires_grad}")
     if config.network.fix_video:
         for name, param in model.named_parameters():
             if "visual" in name:
@@ -594,7 +616,7 @@ def main(args):
 
     optimizer = _optimizer(config, model, video_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
-
+    
     if args.distributed:
         model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
 
@@ -604,7 +626,7 @@ def main(args):
             video_head = DistributedDataParallel(video_head.cuda(), device_ids=[args.gpu], find_unused_parameters=False)
             video_head_nomodule = video_head.module
         
-
+    print(f"Beta in optimizer: {any(param is model.module.beta for group in optimizer.param_groups for param in group['params'])}")
     scaler = GradScaler() if args.precision == "amp" else None
 
     best_prec1 = 0.0
@@ -703,7 +725,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         
         # 数据预处理代码保持不变
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
-        mvs = mvs.view((-1, config.data.num_segments, 3) + mvs.size()[-2:])
+        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
         
         b, t, c_i, h, w = images.size()
@@ -742,6 +764,25 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
                 loss_imgs = criterion(logits, ground_truth)
                 loss_texts = criterion(logits.T, ground_truth)
                 loss = (loss_imgs + loss_texts)/2
+                
+                # =============================================================
+                # 🔥 修改版：方案三的抗坍塌辅助 Loss
+                # =============================================================
+                if hasattr(clip_model, "_last_fusion_weights") and clip_model._last_fusion_weights is not None:
+                    weight_residual = clip_model._last_weight_residual   # (B, 3)
+                    
+                    loss_reg = torch.tensor(0.0, device=device)
+                    if weight_residual is not None:
+                        # 惩罚过大的残差，强迫网络只有在“非常确定”时才去改变基础权重
+                        loss_reg = torch.mean(weight_residual ** 2)
+                        
+                    # 调小正则化系数
+                    lambda_reg = 0.01      
+                    
+                    # 暂时把熵 Loss 注释掉，看看单凭正则化能不能既保持精度又让权重动起来
+                    loss = loss + lambda_reg * loss_reg 
+                # =============================================================
+
             else:
                 raise NotImplementedError
 
@@ -769,6 +810,8 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         max_iter = config.solver.epochs * len(train_loader)
         eta_sec = batch_time.avg * (max_iter - cur_iter + 1)
         eta_sec = str(datetime.timedelta(seconds=int(eta_sec)))
+        # ✅ 修复写法
+        # print("beta.grad:",model.module.beta.grad)
 
         if i % config.logging.print_freq == 0:
             logger.info(('Epoch: [{0}][{1}/{2}], lr: {lr:.2e}, eta: {3}\t'
@@ -817,7 +860,6 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
         text_inputs = classes[indices]
 
 
-
 def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger,
              return_sim=False, coapt_bias_enabled=False, attribute_prompt_enabled=False):
     top1 = AverageMeter()
@@ -825,63 +867,117 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
     sims_list = []
     labels_list = []
     
+    # 🔥 新增：初始化模态权重累加器 (I帧, 运动矢量, 残差)
+    total_fusion_weights = torch.zeros(3, device=device)
+    total_weight_count = 0
+    
     model.eval()
     video_head.eval()
     clip_model = model.module if hasattr(model, "module") else model
 
     with torch.no_grad():
-        clip_model = model.module if hasattr(model, "module") else model
         if classes is None:
             raise RuntimeError("Text classes tensor is required for evaluation")
+        
         text_inputs = classes.to(device)
         base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
-        print("")
+        
+        # 获取基础权重（所有类别共享）
+        base_weights = F.softmax(clip_model.beta, dim=0)  # (3,)
         
         for i, (image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            mv = mv.view((-1, config.data.num_segments, 3) + mv.size()[-2:])
+            mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
             
             b, t, c_i, h, w = image.size()
-            b, t, c_m, h, w = mv.size()
+            _, _, c_m, _, _ = mv.size()
 
             class_id = class_id.to(device)
             image_input = image.to(device).view(-1, c_i, h, w)
             mv_input = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
+            # 编码视觉特征（一次性）
+            image_features, res_features, mvs_features = clip_model.encode_image(
+                image_input, residual_input, mv_input
+            )
+            image_features = image_features.view(b, t, -1)
+            res_features = res_features.view(b, t, -1)
+            mvs_features = mvs_features.view(b, t, -1)
+
             if attribute_prompt_enabled and getattr(clip_model, "attribute_guided_fusion", None) is not None:
-                prompt_inputs = classes[class_id].to(device)
+                # 方案A：遍历所有类别（精度更高但慢）
+                batch_similarities = []
                 
-                # 🔥 关键修改: 返回值从4个变量改名
-                fused_flat, modality_weights, semantic_weights, _ = clip_model(
-                    image_input, residual_input, mv_input, prompt_inputs, return_token=True
-                )
-                # fused_flat: [B*T, D] - 融合后的特征
-                # modality_weights: [B, 3] - 模态级别权重
-                # semantic_weights: [B, L, 3] - 属性级别语义权重 (新版)
-                # _: 其他返回值 (如果有)
+                # 🔥 新增：用于临时累加当前 batch 中 n_class 次循环的权重
+                batch_weights_sum = torch.zeros(3, device=device)
                 
-                merged_feats = fused_flat.view(b, t, -1)
+                for cls_idx in range(n_class):
+                    cls_text_tokens = text_features[cls_idx:cls_idx+1].expand(b, -1, -1)  # (B, L, D)
+                    
+                    # 使用属性引导融合
+                    fused_feats, final_weights, _ = clip_model.attribute_guided_fusion(
+                        image_features,
+                        mvs_features,   # 这里的顺序决定了: index 0: I帧, 1: MV, 2: 残差
+                        res_features,
+                        cls_text_tokens,
+                        base_weights,  # 传入基础权重
+                    )
+                    
+                    # 🔥 新增：累加当前类别的权重 (B, 3) -> (3,)
+                    batch_weights_sum += final_weights.sum(dim=0)
+                    
+                    # 计算相似度
+                    cls_cls_feat = base_cls_feature[cls_idx:cls_idx+1]
+                    cls_text_feat = text_features[cls_idx:cls_idx+1]
+                    
+                    if coapt_module is not None:
+                        video_token = fused_feats.mean(dim=1)
+                        cls_cls_feat_batch = coapt_module(video_token, cls_cls_feat.expand(b, -1))
+                    else:
+                        cls_cls_feat_batch = cls_cls_feat.expand(b, -1)
+                    
+                    cls_sim = video_head(fused_feats, cls_text_feat.expand(b, -1, -1), cls_cls_feat_batch)
+                    
+                    # 统一维度
+                    if cls_sim.dim() == 3:
+                        cls_sim = cls_sim.mean(dim=1)
+                    elif cls_sim.dim() == 2 and cls_sim.size(1) > 1:
+                        cls_sim = cls_sim.mean(dim=1, keepdim=True)
+                    elif cls_sim.dim() == 1:
+                        cls_sim = cls_sim.unsqueeze(1)
+                    
+                    batch_similarities.append(cls_sim)
+                
+                similarity = torch.cat(batch_similarities, dim=1)  # (B, n_class)
+                similarity = F.softmax(similarity, dim=-1)
+                
+                # 🔥 新增：计算该 batch 的平均权重，并加入总计中 (除以 n_class 是因为上面累加了 n_class 次)
+                total_fusion_weights += (batch_weights_sum / n_class)
+                total_weight_count += b
+                
             else:
-                image_features, res_features, mvs_features = clip_model.encode_image(
-                    image_input, residual_input, mv_input
-                )
-                weights = F.softmax(clip_model.beta, dim=0)
-                merged_feats = weights[0] * image_features + weights[1] * res_features + weights[2] * mvs_features
-                merged_feats = merged_feats.view(b, t, -1)
+                # 降级：使用基础权重
+                merged_feats = (base_weights[0] * image_features + 
+                               base_weights[1] * res_features + 
+                               base_weights[2] * mvs_features)
 
-            cls_feature = base_cls_feature
-            if coapt_module is not None:
-                video_token = merged_feats.mean(dim=1)
-                cls_feature = coapt_module(video_token, base_cls_feature)
+                cls_feature = base_cls_feature
+                if coapt_module is not None:
+                    video_token = merged_feats.mean(dim=1)
+                    cls_feature = coapt_module(video_token, base_cls_feature)
 
-            similarity = video_head(merged_feats, text_features, cls_feature)
+                similarity = video_head(merged_feats, text_features, cls_feature)
+                similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
+                similarity = similarity.mean(dim=1, keepdim=False)
+                
+                # 🔥 新增：降级模式下直接使用基础权重作为该 batch 的权重
+                total_fusion_weights += base_weights * b
+                total_weight_count += b
 
-            similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
-            similarity = similarity.mean(dim=1, keepdim=False)
-
+            # 后续评估逻辑不变...
             if return_sim:
                 sims = allgather(similarity)
                 labels = gather_labels(class_id)
@@ -896,12 +992,38 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             top5.update(prec5.item(), class_id.size(0))
 
             if i % config.logging.print_freq == 0:
-                logger.info(
-                    ('Test: [{0}/{1}]\t'
-                     'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                     'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                         i, len(val_loader), top1=top1, top5=top5)))
+                logger.info((
+                    'Test: [{0}/{1}]\t'
+                    'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                    'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'
+                ).format(i, len(val_loader), top1=top1, top5=top5))
+
+    # ====================================================================
+    # 🔥 新增：计算并打印整个验证集上的最终模态权重分配比例
+    # ====================================================================
+
     
+    # 针对分布式训练，如果你想在所有 GPU 上同步这些权重可以加上：
+    # dist.all_reduce(avg_weights, op=dist.ReduceOp.SUM)
+    # avg_weights = avg_weights / dist.get_world_size()
+    if dist.is_initialized():
+        dist.all_reduce(total_fusion_weights, op=dist.ReduceOp.SUM)
+        # total_weight_count 也需要 reduce
+        count_tensor = torch.tensor([total_weight_count], device=device)
+        dist.all_reduce(count_tensor, op=dist.ReduceOp.SUM)
+        total_weight_count = count_tensor.item()
+
+    avg_weights = (total_fusion_weights / total_weight_count) * 100.0
+    logger.info((
+        '---------------------------------------------------\n'
+        'Fusion Modality Allocation Ratio:\n'
+        'I-Frame (视觉):      {:.2f}%\n'
+        'Motion Vector (运动): {:.2f}%\n'
+        'Residual (残差):     {:.2f}%\n'
+        '---------------------------------------------------'
+    ).format(avg_weights[0].item(), avg_weights[1].item(), avg_weights[2].item()))
+    # ====================================================================
+
     logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
         .format(top1=top1, top5=top5)))
     

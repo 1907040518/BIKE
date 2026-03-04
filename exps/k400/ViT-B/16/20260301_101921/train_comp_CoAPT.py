@@ -362,36 +362,20 @@ def main(args):
                 image_tmpl=config.data.image_tmpl,
                 transform=transform_val, dense_sample=config.data.dense)   
     elif config.data.modality in ['iframe', 'mv', 'residual']:
-        from datasets.video_lmdb import Video_dataset as VideoLMDBDataset
-        gop_size = config.data.get('GOP_SIZE', 12)
-        train_data = VideoLMDBDataset(
+        from datasets.video3 import Video_dataset
+        train_data = Video_dataset(
             config.data.train_root, config.data.train_list,
             config.data.label_list, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            transform=transform_train,
-            random_shift=config.data.random_shift,
-            dense_sample=config.data.dense,
-            num_sample=config.data.get('num_sample', 1),
-            accumulate=(not args.no_accumulation),
-            iframe_db_path=config.data.get('iframe_train_path', ''),
-            mv_db_path=config.data.get('mv_train_path', ''),
-            res_db_path=config.data.get('res_train_path', ''),
-            gop_size=gop_size)
-        val_data = VideoLMDBDataset(
+            image_tmpl=config.data.image_tmpl, random_shift=config.data.random_shift,
+            transform=transform_train, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))
+        val_data = Video_dataset(
             config.data.val_root, config.data.val_list, config.data.label_list,
-            num_segments=config.data.num_segments,
+            random_shift=False, num_segments=config.data.num_segments,
             modality=config.data.modality,
-            transform=transform_val,
-            random_shift=False,
-            test_mode=True,
-            dense_sample=config.data.dense,
-            num_sample=1,
-            accumulate=(not args.no_accumulation),
-            iframe_db_path=config.data.get('iframe_val_path', ''),
-            mv_db_path=config.data.get('mv_val_path', ''),
-            res_db_path=config.data.get('res_val_path', ''),
-            gop_size=gop_size)
-
+            test_mode=True,    # 测试true
+            image_tmpl=config.data.image_tmpl,
+            transform=transform_val, dense_sample=config.data.dense, accumulate=(not args.no_accumulation))   
 
     ################ Few shot data for training ###########
     if config.data.shot:
@@ -416,16 +400,12 @@ def main(args):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)                       
     train_loader = DataLoader(train_data,
         batch_size=config.data.batch_size, num_workers=config.data.workers,
-        sampler=train_sampler, drop_last=True,
-        # 👇 加入这一行（如果你用的 PyTorch 1.7+）
-        persistent_workers=True)
+        sampler=train_sampler, drop_last=True)
 
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_data, shuffle=False)
     val_loader = DataLoader(val_data,
         batch_size=config.data.batch_size,num_workers=config.data.workers,
-        sampler=val_sampler, drop_last=False,
-        # 👇 加入这一行（如果你用的 PyTorch 1.7+）
-        persistent_workers=True)
+        sampler=val_sampler, drop_last=False)
 
     loss_type = config.solver.loss_type
     if loss_type == 'NCE':
@@ -579,6 +559,32 @@ def main(args):
     else:
         model.coapt_bias = None
 
+    attribute_fusion_cfg = config.network.get('attribute_guided_fusion', None)
+    attribute_fusion_enabled = False
+    fusion_kwargs = {}
+
+    if isinstance(attribute_fusion_cfg, dict):
+        attribute_fusion_enabled = bool(attribute_fusion_cfg.get('enable', attribute_prompt_enabled))
+        allowed_keys = {"hidden_dim", "num_heads", "dropout", "detach_text", "residual_scale"}
+        fusion_kwargs = {k: attribute_fusion_cfg[k] for k in allowed_keys if k in attribute_fusion_cfg}
+    elif attribute_fusion_cfg is not None:
+        attribute_fusion_enabled = bool(attribute_fusion_cfg)
+    else:
+        attribute_fusion_enabled = attribute_prompt_enabled
+
+    if attribute_fusion_enabled and not attribute_prompt_enabled and dist.get_rank() == 0:
+        logger.warning("Attribute-guided fusion requires attribute prompts; disabling module.")
+        attribute_fusion_enabled = False
+
+    if attribute_fusion_enabled:
+        model.configure_attribute_guided_fusion(enable=True, **fusion_kwargs)
+        if dist.get_rank() == 0:
+            logger.info("Attribute-guided fusion enabled")
+            if fusion_kwargs:
+                logger.info(f"Attribute fusion config: {fusion_kwargs}")
+    else:
+        model.configure_attribute_guided_fusion(enable=False)
+
 
     if config.network.fix_text:
         for name, param in model.named_parameters():
@@ -703,7 +709,7 @@ def train(model, video_head, train_loader, optimizer, criterion, scaler,
         
         # 数据预处理代码保持不变
         images = images.view((-1, config.data.num_segments, 3) + images.size()[-2:])
-        mvs = mvs.view((-1, config.data.num_segments, 3) + mvs.size()[-2:])
+        mvs = mvs.view((-1, config.data.num_segments, 2) + mvs.size()[-2:])
         residuals = residuals.view((-1, config.data.num_segments, 3) + residuals.size()[-2:])
         
         b, t, c_i, h, w = images.size()
@@ -840,7 +846,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
         
         for i, (image, mv, residual, class_id) in enumerate(val_loader):
             image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            mv = mv.view((-1, config.data.num_segments, 3) + mv.size()[-2:])
+            mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
             
             b, t, c_i, h, w = image.size()

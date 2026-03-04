@@ -8,6 +8,7 @@ import os.path
 import numpy as np
 from numpy.random import randint
 import io
+import logging
 import pandas as pd
 import random
 from PIL import Image

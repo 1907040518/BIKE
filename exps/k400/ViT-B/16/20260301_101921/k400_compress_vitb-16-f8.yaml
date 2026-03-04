@@ -5,10 +5,9 @@ data:
     dataset: k400
     modality: residual
     num_segments: 16
-    num_segments: 16
     seg_length: 1
-    batch_size: 32
-    workers: 8
+    batch_size: 256
+    workers: 4
     num_classes: 400
     image_tmpl: 'img_{:05d}.jpg'
     train_root: '/home/neimedia/action_data/CKinetics'
@@ -36,7 +35,7 @@ network:
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层 
     action_prompt:
         enable: True
-        vocab_root: '/home/stu_b/BIKE/attributes/qwen'
+        vocab_root: '/home/neimedia/gmk/BIKE/attributes/qwen'
         dataset_key: KINETICS400
         seed_index: 1
         num_attributes: 16
