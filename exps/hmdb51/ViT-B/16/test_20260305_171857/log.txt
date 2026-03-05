@@ -1,0 +1,77 @@
+[03/05 17:18:57] BIKE-Test INFO: ------------------------------------
+[03/05 17:18:57] BIKE-Test INFO: Environment Versions:
+[03/05 17:18:57] BIKE-Test INFO: - Python: 3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]
+[03/05 17:18:57] BIKE-Test INFO: - PyTorch: 2.5.1
+[03/05 17:18:57] BIKE-Test INFO: - TorchVision: 0.20.1
+[03/05 17:18:57] BIKE-Test INFO: ------------------------------------
+[03/05 17:18:57] BIKE-Test INFO: Configuration:
+[03/05 17:18:57] BIKE-Test INFO: {'data': {'GOP_SIZE': 12,
+          'batch_size': 32,
+          'dataset': 'hmdb51',
+          'image_tmpl': 'image_{:06d}.jpg',
+          'input_size': 224,
+          'label_list': 'lists/hmdb51/hmdb51_labels.csv',
+          'modality': 'residual',
+          'num_classes': 51,
+          'num_segments': 16,
+          'output_path': 'exps',
+          'random_shift': True,
+          'seg_length': 1,
+          'train_list': 'lists/hmdb51/train_rgb_split_1.txt',
+          'train_root': '/home/neimedia/action_data/hmdb51/mpeg4_videos',
+          'val_list': 'lists/hmdb51/val_rgb_split_1.txt',
+          'val_root': '/home/neimedia/action_data/hmdb51/mpeg4_videos',
+          'workers': 4},
+ 'logging': {'eval_freq': 2, 'print_freq': 10},
+ 'network': {'M_Align': 'DP',
+             'S_Align': 'DP',
+             'action_prompt': {'attribute_ctx': 2,
+                               'class_specific': True,
+                               'dataset_key': 'HMDB51',
+                               'enable': True,
+                               'n_ctx': 4,
+                               'num_attributes': 16,
+                               'seed_index': 1,
+                               'template': 'a video about {}.',
+                               'vocab_root': '/home/neimedia/gmk/BIKE/attributes/qwen'},
+             'arch': 'ViT-B/16',
+             'attribute_guided_fusion': {'dropout': 0.1,
+                                         'enable': True,
+                                         'fusion_lr_scale': 10.0,
+                                         'num_attributes': 16,
+                                         'num_heads': 8},
+             'drop': 0,
+             'drop_out': 0.0,
+             'emb_dropout': 0.0,
+             'fix_text': True,
+             'fix_video': False,
+             'init': True,
+             'interaction': 'DP',
+             'joint_st': False,
+             'mvs_layers_to_use': [0, 11],
+             'residual_layers_to_use': [0, 11],
+             'sim_header': 'Transf',
+             'tm': False},
+ 'pretrain': '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+ 'resume': None,
+ 'seed': 1024,
+ 'solver': {'clip_ratio': 0.1,
+            'epochs': 30,
+            'evaluate': False,
+            'grad_accumulation_steps': 1,
+            'loss_type': 'NCE',
+            'lr': 5e-05,
+            'lr_warmup_step': 5,
+            'optim': 'adamw',
+            'start_epoch': 0,
+            'type': 'cosine',
+            'weight_decay': 0.2}}
+[03/05 17:18:57] BIKE-Test INFO: ------------------------------------
+[03/05 17:19:00] BIKE-Test INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/05 17:19:00] BIKE-Test INFO: Attribute prompt strings loaded from vocabulary
+[03/05 17:19:00] BIKE-Test INFO: Prompt[0]: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/05 17:19:00] BIKE-Test INFO: Prompt[1]: a video about cartwheel. aerial acrobatic balanced circular controlled dynamic elegant fluid graceful looped midair powerful precise rotational spiral spinning.
+[03/05 17:19:00] BIKE-Test INFO: Prompt[2]: a video about catch. catching reaching grasping swinging throwing releasing picking gripping snatching balancing stabilizing coordinating manipulating precise fluid dynamic.
+[03/05 17:19:00] BIKE-Test INFO: Attribute-guided fusion enabled
+[03/05 17:19:00] BIKE-Test INFO: Attribute fusion config: {'num_heads': 8, 'dropout': 0.1}
+[03/05 17:19:01] BIKE-Test INFO: Loaded checkpoint '/home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text交互/model_best.pt' (epoch 27)
