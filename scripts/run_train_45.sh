@@ -7,7 +7,7 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-export CUDA_VISIBLE_DEVICES=1,2,3,7
-python -m torch.distributed.launch --master_port 12046 --nproc_per_node=4 \
+export CUDA_VISIBLE_DEVICES=4,5,6
+python -m torch.distributed.launch --master_port 12048 --nproc_per_node=3 \
          train_comp_CoAPT.py  --config ${config} --log_time $now
          

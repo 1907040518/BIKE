@@ -1,0 +1,491 @@
+  Generated at : 2026-03-05 01:27:21
+==============================================================================================================
+==============================================================================================================
+  🧩  CLIP-VIDEO-MODEL  —  Trainable vs Frozen
+==============================================================================================================
+
+  ✅  TRAINABLE PARAMETERS  —  222 layers  |  116,820,502 params  (64.81%)
+--------------------------------------------------------------------------------------------------------------
+  beta                                                                                   shape=[3]                           numel=           3
+  logit_scale                                                                            shape=[]                            numel=           1
+  visual.class_embedding                                                                 shape=[768]                         numel=         768
+  visual.positional_embedding                                                            shape=[197, 768]                    numel=     151,296
+  visual.proj                                                                            shape=[768, 512]                    numel=     393,216
+  visual.conv1.weight                                                                    shape=[768, 3, 16, 16]              numel=     589,824
+  visual.ln_pre.weight                                                                   shape=[768]                         numel=         768
+  visual.ln_pre.bias                                                                     shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.0.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.0.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.0.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.0.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.0.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.0.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.0.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.1.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.1.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.1.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.1.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.1.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.1.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.1.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.2.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.2.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.2.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.2.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.2.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.2.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.2.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.3.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.3.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.3.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.3.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.3.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.3.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.3.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.4.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.4.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.4.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.4.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.4.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.4.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.4.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.5.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.5.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.5.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.5.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.5.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.5.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.5.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.6.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.6.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.6.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.6.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.6.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.6.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.6.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.7.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.7.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.7.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.7.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.7.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.7.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.7.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.8.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.8.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.8.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.8.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.8.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.8.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.8.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.attn.in_proj_weight                                     shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.9.attn.in_proj_bias                                       shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.9.attn.out_proj.weight                                    shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.9.attn.out_proj.bias                                      shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.ln_1.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.ln_1.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.mlp.c_fc.weight                                         shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.9.mlp.c_fc.bias                                           shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.9.mlp.c_proj.weight                                       shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.9.mlp.c_proj.bias                                         shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.ln_2.weight                                             shape=[768]                         numel=         768
+  visual.transformer.resblocks.9.ln_2.bias                                               shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.attn.in_proj_weight                                    shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.10.attn.in_proj_bias                                      shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.10.attn.out_proj.weight                                   shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.10.attn.out_proj.bias                                     shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.ln_1.weight                                            shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.ln_1.bias                                              shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.mlp.c_fc.weight                                        shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.10.mlp.c_fc.bias                                          shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.10.mlp.c_proj.weight                                      shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.10.mlp.c_proj.bias                                        shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.ln_2.weight                                            shape=[768]                         numel=         768
+  visual.transformer.resblocks.10.ln_2.bias                                              shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.attn.in_proj_weight                                    shape=[2304, 768]                   numel=   1,769,472
+  visual.transformer.resblocks.11.attn.in_proj_bias                                      shape=[2304]                        numel=       2,304
+  visual.transformer.resblocks.11.attn.out_proj.weight                                   shape=[768, 768]                    numel=     589,824
+  visual.transformer.resblocks.11.attn.out_proj.bias                                     shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.ln_1.weight                                            shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.ln_1.bias                                              shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.mlp.c_fc.weight                                        shape=[3072, 768]                   numel=   2,359,296
+  visual.transformer.resblocks.11.mlp.c_fc.bias                                          shape=[3072]                        numel=       3,072
+  visual.transformer.resblocks.11.mlp.c_proj.weight                                      shape=[768, 3072]                   numel=   2,359,296
+  visual.transformer.resblocks.11.mlp.c_proj.bias                                        shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.ln_2.weight                                            shape=[768]                         numel=         768
+  visual.transformer.resblocks.11.ln_2.bias                                              shape=[768]                         numel=         768
+  visual.ln_post.weight                                                                  shape=[768]                         numel=         768
+  visual.ln_post.bias                                                                    shape=[768]                         numel=         768
+  residual_encoder.class_embedding                                                       shape=[768]                         numel=         768
+  residual_encoder.positional_embedding                                                  shape=[197, 768]                    numel=     151,296
+  residual_encoder.proj                                                                  shape=[768, 512]                    numel=     393,216
+  residual_encoder.conv1.weight                                                          shape=[768, 3, 16, 16]              numel=     589,824
+  residual_encoder.ln_pre.weight                                                         shape=[768]                         numel=         768
+  residual_encoder.ln_pre.bias                                                           shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.attn.in_proj_weight                              shape=[2304, 768]                   numel=   1,769,472
+  residual_encoder.transformer_blocks.0.attn.in_proj_bias                                shape=[2304]                        numel=       2,304
+  residual_encoder.transformer_blocks.0.attn.out_proj.weight                             shape=[768, 768]                    numel=     589,824
+  residual_encoder.transformer_blocks.0.attn.out_proj.bias                               shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.ln_1.weight                                      shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.ln_1.bias                                        shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.mlp.c_fc.weight                                  shape=[3072, 768]                   numel=   2,359,296
+  residual_encoder.transformer_blocks.0.mlp.c_fc.bias                                    shape=[3072]                        numel=       3,072
+  residual_encoder.transformer_blocks.0.mlp.c_proj.weight                                shape=[768, 3072]                   numel=   2,359,296
+  residual_encoder.transformer_blocks.0.mlp.c_proj.bias                                  shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.ln_2.weight                                      shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.0.ln_2.bias                                        shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.attn.in_proj_weight                              shape=[2304, 768]                   numel=   1,769,472
+  residual_encoder.transformer_blocks.1.attn.in_proj_bias                                shape=[2304]                        numel=       2,304
+  residual_encoder.transformer_blocks.1.attn.out_proj.weight                             shape=[768, 768]                    numel=     589,824
+  residual_encoder.transformer_blocks.1.attn.out_proj.bias                               shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.ln_1.weight                                      shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.ln_1.bias                                        shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.mlp.c_fc.weight                                  shape=[3072, 768]                   numel=   2,359,296
+  residual_encoder.transformer_blocks.1.mlp.c_fc.bias                                    shape=[3072]                        numel=       3,072
+  residual_encoder.transformer_blocks.1.mlp.c_proj.weight                                shape=[768, 3072]                   numel=   2,359,296
+  residual_encoder.transformer_blocks.1.mlp.c_proj.bias                                  shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.ln_2.weight                                      shape=[768]                         numel=         768
+  residual_encoder.transformer_blocks.1.ln_2.bias                                        shape=[768]                         numel=         768
+  residual_encoder.ln_post.weight                                                        shape=[768]                         numel=         768
+  residual_encoder.ln_post.bias                                                          shape=[768]                         numel=         768
+  residual_encoder.conv_2to3.weight                                                      shape=[3, 2, 1, 1]                  numel=           6
+  residual_encoder.conv_2to3.bias                                                        shape=[3]                           numel=           3
+  mvs_encoder.class_embedding                                                            shape=[768]                         numel=         768
+  mvs_encoder.positional_embedding                                                       shape=[197, 768]                    numel=     151,296
+  mvs_encoder.proj                                                                       shape=[768, 512]                    numel=     393,216
+  mvs_encoder.conv1.weight                                                               shape=[768, 3, 16, 16]              numel=     589,824
+  mvs_encoder.ln_pre.weight                                                              shape=[768]                         numel=         768
+  mvs_encoder.ln_pre.bias                                                                shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.attn.in_proj_weight                                   shape=[2304, 768]                   numel=   1,769,472
+  mvs_encoder.transformer_blocks.0.attn.in_proj_bias                                     shape=[2304]                        numel=       2,304
+  mvs_encoder.transformer_blocks.0.attn.out_proj.weight                                  shape=[768, 768]                    numel=     589,824
+  mvs_encoder.transformer_blocks.0.attn.out_proj.bias                                    shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.ln_1.weight                                           shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.ln_1.bias                                             shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.mlp.c_fc.weight                                       shape=[3072, 768]                   numel=   2,359,296
+  mvs_encoder.transformer_blocks.0.mlp.c_fc.bias                                         shape=[3072]                        numel=       3,072
+  mvs_encoder.transformer_blocks.0.mlp.c_proj.weight                                     shape=[768, 3072]                   numel=   2,359,296
+  mvs_encoder.transformer_blocks.0.mlp.c_proj.bias                                       shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.ln_2.weight                                           shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.0.ln_2.bias                                             shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.attn.in_proj_weight                                   shape=[2304, 768]                   numel=   1,769,472
+  mvs_encoder.transformer_blocks.1.attn.in_proj_bias                                     shape=[2304]                        numel=       2,304
+  mvs_encoder.transformer_blocks.1.attn.out_proj.weight                                  shape=[768, 768]                    numel=     589,824
+  mvs_encoder.transformer_blocks.1.attn.out_proj.bias                                    shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.ln_1.weight                                           shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.ln_1.bias                                             shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.mlp.c_fc.weight                                       shape=[3072, 768]                   numel=   2,359,296
+  mvs_encoder.transformer_blocks.1.mlp.c_fc.bias                                         shape=[3072]                        numel=       3,072
+  mvs_encoder.transformer_blocks.1.mlp.c_proj.weight                                     shape=[768, 3072]                   numel=   2,359,296
+  mvs_encoder.transformer_blocks.1.mlp.c_proj.bias                                       shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.ln_2.weight                                           shape=[768]                         numel=         768
+  mvs_encoder.transformer_blocks.1.ln_2.bias                                             shape=[768]                         numel=         768
+  mvs_encoder.ln_post.weight                                                             shape=[768]                         numel=         768
+  mvs_encoder.ln_post.bias                                                               shape=[768]                         numel=         768
+  mvs_encoder.conv_2to3.weight                                                           shape=[3, 2, 1, 1]                  numel=           6
+  mvs_encoder.conv_2to3.bias                                                             shape=[3]                           numel=           3
+
+  ❄️   FROZEN PARAMETERS  —  149 layers  |  63,428,096 params  (35.19%)
+--------------------------------------------------------------------------------------------------------------
+  positional_embedding                                                                   shape=[77, 512]                     numel=      39,424
+  text_projection                                                                        shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.0.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.0.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.0.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.0.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.0.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.0.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.0.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.0.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.1.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.1.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.1.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.1.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.1.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.1.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.1.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.1.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.2.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.2.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.2.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.2.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.2.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.2.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.2.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.2.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.3.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.3.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.3.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.3.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.3.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.3.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.3.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.3.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.4.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.4.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.4.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.4.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.4.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.4.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.4.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.4.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.5.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.5.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.5.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.5.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.5.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.5.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.5.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.5.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.6.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.6.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.6.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.6.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.6.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.6.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.6.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.6.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.6.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.6.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.6.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.6.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.7.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.7.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.7.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.7.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.7.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.7.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.7.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.7.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.7.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.7.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.7.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.7.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.8.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.8.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.8.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.8.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.8.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.8.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.8.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.8.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.8.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.8.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.8.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.8.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.9.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.9.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.9.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.9.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.9.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.9.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.9.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.9.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.9.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.9.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.9.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.9.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.10.attn.in_proj_weight                                           shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.10.attn.in_proj_bias                                             shape=[1536]                        numel=       1,536
+  transformer.resblocks.10.attn.out_proj.weight                                          shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.10.attn.out_proj.bias                                            shape=[512]                         numel=         512
+  transformer.resblocks.10.ln_1.weight                                                   shape=[512]                         numel=         512
+  transformer.resblocks.10.ln_1.bias                                                     shape=[512]                         numel=         512
+  transformer.resblocks.10.mlp.c_fc.weight                                               shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.10.mlp.c_fc.bias                                                 shape=[2048]                        numel=       2,048
+  transformer.resblocks.10.mlp.c_proj.weight                                             shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.10.mlp.c_proj.bias                                               shape=[512]                         numel=         512
+  transformer.resblocks.10.ln_2.weight                                                   shape=[512]                         numel=         512
+  transformer.resblocks.10.ln_2.bias                                                     shape=[512]                         numel=         512
+  transformer.resblocks.11.attn.in_proj_weight                                           shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.11.attn.in_proj_bias                                             shape=[1536]                        numel=       1,536
+  transformer.resblocks.11.attn.out_proj.weight                                          shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.11.attn.out_proj.bias                                            shape=[512]                         numel=         512
+  transformer.resblocks.11.ln_1.weight                                                   shape=[512]                         numel=         512
+  transformer.resblocks.11.ln_1.bias                                                     shape=[512]                         numel=         512
+  transformer.resblocks.11.mlp.c_fc.weight                                               shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.11.mlp.c_fc.bias                                                 shape=[2048]                        numel=       2,048
+  transformer.resblocks.11.mlp.c_proj.weight                                             shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.11.mlp.c_proj.bias                                               shape=[512]                         numel=         512
+  transformer.resblocks.11.ln_2.weight                                                   shape=[512]                         numel=         512
+  transformer.resblocks.11.ln_2.bias                                                     shape=[512]                         numel=         512
+  token_embedding.weight                                                                 shape=[49408, 512]                  numel=  25,296,896
+  ln_final.weight                                                                        shape=[512]                         numel=         512
+  ln_final.bias                                                                          shape=[512]                         numel=         512
+
+==============================================================================================================
+  SUMMARY  —  CLIP-VIDEO-MODEL
+--------------------------------------------------------------------------------------------------------------
+  Total     params      :     180,248,598   (100.00%)
+  Trainable params      :     116,820,502   (64.81%)
+  Frozen    params      :      63,428,096   (35.19%)
+==============================================================================================================
+
+
+==============================================================================================================
+  🧩  VIDEO_HEAD  —  Trainable vs Frozen
+==============================================================================================================
+
+  ✅  TRAINABLE PARAMETERS  —  73 layers  |  18,953,728 params  (100.00%)
+--------------------------------------------------------------------------------------------------------------
+  frame_position_embeddings.weight                                                       shape=[77, 512]                     numel=      39,424
+  transformer.resblocks.0.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.0.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.0.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.0.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.0.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.0.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.0.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.0.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.0.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.1.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.1.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.1.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.1.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.1.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.1.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.1.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.1.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.1.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.2.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.2.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.2.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.2.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.2.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.2.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.2.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.2.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.2.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.3.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.3.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.3.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.3.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.3.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.3.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.3.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.3.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.3.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.4.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.4.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.4.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.4.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.4.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.4.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.4.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.4.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.4.ln_2.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.5.attn.in_proj_weight                                            shape=[1536, 512]                   numel=     786,432
+  transformer.resblocks.5.attn.in_proj_bias                                              shape=[1536]                        numel=       1,536
+  transformer.resblocks.5.attn.out_proj.weight                                           shape=[512, 512]                    numel=     262,144
+  transformer.resblocks.5.attn.out_proj.bias                                             shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_1.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_1.bias                                                      shape=[512]                         numel=         512
+  transformer.resblocks.5.mlp.c_fc.weight                                                shape=[2048, 512]                   numel=   1,048,576
+  transformer.resblocks.5.mlp.c_fc.bias                                                  shape=[2048]                        numel=       2,048
+  transformer.resblocks.5.mlp.c_proj.weight                                              shape=[512, 2048]                   numel=   1,048,576
+  transformer.resblocks.5.mlp.c_proj.bias                                                shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_2.weight                                                    shape=[512]                         numel=         512
+  transformer.resblocks.5.ln_2.bias                                                      shape=[512]                         numel=         512
+
+  ❄️   FROZEN PARAMETERS  —  0 layers  |  0 params  (0.00%)
+--------------------------------------------------------------------------------------------------------------
+  (none)
+
+==============================================================================================================
+  SUMMARY  —  VIDEO_HEAD
+--------------------------------------------------------------------------------------------------------------
+  Total     params      :      18,953,728   (100.00%)
+  Trainable params      :      18,953,728   (100.00%)
+  Frozen    params      :               0   (0.00%)
+==============================================================================================================
+
+==============================================================================================================
+  🌐  GRAND TOTAL  (MODEL + VIDEO_HEAD)
+--------------------------------------------------------------------------------------------------------------
+  Total     params      :     199,202,326   (100.00%)
+  Trainable params      :     135,774,230   (68.16%)
+  Frozen    params      :      63,428,096   (31.84%)
+==============================================================================================================

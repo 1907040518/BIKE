@@ -1,0 +1,1295 @@
+====================================================================================================
+Video Prediction Results
+Total: 765 | Correct: 719 | Wrong: 46 | Accuracy: 93.99%
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+Index    Correct?   GT Label                       Pred Label                     Confidence  
+----------------------------------------------------------------------------------------------------
+0        ✓          brush hair                     brush hair                     0.0219      
+1        ✓          brush hair                     brush hair                     0.0220      
+2        ✓          brush hair                     brush hair                     0.0221      
+3        ✓          brush hair                     brush hair                     0.0220      
+4        ✓          brush hair                     brush hair                     0.0218      
+5        ✓          brush hair                     brush hair                     0.0218      
+6        ✓          brush hair                     brush hair                     0.0220      
+7        ✓          brush hair                     brush hair                     0.0221      
+8        ✓          brush hair                     brush hair                     0.0221      
+9        ✓          brush hair                     brush hair                     0.0218      
+10       ✓          brush hair                     brush hair                     0.0218      
+11       ✓          brush hair                     brush hair                     0.0219      
+12       ✓          brush hair                     brush hair                     0.0220      
+13       ✓          brush hair                     brush hair                     0.0220      
+14       ✓          brush hair                     brush hair                     0.0219      
+15       ✓          cartwheel                      cartwheel                      0.0220      
+16       ✓          cartwheel                      cartwheel                      0.0224      
+17       ✓          cartwheel                      cartwheel                      0.0223      
+18       ✓          cartwheel                      cartwheel                      0.0221      
+19       ✓          cartwheel                      cartwheel                      0.0224      
+20       ✓          cartwheel                      cartwheel                      0.0222      
+21       ✓          cartwheel                      cartwheel                      0.0222      
+22       ✓          cartwheel                      cartwheel                      0.0220      
+23       ✓          cartwheel                      cartwheel                      0.0223      
+24       ✓          cartwheel                      cartwheel                      0.0223      
+25       ✓          cartwheel                      cartwheel                      0.0221      
+26       ✓          cartwheel                      cartwheel                      0.0221      
+27       ✓          cartwheel                      cartwheel                      0.0223      
+28       ✓          cartwheel                      cartwheel                      0.0223      
+29       ✓          cartwheel                      cartwheel                      0.0222      
+30       ✓          catch                          catch                          0.0220      
+31       ✓          catch                          catch                          0.0221      
+32       ✓          catch                          catch                          0.0221      
+33       ✓          catch                          catch                          0.0220      
+34       ✓          catch                          catch                          0.0221      
+35       ✓          catch                          catch                          0.0220      
+36       ✓          catch                          catch                          0.0220      
+37       ✓          catch                          catch                          0.0219      
+38       ✓          catch                          catch                          0.0221      
+39       ✓          catch                          catch                          0.0220      
+40       ✓          catch                          catch                          0.0219      
+41       ✓          catch                          catch                          0.0219      
+42       ✓          catch                          catch                          0.0219      
+43       ✓          catch                          catch                          0.0220      
+44       ✓          catch                          catch                          0.0219      
+45       ✓          chew                           chew                           0.0222      
+46       ✓          chew                           chew                           0.0222      
+47       ✓          chew                           chew                           0.0222      
+48       ✓          chew                           chew                           0.0222      
+49       ✓          chew                           chew                           0.0220      
+50       ✓          chew                           chew                           0.0222      
+51       ✓          chew                           chew                           0.0223      
+52       ✓          chew                           chew                           0.0221      
+53       ✓          chew                           chew                           0.0222      
+54       ✓          chew                           chew                           0.0221      
+55       ✓          chew                           chew                           0.0222      
+56       ✓          chew                           chew                           0.0223      
+57       ✓          chew                           chew                           0.0221      
+58       ✓          chew                           chew                           0.0218      
+59       ✓          chew                           chew                           0.0221      
+60       ✓          clap                           clap                           0.0222      
+61       ✓          clap                           clap                           0.0222      
+62       ✓          clap                           clap                           0.0223      
+63       ✓          clap                           clap                           0.0220      
+64       ✓          clap                           clap                           0.0217      
+65       ✓          clap                           clap                           0.0220      
+66       ✓          clap                           clap                           0.0222      
+67       ✓          clap                           clap                           0.0221      
+68       ✓          clap                           clap                           0.0216      
+69       ✓          clap                           clap                           0.0219      
+70       ✓          clap                           clap                           0.0220      
+71       ✓          clap                           clap                           0.0221      
+72       ✓          clap                           clap                           0.0224      
+73       ✓          clap                           clap                           0.0220      
+74       ✓          clap                           clap                           0.0223      
+75       ✓          climb                          climb                          0.0218      
+76       ✓          climb                          climb                          0.0218      
+77       ✓          climb                          climb                          0.0219      
+78       ✓          climb                          climb                          0.0219      
+79       ✓          climb                          climb                          0.0219      
+80       ✓          climb                          climb                          0.0219      
+81       ✓          climb                          climb                          0.0219      
+82       ✓          climb                          climb                          0.0217      
+83       ✓          climb                          climb                          0.0219      
+84       ✓          climb                          climb                          0.0219      
+85       ✓          climb                          climb                          0.0218      
+86       ✓          climb                          climb                          0.0218      
+87       ✓          climb                          climb                          0.0220      
+88       ✓          climb                          climb                          0.0217      
+89       ✓          climb                          climb                          0.0220      
+90       ✓          climb stairs                   climb stairs                   0.0218      
+91       ✓          climb stairs                   climb stairs                   0.0222      
+92       ✓          climb stairs                   climb stairs                   0.0223      
+93       ✓          climb stairs                   climb stairs                   0.0221      
+94       ✓          climb stairs                   climb stairs                   0.0219      
+95       ✓          climb stairs                   climb stairs                   0.0222      
+96       ✓          climb stairs                   climb stairs                   0.0220      
+97       ✓          climb stairs                   climb stairs                   0.0220      
+98       ✓          climb stairs                   climb stairs                   0.0220      
+99       ✓          climb stairs                   climb stairs                   0.0221      
+100      ✓          climb stairs                   climb stairs                   0.0221      
+101      ✓          climb stairs                   climb stairs                   0.0221      
+102      ✓          climb stairs                   climb stairs                   0.0222      
+103      ✓          climb stairs                   climb stairs                   0.0220      
+104      ✓          climb stairs                   climb stairs                   0.0222      
+105      ✓          dive                           dive                           0.0218      
+106      ✓          dive                           dive                           0.0222      
+107      ✓          dive                           dive                           0.0221      
+108      ✓          dive                           dive                           0.0222      
+109      ✓          dive                           dive                           0.0220      
+110      ✓          dive                           dive                           0.0216      
+111      ✓          dive                           dive                           0.0222      
+112      ✓          dive                           dive                           0.0222      
+113      ✓          dive                           dive                           0.0217      
+114      ✓          dive                           dive                           0.0221      
+115      ✓          dive                           dive                           0.0222      
+116      ✓          dive                           dive                           0.0219      
+117      ✓          dive                           dive                           0.0221      
+118      ✓          dive                           dive                           0.0217      
+119      ✓          dive                           dive                           0.0216      
+120      ✓          draw sword                     draw sword                     0.0222      
+121      ✓          draw sword                     draw sword                     0.0219      
+122      ✓          draw sword                     draw sword                     0.0222      
+123      ✓          draw sword                     draw sword                     0.0219      
+124      ✓          draw sword                     draw sword                     0.0224      
+125      ✓          draw sword                     draw sword                     0.0223      
+126      ✓          draw sword                     draw sword                     0.0220      
+127      ✓          draw sword                     draw sword                     0.0224      
+128      ✓          draw sword                     draw sword                     0.0223      
+129      ✓          draw sword                     draw sword                     0.0224      
+130      ✓          draw sword                     draw sword                     0.0224      
+131      ✓          draw sword                     draw sword                     0.0221      
+132      ✓          draw sword                     draw sword                     0.0222      
+133      ✓          draw sword                     draw sword                     0.0221      
+134      ✓          draw sword                     draw sword                     0.0225      
+135      ✓          dribble                        dribble                        0.0223      
+136      ✓          dribble                        dribble                        0.0222      
+137      ✓          dribble                        dribble                        0.0223      
+138      ✓          dribble                        dribble                        0.0223      
+139      ✓          dribble                        dribble                        0.0221      
+140      ✓          dribble                        dribble                        0.0221      
+141      ✓          dribble                        dribble                        0.0222      
+142      ✓          dribble                        dribble                        0.0224      
+143      ✓          dribble                        dribble                        0.0223      
+144      ✓          dribble                        dribble                        0.0222      
+145      ✓          dribble                        dribble                        0.0223      
+146      ✓          dribble                        dribble                        0.0223      
+147      ✓          dribble                        dribble                        0.0224      
+148      ✓          dribble                        dribble                        0.0221      
+149      ✓          dribble                        dribble                        0.0223      
+150      ✓          drink                          drink                          0.0215      
+151      ✓          drink                          drink                          0.0216      
+152      ✓          drink                          drink                          0.0222      
+153      ✓          drink                          drink                          0.0221      
+154      ✓          drink                          drink                          0.0220      
+155      ✓          drink                          drink                          0.0220      
+156      ✓          drink                          drink                          0.0217      
+157      ✓          drink                          drink                          0.0220      
+158      ✓          drink                          drink                          0.0222      
+159      ✓          drink                          drink                          0.0212      
+160      ✓          drink                          drink                          0.0217      
+161      ✓          drink                          drink                          0.0222      
+162      ✓          drink                          drink                          0.0219      
+163      ✓          drink                          drink                          0.0221      
+164      ✓          drink                          drink                          0.0222      
+165      ✓          eat                            eat                            0.0221      
+166      ✓          eat                            eat                            0.0223      
+167      ✓          eat                            eat                            0.0222      
+168      ✓          eat                            eat                            0.0212      
+169      ✓          eat                            eat                            0.0222      
+170      ✓          eat                            eat                            0.0217      
+171      ✓          eat                            eat                            0.0216      
+172      ✓          eat                            eat                            0.0223      
+173      ✓          eat                            eat                            0.0222      
+174      ✓          eat                            eat                            0.0222      
+175      ✓          eat                            eat                            0.0218      
+176      ✓          eat                            eat                            0.0222      
+177      ✓          eat                            eat                            0.0219      
+178      ✓          eat                            eat                            0.0220      
+179      ✓          eat                            eat                            0.0222      
+180      ✓          fall floor                     fall floor                     0.0218      
+181      ✓          fall floor                     fall floor                     0.0222      
+182      ✓          fall floor                     fall floor                     0.0222      
+183      ✓          fall floor                     fall floor                     0.0213      
+184      ✓          fall floor                     fall floor                     0.0218      
+185      ✓          fall floor                     fall floor                     0.0222      
+186      ✓          fall floor                     fall floor                     0.0224      
+187      ✓          fall floor                     fall floor                     0.0223      
+188      ✓          fall floor                     fall floor                     0.0222      
+189      ✓          fall floor                     fall floor                     0.0221      
+190      ✓          fall floor                     fall floor                     0.0215      
+191      ✓          fall floor                     fall floor                     0.0222      
+192      ✓          fall floor                     fall floor                     0.0223      
+193      ✓          fall floor                     fall floor                     0.0218      
+194      ✓          fall floor                     fall floor                     0.0222      
+195      ✓          fencing                        fencing                        0.0223      
+196      ✓          fencing                        fencing                        0.0224      
+197      ✓          fencing                        fencing                        0.0223      
+198      ✓          fencing                        fencing                        0.0225      
+199      ✓          fencing                        fencing                        0.0226      
+200      ✓          fencing                        fencing                        0.0224      
+201      ✓          fencing                        fencing                        0.0225      
+202      ✓          fencing                        fencing                        0.0224      
+203      ✓          fencing                        fencing                        0.0224      
+204      ✓          fencing                        fencing                        0.0224      
+205      ✗          fencing                        punch                          0.0210      
+206      ✓          fencing                        fencing                        0.0221      
+207      ✓          fencing                        fencing                        0.0216      
+208      ✓          fencing                        fencing                        0.0222      
+209      ✓          fencing                        fencing                        0.0219      
+210      ✓          flic flac                      flic flac                      0.0221      
+211      ✓          flic flac                      flic flac                      0.0222      
+212      ✓          flic flac                      flic flac                      0.0221      
+213      ✓          flic flac                      flic flac                      0.0220      
+214      ✓          flic flac                      flic flac                      0.0220      
+215      ✓          flic flac                      flic flac                      0.0218      
+216      ✓          flic flac                      flic flac                      0.0221      
+217      ✓          flic flac                      flic flac                      0.0222      
+218      ✓          flic flac                      flic flac                      0.0222      
+219      ✓          flic flac                      flic flac                      0.0222      
+220      ✓          flic flac                      flic flac                      0.0220      
+221      ✓          flic flac                      flic flac                      0.0216      
+222      ✓          flic flac                      flic flac                      0.0220      
+223      ✓          flic flac                      flic flac                      0.0222      
+224      ✓          flic flac                      flic flac                      0.0223      
+225      ✓          golf                           golf                           0.0220      
+226      ✓          golf                           golf                           0.0221      
+227      ✓          golf                           golf                           0.0220      
+228      ✓          golf                           golf                           0.0221      
+229      ✓          golf                           golf                           0.0222      
+230      ✓          golf                           golf                           0.0221      
+231      ✓          golf                           golf                           0.0222      
+232      ✓          golf                           golf                           0.0221      
+233      ✓          golf                           golf                           0.0221      
+234      ✓          golf                           golf                           0.0221      
+235      ✓          golf                           golf                           0.0221      
+236      ✓          golf                           golf                           0.0221      
+237      ✓          golf                           golf                           0.0221      
+238      ✓          golf                           golf                           0.0221      
+239      ✓          golf                           golf                           0.0221      
+240      ✓          handstand                      handstand                      0.0220      
+241      ✓          handstand                      handstand                      0.0222      
+242      ✓          handstand                      handstand                      0.0222      
+243      ✓          handstand                      handstand                      0.0215      
+244      ✓          handstand                      handstand                      0.0222      
+245      ✓          handstand                      handstand                      0.0220      
+246      ✓          handstand                      handstand                      0.0221      
+247      ✓          handstand                      handstand                      0.0221      
+248      ✓          handstand                      handstand                      0.0222      
+249      ✓          handstand                      handstand                      0.0221      
+250      ✓          handstand                      handstand                      0.0220      
+251      ✓          handstand                      handstand                      0.0221      
+252      ✓          handstand                      handstand                      0.0219      
+253      ✓          handstand                      handstand                      0.0222      
+254      ✓          handstand                      handstand                      0.0223      
+255      ✓          hit                            hit                            0.0219      
+256      ✓          hit                            hit                            0.0219      
+257      ✓          hit                            hit                            0.0219      
+258      ✓          hit                            hit                            0.0218      
+259      ✓          hit                            hit                            0.0222      
+260      ✓          hit                            hit                            0.0220      
+261      ✓          hit                            hit                            0.0220      
+262      ✓          hit                            hit                            0.0219      
+263      ✓          hit                            hit                            0.0222      
+264      ✓          hit                            hit                            0.0219      
+265      ✓          hit                            hit                            0.0220      
+266      ✓          hit                            hit                            0.0219      
+267      ✓          hit                            hit                            0.0222      
+268      ✓          hit                            hit                            0.0221      
+269      ✓          hit                            hit                            0.0221      
+270      ✓          hug                            hug                            0.0220      
+271      ✓          hug                            hug                            0.0222      
+272      ✓          hug                            hug                            0.0223      
+273      ✓          hug                            hug                            0.0222      
+274      ✓          hug                            hug                            0.0222      
+275      ✓          hug                            hug                            0.0223      
+276      ✓          hug                            hug                            0.0223      
+277      ✓          hug                            hug                            0.0224      
+278      ✓          hug                            hug                            0.0221      
+279      ✓          hug                            hug                            0.0222      
+280      ✓          hug                            hug                            0.0222      
+281      ✓          hug                            hug                            0.0222      
+282      ✓          hug                            hug                            0.0223      
+283      ✓          hug                            hug                            0.0221      
+284      ✓          hug                            hug                            0.0221      
+285      ✓          jump                           jump                           0.0221      
+286      ✓          jump                           jump                           0.0215      
+287      ✓          jump                           jump                           0.0219      
+288      ✓          jump                           jump                           0.0222      
+289      ✗          jump                           dive                           0.0217      
+290      ✓          jump                           jump                           0.0223      
+291      ✗          jump                           run                            0.0214      
+292      ✓          jump                           jump                           0.0222      
+293      ✓          jump                           jump                           0.0220      
+294      ✓          jump                           jump                           0.0219      
+295      ✓          jump                           jump                           0.0223      
+296      ✓          jump                           jump                           0.0216      
+297      ✗          jump                           run                            0.0209      
+298      ✗          jump                           dive                           0.0212      
+299      ✓          jump                           jump                           0.0222      
+300      ✓          kick                           kick                           0.0219      
+301      ✓          kick                           kick                           0.0221      
+302      ✓          kick                           kick                           0.0220      
+303      ✓          kick                           kick                           0.0222      
+304      ✓          kick                           kick                           0.0223      
+305      ✓          kick                           kick                           0.0222      
+306      ✓          kick                           kick                           0.0220      
+307      ✓          kick                           kick                           0.0221      
+308      ✓          kick                           kick                           0.0222      
+309      ✓          kick                           kick                           0.0223      
+310      ✓          kick                           kick                           0.0226      
+311      ✓          kick                           kick                           0.0225      
+312      ✓          kick                           kick                           0.0221      
+313      ✓          kick                           kick                           0.0223      
+314      ✓          kick                           kick                           0.0221      
+315      ✓          kick ball                      kick ball                      0.0222      
+316      ✓          kick ball                      kick ball                      0.0221      
+317      ✓          kick ball                      kick ball                      0.0224      
+318      ✓          kick ball                      kick ball                      0.0224      
+319      ✓          kick ball                      kick ball                      0.0219      
+320      ✓          kick ball                      kick ball                      0.0221      
+321      ✓          kick ball                      kick ball                      0.0222      
+322      ✓          kick ball                      kick ball                      0.0221      
+323      ✓          kick ball                      kick ball                      0.0223      
+324      ✓          kick ball                      kick ball                      0.0225      
+325      ✓          kick ball                      kick ball                      0.0223      
+326      ✓          kick ball                      kick ball                      0.0223      
+327      ✓          kick ball                      kick ball                      0.0222      
+328      ✓          kick ball                      kick ball                      0.0224      
+329      ✓          kick ball                      kick ball                      0.0223      
+330      ✓          kiss                           kiss                           0.0221      
+331      ✓          kiss                           kiss                           0.0221      
+332      ✓          kiss                           kiss                           0.0221      
+333      ✓          kiss                           kiss                           0.0220      
+334      ✓          kiss                           kiss                           0.0221      
+335      ✓          kiss                           kiss                           0.0221      
+336      ✓          kiss                           kiss                           0.0220      
+337      ✓          kiss                           kiss                           0.0221      
+338      ✓          kiss                           kiss                           0.0221      
+339      ✓          kiss                           kiss                           0.0221      
+340      ✓          kiss                           kiss                           0.0220      
+341      ✓          kiss                           kiss                           0.0220      
+342      ✓          kiss                           kiss                           0.0221      
+343      ✓          kiss                           kiss                           0.0218      
+344      ✓          kiss                           kiss                           0.0219      
+345      ✓          laugh                          laugh                          0.0221      
+346      ✓          laugh                          laugh                          0.0222      
+347      ✓          laugh                          laugh                          0.0222      
+348      ✓          laugh                          laugh                          0.0223      
+349      ✓          laugh                          laugh                          0.0219      
+350      ✓          laugh                          laugh                          0.0223      
+351      ✓          laugh                          laugh                          0.0223      
+352      ✓          laugh                          laugh                          0.0221      
+353      ✓          laugh                          laugh                          0.0222      
+354      ✓          laugh                          laugh                          0.0217      
+355      ✓          laugh                          laugh                          0.0223      
+356      ✓          laugh                          laugh                          0.0223      
+357      ✓          laugh                          laugh                          0.0220      
+358      ✓          laugh                          laugh                          0.0224      
+359      ✓          laugh                          laugh                          0.0222      
+360      ✓          pick                           pick                           0.0219      
+361      ✓          pick                           pick                           0.0221      
+362      ✓          pick                           pick                           0.0222      
+363      ✓          pick                           pick                           0.0221      
+364      ✓          pick                           pick                           0.0220      
+365      ✓          pick                           pick                           0.0219      
+366      ✓          pick                           pick                           0.0220      
+367      ✓          pick                           pick                           0.0217      
+368      ✓          pick                           pick                           0.0220      
+369      ✓          pick                           pick                           0.0222      
+370      ✓          pick                           pick                           0.0219      
+371      ✓          pick                           pick                           0.0220      
+372      ✓          pick                           pick                           0.0222      
+373      ✓          pick                           pick                           0.0222      
+374      ✓          pick                           pick                           0.0219      
+375      ✓          pour                           pour                           0.0219      
+376      ✓          pour                           pour                           0.0221      
+377      ✓          pour                           pour                           0.0221      
+378      ✓          pour                           pour                           0.0221      
+379      ✓          pour                           pour                           0.0221      
+380      ✓          pour                           pour                           0.0222      
+381      ✓          pour                           pour                           0.0221      
+382      ✓          pour                           pour                           0.0218      
+383      ✓          pour                           pour                           0.0220      
+384      ✓          pour                           pour                           0.0221      
+385      ✓          pour                           pour                           0.0222      
+386      ✓          pour                           pour                           0.0219      
+387      ✓          pour                           pour                           0.0220      
+388      ✓          pour                           pour                           0.0218      
+389      ✓          pour                           pour                           0.0221      
+390      ✓          pullup                         pullup                         0.0220      
+391      ✓          pullup                         pullup                         0.0219      
+392      ✓          pullup                         pullup                         0.0220      
+393      ✓          pullup                         pullup                         0.0220      
+394      ✓          pullup                         pullup                         0.0220      
+395      ✓          pullup                         pullup                         0.0221      
+396      ✓          pullup                         pullup                         0.0221      
+397      ✓          pullup                         pullup                         0.0221      
+398      ✓          pullup                         pullup                         0.0220      
+399      ✓          pullup                         pullup                         0.0221      
+400      ✓          pullup                         pullup                         0.0220      
+401      ✓          pullup                         pullup                         0.0219      
+402      ✓          pullup                         pullup                         0.0220      
+403      ✓          pullup                         pullup                         0.0220      
+404      ✓          pullup                         pullup                         0.0221      
+405      ✓          punch                          punch                          0.0219      
+406      ✓          punch                          punch                          0.0218      
+407      ✓          punch                          punch                          0.0221      
+408      ✓          punch                          punch                          0.0220      
+409      ✓          punch                          punch                          0.0221      
+410      ✓          punch                          punch                          0.0221      
+411      ✓          punch                          punch                          0.0220      
+412      ✓          punch                          punch                          0.0222      
+413      ✓          punch                          punch                          0.0218      
+414      ✓          punch                          punch                          0.0221      
+415      ✓          punch                          punch                          0.0218      
+416      ✓          punch                          punch                          0.0222      
+417      ✓          punch                          punch                          0.0220      
+418      ✓          punch                          punch                          0.0220      
+419      ✓          punch                          punch                          0.0217      
+420      ✓          push                           push                           0.0221      
+421      ✓          push                           push                           0.0221      
+422      ✓          push                           push                           0.0222      
+423      ✓          push                           push                           0.0222      
+424      ✓          push                           push                           0.0222      
+425      ✓          push                           push                           0.0219      
+426      ✓          push                           push                           0.0220      
+427      ✓          push                           push                           0.0221      
+428      ✓          push                           push                           0.0218      
+429      ✓          push                           push                           0.0220      
+430      ✓          push                           push                           0.0222      
+431      ✓          push                           push                           0.0220      
+432      ✓          push                           push                           0.0219      
+433      ✓          push                           push                           0.0221      
+434      ✓          push                           push                           0.0221      
+435      ✓          pushup                         pushup                         0.0221      
+436      ✓          pushup                         pushup                         0.0221      
+437      ✓          pushup                         pushup                         0.0220      
+438      ✓          pushup                         pushup                         0.0219      
+439      ✓          pushup                         pushup                         0.0221      
+440      ✓          pushup                         pushup                         0.0221      
+441      ✓          pushup                         pushup                         0.0221      
+442      ✓          pushup                         pushup                         0.0220      
+443      ✓          pushup                         pushup                         0.0220      
+444      ✓          pushup                         pushup                         0.0221      
+445      ✓          pushup                         pushup                         0.0221      
+446      ✓          pushup                         pushup                         0.0220      
+447      ✓          pushup                         pushup                         0.0221      
+448      ✓          pushup                         pushup                         0.0222      
+449      ✓          pushup                         pushup                         0.0221      
+450      ✓          ride bike                      ride bike                      0.0221      
+451      ✓          ride bike                      ride bike                      0.0220      
+452      ✓          ride bike                      ride bike                      0.0220      
+453      ✓          ride bike                      ride bike                      0.0219      
+454      ✓          ride bike                      ride bike                      0.0219      
+455      ✓          ride bike                      ride bike                      0.0219      
+456      ✓          ride bike                      ride bike                      0.0219      
+457      ✓          ride bike                      ride bike                      0.0219      
+458      ✓          ride bike                      ride bike                      0.0221      
+459      ✓          ride bike                      ride bike                      0.0220      
+460      ✓          ride bike                      ride bike                      0.0220      
+461      ✓          ride bike                      ride bike                      0.0221      
+462      ✓          ride bike                      ride bike                      0.0220      
+463      ✓          ride bike                      ride bike                      0.0219      
+464      ✓          ride bike                      ride bike                      0.0219      
+465      ✓          ride horse                     ride horse                     0.0219      
+466      ✓          ride horse                     ride horse                     0.0219      
+467      ✓          ride horse                     ride horse                     0.0219      
+468      ✓          ride horse                     ride horse                     0.0219      
+469      ✓          ride horse                     ride horse                     0.0219      
+470      ✓          ride horse                     ride horse                     0.0220      
+471      ✓          ride horse                     ride horse                     0.0219      
+472      ✓          ride horse                     ride horse                     0.0219      
+473      ✓          ride horse                     ride horse                     0.0218      
+474      ✓          ride horse                     ride horse                     0.0218      
+475      ✓          ride horse                     ride horse                     0.0219      
+476      ✓          ride horse                     ride horse                     0.0219      
+477      ✓          ride horse                     ride horse                     0.0219      
+478      ✗          ride horse                     run                            0.0216      
+479      ✓          ride horse                     ride horse                     0.0218      
+480      ✗          run                            stand                          0.0210      
+481      ✓          run                            run                            0.0220      
+482      ✓          run                            run                            0.0220      
+483      ✓          run                            run                            0.0217      
+484      ✗          run                            somersault                     0.0216      
+485      ✗          run                            kick ball                      0.0214      
+486      ✓          run                            run                            0.0216      
+487      ✓          run                            run                            0.0217      
+488      ✓          run                            run                            0.0218      
+489      ✓          run                            run                            0.0220      
+490      ✗          run                            walk                           0.0215      
+491      ✓          run                            run                            0.0217      
+492      ✓          run                            run                            0.0218      
+493      ✓          run                            run                            0.0219      
+494      ✓          run                            run                            0.0219      
+495      ✓          shake hands                    shake hands                    0.0222      
+496      ✓          shake hands                    shake hands                    0.0221      
+497      ✓          shake hands                    shake hands                    0.0222      
+498      ✓          shake hands                    shake hands                    0.0222      
+499      ✓          shake hands                    shake hands                    0.0211      
+500      ✓          shake hands                    shake hands                    0.0222      
+501      ✓          shake hands                    shake hands                    0.0219      
+502      ✓          shake hands                    shake hands                    0.0221      
+503      ✓          shake hands                    shake hands                    0.0223      
+504      ✓          shake hands                    shake hands                    0.0223      
+505      ✓          shake hands                    shake hands                    0.0222      
+506      ✓          shake hands                    shake hands                    0.0223      
+507      ✓          shake hands                    shake hands                    0.0222      
+508      ✓          shake hands                    shake hands                    0.0223      
+509      ✓          shake hands                    shake hands                    0.0223      
+510      ✓          shoot ball                     shoot ball                     0.0219      
+511      ✓          shoot ball                     shoot ball                     0.0219      
+512      ✓          shoot ball                     shoot ball                     0.0220      
+513      ✓          shoot ball                     shoot ball                     0.0224      
+514      ✓          shoot ball                     shoot ball                     0.0223      
+515      ✓          shoot ball                     shoot ball                     0.0221      
+516      ✓          shoot ball                     shoot ball                     0.0221      
+517      ✓          shoot ball                     shoot ball                     0.0220      
+518      ✓          shoot ball                     shoot ball                     0.0221      
+519      ✓          shoot ball                     shoot ball                     0.0221      
+520      ✓          shoot ball                     shoot ball                     0.0221      
+521      ✓          shoot ball                     shoot ball                     0.0222      
+522      ✓          shoot ball                     shoot ball                     0.0221      
+523      ✓          shoot ball                     shoot ball                     0.0221      
+524      ✓          shoot ball                     shoot ball                     0.0222      
+525      ✓          shoot bow                      shoot bow                      0.0219      
+526      ✓          shoot bow                      shoot bow                      0.0222      
+527      ✓          shoot bow                      shoot bow                      0.0221      
+528      ✓          shoot bow                      shoot bow                      0.0219      
+529      ✓          shoot bow                      shoot bow                      0.0219      
+530      ✓          shoot bow                      shoot bow                      0.0220      
+531      ✓          shoot bow                      shoot bow                      0.0220      
+532      ✓          shoot bow                      shoot bow                      0.0218      
+533      ✓          shoot bow                      shoot bow                      0.0220      
+534      ✓          shoot bow                      shoot bow                      0.0220      
+535      ✓          shoot bow                      shoot bow                      0.0221      
+536      ✓          shoot bow                      shoot bow                      0.0220      
+537      ✓          shoot bow                      shoot bow                      0.0220      
+538      ✓          shoot bow                      shoot bow                      0.0220      
+539      ✓          shoot bow                      shoot bow                      0.0220      
+540      ✓          shoot gun                      shoot gun                      0.0222      
+541      ✓          shoot gun                      shoot gun                      0.0222      
+542      ✓          shoot gun                      shoot gun                      0.0219      
+543      ✓          shoot gun                      shoot gun                      0.0222      
+544      ✓          shoot gun                      shoot gun                      0.0222      
+545      ✓          shoot gun                      shoot gun                      0.0220      
+546      ✓          shoot gun                      shoot gun                      0.0222      
+547      ✓          shoot gun                      shoot gun                      0.0222      
+548      ✓          shoot gun                      shoot gun                      0.0225      
+549      ✓          shoot gun                      shoot gun                      0.0221      
+550      ✓          shoot gun                      shoot gun                      0.0214      
+551      ✓          shoot gun                      shoot gun                      0.0221      
+552      ✓          shoot gun                      shoot gun                      0.0222      
+553      ✓          shoot gun                      shoot gun                      0.0222      
+554      ✓          shoot gun                      shoot gun                      0.0222      
+555      ✓          sit                            sit                            0.0220      
+556      ✓          sit                            sit                            0.0220      
+557      ✓          sit                            sit                            0.0218      
+558      ✓          sit                            sit                            0.0218      
+559      ✗          sit                            climb stairs                   0.0219      
+560      ✗          sit                            walk                           0.0218      
+561      ✓          sit                            sit                            0.0217      
+562      ✓          sit                            sit                            0.0220      
+563      ✓          sit                            sit                            0.0222      
+564      ✓          sit                            sit                            0.0217      
+565      ✓          sit                            sit                            0.0217      
+566      ✓          sit                            sit                            0.0220      
+567      ✓          sit                            sit                            0.0218      
+568      ✗          sit                            stand                          0.0218      
+569      ✓          sit                            sit                            0.0222      
+570      ✓          situp                          situp                          0.0221      
+571      ✓          situp                          situp                          0.0221      
+572      ✓          situp                          situp                          0.0220      
+573      ✓          situp                          situp                          0.0221      
+574      ✓          situp                          situp                          0.0220      
+575      ✓          situp                          situp                          0.0221      
+576      ✓          situp                          situp                          0.0222      
+577      ✓          situp                          situp                          0.0222      
+578      ✓          situp                          situp                          0.0222      
+579      ✓          situp                          situp                          0.0220      
+580      ✓          situp                          situp                          0.0221      
+581      ✓          situp                          situp                          0.0220      
+582      ✓          situp                          situp                          0.0220      
+583      ✓          situp                          situp                          0.0219      
+584      ✓          situp                          situp                          0.0220      
+585      ✓          smile                          smile                          0.0221      
+586      ✓          smile                          smile                          0.0223      
+587      ✓          smile                          smile                          0.0223      
+588      ✓          smile                          smile                          0.0218      
+589      ✓          smile                          smile                          0.0222      
+590      ✓          smile                          smile                          0.0218      
+591      ✓          smile                          smile                          0.0216      
+592      ✓          smile                          smile                          0.0215      
+593      ✓          smile                          smile                          0.0213      
+594      ✗          smile                          laugh                          0.0216      
+595      ✓          smile                          smile                          0.0223      
+596      ✓          smile                          smile                          0.0220      
+597      ✗          smile                          wave                           0.0220      
+598      ✗          smile                          wave                           0.0222      
+599      ✓          smile                          smile                          0.0224      
+600      ✓          smoke                          smoke                          0.0219      
+601      ✓          smoke                          smoke                          0.0220      
+602      ✓          smoke                          smoke                          0.0220      
+603      ✓          smoke                          smoke                          0.0221      
+604      ✓          smoke                          smoke                          0.0216      
+605      ✓          smoke                          smoke                          0.0220      
+606      ✓          smoke                          smoke                          0.0222      
+607      ✓          smoke                          smoke                          0.0220      
+608      ✓          smoke                          smoke                          0.0220      
+609      ✓          smoke                          smoke                          0.0221      
+610      ✓          smoke                          smoke                          0.0221      
+611      ✓          smoke                          smoke                          0.0221      
+612      ✓          smoke                          smoke                          0.0221      
+613      ✓          smoke                          smoke                          0.0220      
+614      ✓          smoke                          smoke                          0.0220      
+615      ✓          somersault                     somersault                     0.0222      
+616      ✓          somersault                     somersault                     0.0223      
+617      ✓          somersault                     somersault                     0.0224      
+618      ✓          somersault                     somersault                     0.0222      
+619      ✓          somersault                     somersault                     0.0224      
+620      ✓          somersault                     somersault                     0.0225      
+621      ✓          somersault                     somersault                     0.0223      
+622      ✓          somersault                     somersault                     0.0224      
+623      ✓          somersault                     somersault                     0.0222      
+624      ✓          somersault                     somersault                     0.0224      
+625      ✓          somersault                     somersault                     0.0222      
+626      ✓          somersault                     somersault                     0.0213      
+627      ✓          somersault                     somersault                     0.0225      
+628      ✓          somersault                     somersault                     0.0225      
+629      ✓          somersault                     somersault                     0.0221      
+630      ✓          stand                          stand                          0.0217      
+631      ✓          stand                          stand                          0.0220      
+632      ✓          stand                          stand                          0.0216      
+633      ✓          stand                          stand                          0.0218      
+634      ✓          stand                          stand                          0.0221      
+635      ✓          stand                          stand                          0.0220      
+636      ✓          stand                          stand                          0.0220      
+637      ✓          stand                          stand                          0.0219      
+638      ✗          stand                          walk                           0.0215      
+639      ✓          stand                          stand                          0.0215      
+640      ✓          stand                          stand                          0.0220      
+641      ✓          stand                          stand                          0.0217      
+642      ✗          stand                          sit                            0.0219      
+643      ✓          stand                          stand                          0.0222      
+644      ✓          stand                          stand                          0.0218      
+645      ✓          swing baseball                 swing baseball                 0.0217      
+646      ✗          swing baseball                 talk                           0.0220      
+647      ✗          swing baseball                 throw                          0.0218      
+648      ✗          swing baseball                 throw                          0.0219      
+649      ✓          swing baseball                 swing baseball                 0.0215      
+650      ✗          swing baseball                 throw                          0.0212      
+651      ✗          swing baseball                 talk                           0.0220      
+652      ✓          swing baseball                 swing baseball                 0.0216      
+653      ✗          swing baseball                 throw                          0.0220      
+654      ✗          swing baseball                 throw                          0.0215      
+655      ✗          swing baseball                 throw                          0.0216      
+656      ✗          swing baseball                 throw                          0.0214      
+657      ✗          swing baseball                 throw                          0.0217      
+658      ✓          swing baseball                 swing baseball                 0.0219      
+659      ✓          swing baseball                 swing baseball                 0.0220      
+660      ✓          sword                          sword                          0.0219      
+661      ✗          sword                          kick                           0.0215      
+662      ✓          sword                          sword                          0.0222      
+663      ✓          sword                          sword                          0.0217      
+664      ✓          sword                          sword                          0.0224      
+665      ✓          sword                          sword                          0.0219      
+666      ✓          sword                          sword                          0.0224      
+667      ✓          sword                          sword                          0.0223      
+668      ✓          sword                          sword                          0.0221      
+669      ✓          sword                          sword                          0.0220      
+670      ✓          sword                          sword                          0.0221      
+671      ✓          sword                          sword                          0.0224      
+672      ✗          sword                          walk                           0.0208      
+673      ✓          sword                          sword                          0.0222      
+674      ✓          sword                          sword                          0.0223      
+675      ✓          sword exercise                 sword exercise                 0.0222      
+676      ✓          sword exercise                 sword exercise                 0.0218      
+677      ✓          sword exercise                 sword exercise                 0.0222      
+678      ✓          sword exercise                 sword exercise                 0.0223      
+679      ✗          sword exercise                 clap                           0.0213      
+680      ✓          sword exercise                 sword exercise                 0.0225      
+681      ✓          sword exercise                 sword exercise                 0.0222      
+682      ✓          sword exercise                 sword exercise                 0.0219      
+683      ✓          sword exercise                 sword exercise                 0.0224      
+684      ✓          sword exercise                 sword exercise                 0.0222      
+685      ✓          sword exercise                 sword exercise                 0.0221      
+686      ✓          sword exercise                 sword exercise                 0.0222      
+687      ✓          sword exercise                 sword exercise                 0.0220      
+688      ✓          sword exercise                 sword exercise                 0.0220      
+689      ✓          sword exercise                 sword exercise                 0.0221      
+690      ✓          talk                           talk                           0.0216      
+691      ✓          talk                           talk                           0.0221      
+692      ✓          talk                           talk                           0.0220      
+693      ✓          talk                           talk                           0.0220      
+694      ✓          talk                           talk                           0.0221      
+695      ✓          talk                           talk                           0.0221      
+696      ✓          talk                           talk                           0.0218      
+697      ✓          talk                           talk                           0.0221      
+698      ✓          talk                           talk                           0.0219      
+699      ✓          talk                           talk                           0.0221      
+700      ✓          talk                           talk                           0.0221      
+701      ✓          talk                           talk                           0.0221      
+702      ✓          talk                           talk                           0.0223      
+703      ✓          talk                           talk                           0.0219      
+704      ✓          talk                           talk                           0.0221      
+705      ✓          throw                          throw                          0.0221      
+706      ✓          throw                          throw                          0.0222      
+707      ✓          throw                          throw                          0.0220      
+708      ✓          throw                          throw                          0.0222      
+709      ✓          throw                          throw                          0.0224      
+710      ✓          throw                          throw                          0.0222      
+711      ✓          throw                          throw                          0.0221      
+712      ✗          throw                          clap                           0.0212      
+713      ✓          throw                          throw                          0.0217      
+714      ✗          throw                          turn                           0.0210      
+715      ✓          throw                          throw                          0.0215      
+716      ✓          throw                          throw                          0.0225      
+717      ✗          throw                          eat                            0.0211      
+718      ✓          throw                          throw                          0.0220      
+719      ✓          throw                          throw                          0.0219      
+720      ✗          turn                           shoot gun                      0.0216      
+721      ✓          turn                           turn                           0.0222      
+722      ✓          turn                           turn                           0.0221      
+723      ✗          turn                           sit                            0.0221      
+724      ✗          turn                           sit                            0.0217      
+725      ✗          turn                           wave                           0.0215      
+726      ✓          turn                           turn                           0.0219      
+727      ✓          turn                           turn                           0.0221      
+728      ✗          turn                           walk                           0.0218      
+729      ✓          turn                           turn                           0.0215      
+730      ✓          turn                           turn                           0.0222      
+731      ✓          turn                           turn                           0.0215      
+732      ✗          turn                           talk                           0.0216      
+733      ✓          turn                           turn                           0.0218      
+734      ✓          turn                           turn                           0.0221      
+735      ✗          walk                           eat                            0.0209      
+736      ✓          walk                           walk                           0.0221      
+737      ✓          walk                           walk                           0.0218      
+738      ✓          walk                           walk                           0.0220      
+739      ✗          walk                           run                            0.0218      
+740      ✗          walk                           turn                           0.0211      
+741      ✗          walk                           stand                          0.0209      
+742      ✓          walk                           walk                           0.0217      
+743      ✗          walk                           stand                          0.0217      
+744      ✓          walk                           walk                           0.0223      
+745      ✓          walk                           walk                           0.0217      
+746      ✓          walk                           walk                           0.0215      
+747      ✓          walk                           walk                           0.0216      
+748      ✓          walk                           walk                           0.0216      
+749      ✗          walk                           run                            0.0216      
+750      ✓          wave                           wave                           0.0219      
+751      ✓          wave                           wave                           0.0223      
+752      ✓          wave                           wave                           0.0222      
+753      ✓          wave                           wave                           0.0219      
+754      ✓          wave                           wave                           0.0223      
+755      ✓          wave                           wave                           0.0222      
+756      ✓          wave                           wave                           0.0219      
+757      ✓          wave                           wave                           0.0222      
+758      ✓          wave                           wave                           0.0220      
+759      ✓          wave                           wave                           0.0218      
+760      ✓          wave                           wave                           0.0222      
+761      ✓          wave                           wave                           0.0221      
+762      ✓          wave                           wave                           0.0220      
+763      ✓          wave                           wave                           0.0220      
+764      ✓          wave                           wave                           0.0219      
+
+====================================================================================================
+WRONG PREDICTIONS (Details with Top-5)
+====================================================================================================
+
+Video Index: 205
+  Ground Truth : [13] fencing
+  Predicted    : [27] punch
+  Top-5 Predictions:
+    #1: [27] punch  (score=0.0210)
+    #2: [44] sword  (score=0.0209)
+    #3: [13] fencing  (score=0.0208) <-- GT
+    #4: [48] turn  (score=0.0208)
+    #5: [17] hit  (score=0.0207)
+
+Video Index: 289
+  Ground Truth : [19] jump
+  Predicted    : [7] dive
+  Top-5 Predictions:
+    #1: [7] dive  (score=0.0217)
+    #2: [19] jump  (score=0.0210) <-- GT
+    #3: [41] somersault  (score=0.0209)
+    #4: [14] flic flac  (score=0.0206)
+    #5: [12] fall floor  (score=0.0203)
+
+Video Index: 291
+  Ground Truth : [19] jump
+  Predicted    : [32] run
+  Top-5 Predictions:
+    #1: [32] run  (score=0.0214)
+    #2: [12] fall floor  (score=0.0213)
+    #3: [19] jump  (score=0.0208) <-- GT
+    #4: [29] pushup  (score=0.0205)
+    #5: [31] ride horse  (score=0.0204)
+
+Video Index: 297
+  Ground Truth : [19] jump
+  Predicted    : [32] run
+  Top-5 Predictions:
+    #1: [32] run  (score=0.0209)
+    #2: [47] throw  (score=0.0206)
+    #3: [7] dive  (score=0.0206)
+    #4: [12] fall floor  (score=0.0205)
+    #5: [13] fencing  (score=0.0205)
+
+Video Index: 298
+  Ground Truth : [19] jump
+  Predicted    : [7] dive
+  Top-5 Predictions:
+    #1: [7] dive  (score=0.0212)
+    #2: [27] punch  (score=0.0210)
+    #3: [19] jump  (score=0.0209) <-- GT
+    #4: [44] sword  (score=0.0208)
+    #5: [41] somersault  (score=0.0205)
+
+Video Index: 478
+  Ground Truth : [31] ride horse
+  Predicted    : [32] run
+  Top-5 Predictions:
+    #1: [32] run  (score=0.0216)
+    #2: [31] ride horse  (score=0.0209) <-- GT
+    #3: [19] jump  (score=0.0209)
+    #4: [5] climb  (score=0.0205)
+    #5: [12] fall floor  (score=0.0205)
+
+Video Index: 480
+  Ground Truth : [32] run
+  Predicted    : [42] stand
+  Top-5 Predictions:
+    #1: [42] stand  (score=0.0210)
+    #2: [49] walk  (score=0.0207)
+    #3: [0] brush hair  (score=0.0204)
+    #4: [50] wave  (score=0.0204)
+    #5: [48] turn  (score=0.0203)
+
+Video Index: 484
+  Ground Truth : [32] run
+  Predicted    : [41] somersault
+  Top-5 Predictions:
+    #1: [41] somersault  (score=0.0216)
+    #2: [12] fall floor  (score=0.0213)
+    #3: [21] kick ball  (score=0.0212)
+    #4: [20] kick  (score=0.0209)
+    #5: [32] run  (score=0.0206) <-- GT
+
+Video Index: 485
+  Ground Truth : [32] run
+  Predicted    : [21] kick ball
+  Top-5 Predictions:
+    #1: [21] kick ball  (score=0.0214)
+    #2: [32] run  (score=0.0213) <-- GT
+    #3: [41] somersault  (score=0.0209)
+    #4: [37] sit  (score=0.0208)
+    #5: [12] fall floor  (score=0.0206)
+
+Video Index: 490
+  Ground Truth : [32] run
+  Predicted    : [49] walk
+  Top-5 Predictions:
+    #1: [49] walk  (score=0.0215)
+    #2: [32] run  (score=0.0213) <-- GT
+    #3: [6] climb stairs  (score=0.0205)
+    #4: [36] shoot gun  (score=0.0205)
+    #5: [40] smoke  (score=0.0204)
+
+Video Index: 559
+  Ground Truth : [37] sit
+  Predicted    : [6] climb stairs
+  Top-5 Predictions:
+    #1: [6] climb stairs  (score=0.0219)
+    #2: [42] stand  (score=0.0212)
+    #3: [19] jump  (score=0.0209)
+    #4: [32] run  (score=0.0207)
+    #5: [37] sit  (score=0.0206) <-- GT
+
+Video Index: 560
+  Ground Truth : [37] sit
+  Predicted    : [49] walk
+  Top-5 Predictions:
+    #1: [49] walk  (score=0.0218)
+    #2: [32] run  (score=0.0214)
+    #3: [6] climb stairs  (score=0.0210)
+    #4: [19] jump  (score=0.0209)
+    #5: [28] push  (score=0.0204)
+
+Video Index: 568
+  Ground Truth : [37] sit
+  Predicted    : [42] stand
+  Top-5 Predictions:
+    #1: [42] stand  (score=0.0218)
+    #2: [37] sit  (score=0.0215) <-- GT
+    #3: [10] drink  (score=0.0211)
+    #4: [49] walk  (score=0.0208)
+    #5: [11] eat  (score=0.0205)
+
+Video Index: 594
+  Ground Truth : [39] smile
+  Predicted    : [23] laugh
+  Top-5 Predictions:
+    #1: [23] laugh  (score=0.0216)
+    #2: [39] smile  (score=0.0216) <-- GT
+    #3: [3] chew  (score=0.0209)
+    #4: [4] clap  (score=0.0209)
+    #5: [50] wave  (score=0.0208)
+
+Video Index: 597
+  Ground Truth : [39] smile
+  Predicted    : [50] wave
+  Top-5 Predictions:
+    #1: [50] wave  (score=0.0220)
+    #2: [39] smile  (score=0.0219) <-- GT
+    #3: [4] clap  (score=0.0206)
+    #4: [46] talk  (score=0.0204)
+    #5: [0] brush hair  (score=0.0204)
+
+Video Index: 598
+  Ground Truth : [39] smile
+  Predicted    : [50] wave
+  Top-5 Predictions:
+    #1: [50] wave  (score=0.0222)
+    #2: [4] clap  (score=0.0212)
+    #3: [39] smile  (score=0.0209) <-- GT
+    #4: [46] talk  (score=0.0206)
+    #5: [33] shake hands  (score=0.0205)
+
+Video Index: 638
+  Ground Truth : [42] stand
+  Predicted    : [49] walk
+  Top-5 Predictions:
+    #1: [49] walk  (score=0.0215)
+    #2: [24] pick  (score=0.0210)
+    #3: [48] turn  (score=0.0207)
+    #4: [32] run  (score=0.0207)
+    #5: [37] sit  (score=0.0207)
+
+Video Index: 642
+  Ground Truth : [42] stand
+  Predicted    : [37] sit
+  Top-5 Predictions:
+    #1: [37] sit  (score=0.0219)
+    #2: [42] stand  (score=0.0212) <-- GT
+    #3: [11] eat  (score=0.0210)
+    #4: [12] fall floor  (score=0.0207)
+    #5: [41] somersault  (score=0.0206)
+
+Video Index: 646
+  Ground Truth : [43] swing baseball
+  Predicted    : [46] talk
+  Top-5 Predictions:
+    #1: [46] talk  (score=0.0220)
+    #2: [39] smile  (score=0.0214)
+    #3: [50] wave  (score=0.0209)
+    #4: [48] turn  (score=0.0206)
+    #5: [3] chew  (score=0.0204)
+
+Video Index: 647
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0218)
+    #2: [43] swing baseball  (score=0.0212) <-- GT
+    #3: [4] clap  (score=0.0206)
+    #4: [2] catch  (score=0.0205)
+    #5: [33] shake hands  (score=0.0204)
+
+Video Index: 648
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0219)
+    #2: [43] swing baseball  (score=0.0213) <-- GT
+    #3: [2] catch  (score=0.0204)
+    #4: [50] wave  (score=0.0204)
+    #5: [4] clap  (score=0.0204)
+
+Video Index: 650
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0212)
+    #2: [43] swing baseball  (score=0.0208) <-- GT
+    #3: [2] catch  (score=0.0207)
+    #4: [17] hit  (score=0.0205)
+    #5: [27] punch  (score=0.0203)
+
+Video Index: 651
+  Ground Truth : [43] swing baseball
+  Predicted    : [46] talk
+  Top-5 Predictions:
+    #1: [46] talk  (score=0.0220)
+    #2: [48] turn  (score=0.0211)
+    #3: [50] wave  (score=0.0204)
+    #4: [8] draw sword  (score=0.0204)
+    #5: [31] ride horse  (score=0.0203)
+
+Video Index: 653
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0220)
+    #2: [43] swing baseball  (score=0.0211) <-- GT
+    #3: [2] catch  (score=0.0209)
+    #4: [17] hit  (score=0.0203)
+    #5: [4] clap  (score=0.0202)
+
+Video Index: 654
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0215)
+    #2: [4] clap  (score=0.0211)
+    #3: [50] wave  (score=0.0207)
+    #4: [2] catch  (score=0.0207)
+    #5: [24] pick  (score=0.0205)
+
+Video Index: 655
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0216)
+    #2: [2] catch  (score=0.0212)
+    #3: [43] swing baseball  (score=0.0212) <-- GT
+    #4: [34] shoot ball  (score=0.0203)
+    #5: [24] pick  (score=0.0202)
+
+Video Index: 656
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0214)
+    #2: [43] swing baseball  (score=0.0214) <-- GT
+    #3: [2] catch  (score=0.0207)
+    #4: [4] clap  (score=0.0204)
+    #5: [33] shake hands  (score=0.0204)
+
+Video Index: 657
+  Ground Truth : [43] swing baseball
+  Predicted    : [47] throw
+  Top-5 Predictions:
+    #1: [47] throw  (score=0.0217)
+    #2: [43] swing baseball  (score=0.0214) <-- GT
+    #3: [2] catch  (score=0.0210)
+    #4: [4] clap  (score=0.0206)
+    #5: [34] shoot ball  (score=0.0203)
+
+Video Index: 661
+  Ground Truth : [44] sword
+  Predicted    : [20] kick
+  Top-5 Predictions:
+    #1: [20] kick  (score=0.0215)
+    #2: [27] punch  (score=0.0211)
+    #3: [17] hit  (score=0.0209)
+    #4: [44] sword  (score=0.0208) <-- GT
+    #5: [12] fall floor  (score=0.0206)
+
+Video Index: 672
+  Ground Truth : [44] sword
+  Predicted    : [49] walk
+  Top-5 Predictions:
+    #1: [49] walk  (score=0.0208)
+    #2: [45] sword exercise  (score=0.0208)
+    #3: [20] kick  (score=0.0206)
+    #4: [19] jump  (score=0.0205)
+    #5: [32] run  (score=0.0205)
+
+Video Index: 679
+  Ground Truth : [45] sword exercise
+  Predicted    : [4] clap
+  Top-5 Predictions:
+    #1: [4] clap  (score=0.0213)
+    #2: [50] wave  (score=0.0211)
+    #3: [46] talk  (score=0.0209)
+    #4: [3] chew  (score=0.0208)
+    #5: [33] shake hands  (score=0.0206)
+
+Video Index: 712
+  Ground Truth : [47] throw
+  Predicted    : [4] clap
+  Top-5 Predictions:
+    #1: [4] clap  (score=0.0212)
+    #2: [47] throw  (score=0.0210) <-- GT
+    #3: [45] sword exercise  (score=0.0210)
+    #4: [2] catch  (score=0.0205)
+    #5: [33] shake hands  (score=0.0204)
+
+Video Index: 714
+  Ground Truth : [47] throw
+  Predicted    : [48] turn
+  Top-5 Predictions:
+    #1: [48] turn  (score=0.0210)
+    #2: [47] throw  (score=0.0208) <-- GT
+    #3: [50] wave  (score=0.0206)
+    #4: [4] clap  (score=0.0205)
+    #5: [34] shoot ball  (score=0.0205)
+
+Video Index: 717
+  Ground Truth : [47] throw
+  Predicted    : [11] eat
+  Top-5 Predictions:
+    #1: [11] eat  (score=0.0211)
+    #2: [47] throw  (score=0.0208) <-- GT
+    #3: [37] sit  (score=0.0205)
+    #4: [48] turn  (score=0.0205)
+    #5: [2] catch  (score=0.0203)
+
+Video Index: 720
+  Ground Truth : [48] turn
+  Predicted    : [36] shoot gun
+  Top-5 Predictions:
+    #1: [36] shoot gun  (score=0.0216)
+    #2: [48] turn  (score=0.0212) <-- GT
+    #3: [47] throw  (score=0.0205)
+    #4: [32] run  (score=0.0204)
+    #5: [35] shoot bow  (score=0.0204)
+
+Video Index: 723
+  Ground Truth : [48] turn
+  Predicted    : [37] sit
+  Top-5 Predictions:
+    #1: [37] sit  (score=0.0221)
+    #2: [49] walk  (score=0.0213)
+    #3: [24] pick  (score=0.0205)
+    #4: [42] stand  (score=0.0204)
+    #5: [19] jump  (score=0.0204)
+
+Video Index: 724
+  Ground Truth : [48] turn
+  Predicted    : [37] sit
+  Top-5 Predictions:
+    #1: [37] sit  (score=0.0217)
+    #2: [11] eat  (score=0.0206)
+    #3: [24] pick  (score=0.0206)
+    #4: [48] turn  (score=0.0206) <-- GT
+    #5: [10] drink  (score=0.0205)
+
+Video Index: 725
+  Ground Truth : [48] turn
+  Predicted    : [50] wave
+  Top-5 Predictions:
+    #1: [50] wave  (score=0.0215)
+    #2: [47] throw  (score=0.0213)
+    #3: [48] turn  (score=0.0209) <-- GT
+    #4: [36] shoot gun  (score=0.0205)
+    #5: [27] punch  (score=0.0205)
+
+Video Index: 728
+  Ground Truth : [48] turn
+  Predicted    : [49] walk
+  Top-5 Predictions:
+    #1: [49] walk  (score=0.0218)
+    #2: [48] turn  (score=0.0215) <-- GT
+    #3: [37] sit  (score=0.0211)
+    #4: [24] pick  (score=0.0208)
+    #5: [19] jump  (score=0.0205)
+
+Video Index: 732
+  Ground Truth : [48] turn
+  Predicted    : [46] talk
+  Top-5 Predictions:
+    #1: [46] talk  (score=0.0216)
+    #2: [48] turn  (score=0.0208) <-- GT
+    #3: [50] wave  (score=0.0206)
+    #4: [19] jump  (score=0.0205)
+    #5: [3] chew  (score=0.0205)
+
+Video Index: 735
+  Ground Truth : [49] walk
+  Predicted    : [11] eat
+  Top-5 Predictions:
+    #1: [11] eat  (score=0.0209)
+    #2: [19] jump  (score=0.0208)
+    #3: [48] turn  (score=0.0207)
+    #4: [50] wave  (score=0.0206)
+    #5: [37] sit  (score=0.0204)
+
+Video Index: 739
+  Ground Truth : [49] walk
+  Predicted    : [32] run
+  Top-5 Predictions:
+    #1: [32] run  (score=0.0218)
+    #2: [49] walk  (score=0.0215) <-- GT
+    #3: [20] kick  (score=0.0206)
+    #4: [24] pick  (score=0.0206)
+    #5: [19] jump  (score=0.0202)
+
+Video Index: 740
+  Ground Truth : [49] walk
+  Predicted    : [48] turn
+  Top-5 Predictions:
+    #1: [48] turn  (score=0.0211)
+    #2: [49] walk  (score=0.0211) <-- GT
+    #3: [47] throw  (score=0.0207)
+    #4: [37] sit  (score=0.0206)
+    #5: [17] hit  (score=0.0206)
+
+Video Index: 741
+  Ground Truth : [49] walk
+  Predicted    : [42] stand
+  Top-5 Predictions:
+    #1: [42] stand  (score=0.0209)
+    #2: [27] punch  (score=0.0208)
+    #3: [48] turn  (score=0.0208)
+    #4: [50] wave  (score=0.0207)
+    #5: [17] hit  (score=0.0206)
+
+Video Index: 743
+  Ground Truth : [49] walk
+  Predicted    : [42] stand
+  Top-5 Predictions:
+    #1: [42] stand  (score=0.0217)
+    #2: [49] walk  (score=0.0215) <-- GT
+    #3: [37] sit  (score=0.0214)
+    #4: [6] climb stairs  (score=0.0207)
+    #5: [32] run  (score=0.0205)
+
+Video Index: 749
+  Ground Truth : [49] walk
+  Predicted    : [32] run
+  Top-5 Predictions:
+    #1: [32] run  (score=0.0216)
+    #2: [49] walk  (score=0.0216) <-- GT
+    #3: [19] jump  (score=0.0209)
+    #4: [6] climb stairs  (score=0.0207)
+    #5: [48] turn  (score=0.0207)
+
+====================================================================================================
+PER-CLASS ACCURACY
+====================================================================================================
+
+Class Index  Class Name                          Correct    Total      Accuracy  
+-----------------------------------------------------------------------------
+0            brush hair                          15         15         100.00    %
+1            cartwheel                           15         15         100.00    %
+2            catch                               15         15         100.00    %
+3            chew                                15         15         100.00    %
+4            clap                                15         15         100.00    %
+5            climb                               15         15         100.00    %
+6            climb stairs                        15         15         100.00    %
+7            dive                                15         15         100.00    %
+8            draw sword                          15         15         100.00    %
+9            dribble                             15         15         100.00    %
+10           drink                               15         15         100.00    %
+11           eat                                 15         15         100.00    %
+12           fall floor                          15         15         100.00    %
+13           fencing                             14         15         93.33     %
+14           flic flac                           15         15         100.00    %
+15           golf                                15         15         100.00    %
+16           handstand                           15         15         100.00    %
+17           hit                                 15         15         100.00    %
+18           hug                                 15         15         100.00    %
+19           jump                                11         15         73.33     %
+20           kick                                15         15         100.00    %
+21           kick ball                           15         15         100.00    %
+22           kiss                                15         15         100.00    %
+23           laugh                               15         15         100.00    %
+24           pick                                15         15         100.00    %
+25           pour                                15         15         100.00    %
+26           pullup                              15         15         100.00    %
+27           punch                               15         15         100.00    %
+28           push                                15         15         100.00    %
+29           pushup                              15         15         100.00    %
+30           ride bike                           15         15         100.00    %
+31           ride horse                          14         15         93.33     %
+32           run                                 11         15         73.33     %
+33           shake hands                         15         15         100.00    %
+34           shoot ball                          15         15         100.00    %
+35           shoot bow                           15         15         100.00    %
+36           shoot gun                           15         15         100.00    %
+37           sit                                 12         15         80.00     %
+38           situp                               15         15         100.00    %
+39           smile                               12         15         80.00     %
+40           smoke                               15         15         100.00    %
+41           somersault                          15         15         100.00    %
+42           stand                               13         15         86.67     %
+43           swing baseball                      5          15         33.33     %
+44           sword                               13         15         86.67     %
+45           sword exercise                      14         15         93.33     %
+46           talk                                15         15         100.00    %
+47           throw                               12         15         80.00     %
+48           turn                                9          15         60.00     %
+49           walk                                9          15         60.00     %
+50           wave                                15         15         100.00    %

@@ -322,6 +322,163 @@ def mean_average_precision(probs, labels):
     ap = float(ap) * 100
     return [torch.tensor(acc[0]).cuda(), torch.tensor(ap).cuda()]
 
+def dump_param_keys(
+    model,
+    save_path,
+    logger=None,
+    model_label="MODEL",
+    video_head=None,
+    video_head_label="VIDEO_HEAD",
+    flops_input_shape=None,
+    video_head_flops_input_shape=None,
+    device="cuda",
+):
+    """
+    将 model（及可选的 video_head）的 named_parameters 信息保存到 txt 文件。
+
+    功能：
+      - trainable / frozen 参数分组显示
+      - 每个参数的 name / shape / numel
+      - 末尾统计摘要（参数量 + 百分比）
+      - 可选：用 thop 计算整体 GFLOPs
+
+    Args:
+        model               : 主模型（支持 DDP 自动解包）
+        save_path           : 输出 txt 路径
+        logger              : 可选 logger，仅打摘要
+        model_label         : 主模型在文件中的标题标签
+        video_head          : 可选，第二个模块（video_head）
+        video_head_label    : video_head 在文件中的标题标签
+        flops_input_shape   : 主模型 FLOPs 输入 shape，如 (1, 8, 3, 224, 224)
+                              传 None 则跳过 FLOPs 计算
+        video_head_flops_input_shape : video_head FLOPs 输入 shape
+        device              : FLOPs 计算使用的设备
+    """
+
+    sep  = "=" * 110
+    sep2 = "-" * 110
+
+    def _collect_params(module):
+        """收集单个模块的可训练 / 冻结参数列表及统计。"""
+        raw = module.module if hasattr(module, 'module') else module
+        trainable_list, frozen_list = [], []
+        for name, param in raw.named_parameters():
+            shape_str = str(list(param.shape))
+            entry = (
+                f"  {name:<85s}"
+                f"  shape={shape_str:<28s}"
+                f"  numel={param.numel():>12,}"
+            )
+            if param.requires_grad:
+                trainable_list.append((entry, param.numel()))
+            else:
+                frozen_list.append((entry, param.numel()))
+        return raw, trainable_list, frozen_list
+
+    def _build_section(label, module, flops_shape):
+        """为单个模块生成文本段落列表。"""
+        raw, trainable_list, frozen_list = _collect_params(module)
+
+        total_trainable = sum(n for _, n in trainable_list)
+        total_frozen    = sum(n for _, n in frozen_list)
+        total           = total_trainable + total_frozen
+
+        lines = []
+        lines.append(sep)
+        lines.append(f"  🧩  {label}  —  Trainable vs Frozen")
+        lines.append(sep)
+
+        # ── 可训练参数 ──────────────────────────────────────────────────────
+        lines.append(
+            f"\n  ✅  TRAINABLE PARAMETERS"
+            f"  —  {len(trainable_list)} layers  |  {total_trainable:,} params"
+            f"  ({100 * total_trainable / max(total, 1):.2f}%)"
+        )
+        lines.append(sep2)
+        if trainable_list:
+            for entry, _ in trainable_list:
+                lines.append(entry)
+        else:
+            lines.append("  (none)")
+
+        # ── 冻结参数 ────────────────────────────────────────────────────────
+        lines.append(
+            f"\n  ❄️   FROZEN PARAMETERS"
+            f"  —  {len(frozen_list)} layers  |  {total_frozen:,} params"
+            f"  ({100 * total_frozen / max(total, 1):.2f}%)"
+        )
+        lines.append(sep2)
+        if frozen_list:
+            for entry, _ in frozen_list:
+                lines.append(entry)
+        else:
+            lines.append("  (none)")
+
+        # ── 统计摘要 ────────────────────────────────────────────────────────
+        lines.append(f"\n{sep}")
+        lines.append(f"  SUMMARY  —  {label}")
+        lines.append(sep2)
+        lines.append(f"  {'Total     params':<22s}: {total:>15,}   (100.00%)")
+        lines.append(f"  {'Trainable params':<22s}: {total_trainable:>15,}   ({100 * total_trainable / max(total, 1):.2f}%)")
+        lines.append(f"  {'Frozen    params':<22s}: {total_frozen:>15,}   ({100 * total_frozen / max(total, 1):.2f}%)")
+        lines.append(sep)
+
+        return lines, total_trainable, total_frozen
+
+    # ── 主模型 ──────────────────────────────────────────────────────────────
+    all_lines = []
+    all_lines.append(f"  Generated at : {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    all_lines.append(sep)
+
+    model_lines, m_train, m_frozen = _build_section(
+        model_label, model, flops_input_shape
+    )
+    all_lines.extend(model_lines)
+
+    # ── video_head（可选）────────────────────────────────────────────────────
+    vh_train, vh_frozen = 0, 0
+    if video_head is not None:
+        all_lines.append("\n")
+        vh_lines, vh_train, vh_frozen = _build_section(
+            video_head_label, video_head, video_head_flops_input_shape
+        )
+        all_lines.extend(vh_lines)
+
+    # ── 全局汇总 ─────────────────────────────────────────────────────────────
+    if video_head is not None:
+        grand_total     = m_train + m_frozen + vh_train + vh_frozen
+        grand_trainable = m_train + vh_train
+        grand_frozen    = m_frozen + vh_frozen
+        all_lines.append(f"\n{sep}")
+        all_lines.append("  🌐  GRAND TOTAL  (MODEL + VIDEO_HEAD)")
+        all_lines.append(sep2)
+        all_lines.append(f"  {'Total     params':<22s}: {grand_total:>15,}   (100.00%)")
+        all_lines.append(f"  {'Trainable params':<22s}: {grand_trainable:>15,}   ({100 * grand_trainable / max(grand_total, 1):.2f}%)")
+        all_lines.append(f"  {'Frozen    params':<22s}: {grand_frozen:>15,}   ({100 * grand_frozen / max(grand_total, 1):.2f}%)")
+        all_lines.append(sep)
+
+    content = "\n".join(all_lines)
+
+    # ── 写文件 ───────────────────────────────────────────────────────────────
+    with open(save_path, "w", encoding="utf-8") as f:
+        f.write(content + "\n")
+
+    # ── logger 摘要 ──────────────────────────────────────────────────────────
+    if logger:
+        logger.info(f"Parameter keys saved → {save_path}")
+        logger.info(
+            f"[{model_label}] Trainable: {m_train:,} / Total: {m_train + m_frozen:,}"
+            f"  ({100 * m_train / max(m_train + m_frozen, 1):.2f}%)"
+        )
+        if video_head is not None:
+            logger.info(
+                f"[{video_head_label}] Trainable: {vh_train:,} / Total: {vh_train + vh_frozen:,}"
+                f"  ({100 * vh_train / max(vh_train + vh_frozen, 1):.2f}%)"
+            )
+    else:
+        print(content)
+
+
 
 
 if __name__=='__main__':

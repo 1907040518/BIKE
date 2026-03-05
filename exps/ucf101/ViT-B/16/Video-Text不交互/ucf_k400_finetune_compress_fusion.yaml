@@ -35,7 +35,7 @@ network:
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
     attribute_guided_fusion:
-        enable: True          # 🔥 致命错误1：你原本是 False！如果你的动态融合模块是通过这个开关控制的，它之前根本没参与前向传播！
+        enable: False          # 🔥 致命错误1：你原本是 False！如果你的动态融合模块是通过这个开关控制的，它之前根本没参与前向传播！
         num_heads: 8
         num_attributes: 16
         dropout: 0.1

@@ -569,7 +569,9 @@ def main(args):
         fusion_kwargs = {k: attribute_fusion_cfg[k] for k in allowed_keys if k in attribute_fusion_cfg}
     elif attribute_fusion_cfg is not None:
         attribute_fusion_enabled = bool(attribute_fusion_cfg)
-
+    else:
+        attribute_fusion_enabled = attribute_prompt_enabled
+        
     if attribute_fusion_enabled and not attribute_prompt_enabled and dist.get_rank() == 0:
         logger.warning("Attribute-guided fusion requires attribute prompts; disabling module.")
         attribute_fusion_enabled = False

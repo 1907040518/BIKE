@@ -1,0 +1,348 @@
+==================================================================================================================================
+PREDICTION COMPARISON REPORT
+==================================================================================================================================
+  Model A : CoAPT
+  Model B : CoAPT+fution
+  Aligned samples  : 765
+
+  CoAPT Accuracy : 72.29%
+  CoAPT+fution Accuracy : 75.29%
+  Accuracy Delta   : -3.01%  (CoAPT vs CoAPT+fution)
+
+  Category                                    Count   % of total
+  --------------------------------------------------------------
+  Both Correct  (A✓ B✓)                         517       67.58%
+  CoAPT only correct  (A✓ B✗)                    36        4.71%
+  CoAPT+fution only correct  (A✗ B✓)             59        7.71%
+  Both Wrong, same pred (A✗ B✗ →same)           105       13.73%
+  Both Wrong, diff pred (A✗ B✗ →diff)            48        6.27%
+
+==================================================================================================================================
+[SECTION 1]  CoAPT CORRECT  /  CoAPT+fution WRONG   (A✓ B✗)  —  36 samples
+==================================================================================================================================
+  #     ListIdx  GT Label                  [CoAPT] Pred                       Conf   [CoAPT+fution] Pred                       Conf   Video Path
+  --------------------------------------------------------------------------------------------------------------------------------
+  1     16       brush hair                ✓ brush hair               0.0211   ✗ stand                    0.0216   brush_hair/Prelinger_HabitPat1954_brush_hair_h_nm_np1_ba_med_2.mp4
+  2     140      clap                      ✓ clap                     0.0210   ✗ sit                      0.0212   clap/The_Slow_Clap_clap_u_nm_np1_fr_med_12.mp4
+  3     196      climb stairs              ✓ climb stairs             0.0214   ✗ walk                     0.0214   climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_cm_np2_fr_med_5.mp4
+  4     200      climb stairs              ✓ climb stairs             0.0212   ✗ run                      0.0210   climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np2_fr_med_4.mp4
+  5     248      draw sword                ✓ draw sword               0.0219   ✗ sword                    0.0216   draw_sword/MAF_Tenshin_Ryu_draw_sword_f_cm_np1_fr_med_3.mp4
+  6     256      draw sword                ✓ draw sword               0.0213   ✗ throw                    0.0212   draw_sword/The_Last_Samurai_-_In_Your_Honor_draw_sword_u_nm_np1_fr_med_6.mp4
+  7     306      drink                     ✓ drink                    0.0214   ✗ eat                      0.0215   drink/DONNIE_DARKO_drink_u_nm_np1_fr_goo_4.mp4
+  8     404      fencing                   ✓ fencing                  0.0218   ✗ sword                    0.0219   fencing/Rapier_at_Clinton_2007_fencing_f_cm_np2_le_bad_3.mp4
+  9     406      fencing                   ✓ fencing                  0.0218   ✗ sword                    0.0219   fencing/Rapier_at_Clinton_2007_fencing_f_cm_np2_ri_bad_1.mp4
+  10    500      handstand                 ✓ handstand                0.0221   ✗ cartwheel                0.0220   handstand/Turnk_r_Pippi_Michel_handstand_f_cm_np2_le_med_5.mp4
+  11    516      hit                       ✓ hit                      0.0215   ✗ pick                     0.0208   hit/Destruction_of_a_TV_hit_f_cm_np1_le_bad_4.mp4
+  12    518      hit                       ✓ hit                      0.0213   ✗ pick                     0.0208   hit/Destruction_of_a_TV_hit_f_cm_np1_ri_bad_2.mp4
+  13    522      hit                       ✓ hit                      0.0206   ✗ punch                    0.0209   hit/HARD_FACE_SLAP_COMPILATION_-_THE_FUNNIEST_FACE_SLAPS_EVER!!_-_Old_school_Vids_hit_u_cm_np1_ri_bad_2.mp4
+  14    582      jump                      ✓ jump                     0.0213   ✗ kick ball                0.0216   jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_13.mp4
+  15    608      kick                      ✓ kick                     0.0213   ✗ sword                    0.0216   kick/kick__Baddest_Fight_Scenes_EVER!_-_Kickboxer_-_Part_1_of_2_kick_f_cm_np1_fr_med_11.mp4
+  16    612      kick                      ✓ kick                     0.0214   ✗ punch                    0.0215   kick/kick__Baddest_Fight_Scenes_EVER!_-_Kickboxer_-_Part_1_of_2_kick_u_cm_np1_ba_med_3.mp4
+  17    624      kick                      ✓ kick                     0.0218   ✗ punch                    0.0219   kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_ri_bad_1.mp4
+  18    766      pour                      ✓ pour                     0.0209   ✗ stand                    0.0211   pour/KOREAN_TEA_CEREMONY_-_Simple_Demo_pour_u_nm_np1_fr_med_2.mp4
+  19    856      push                      ✓ push                     0.0215   ✗ hit                      0.0214   push/Kommandant__muss_Auto_schieben_push_f_cm_np1_le_bad_5.mp4
+  20    958      ride horse                ✓ ride horse               0.0212   ✗ run                      0.0215   ride_horse/Return_of_the_King_2_ride_horse_f_cm_np6_ba_bad_0.mp4
+  21    1110     sit                       ✓ sit                      0.0208   ✗ stand                    0.0215   sit/AMADEUS_sit_u_nm_np1_fr_med_4.mp4
+  22    1112     sit                       ✓ sit                      0.0213   ✗ stand                    0.0217   sit/AllThePresidentMen_sit_f_nm_np1_fr_goo_3.mp4
+  23    1120     sit                       ✓ sit                      0.0215   ✗ stand                    0.0217   sit/Man_Who_Cheated_Himself_512kb_sit_u_cm_np1_fr_med_3.mp4
+  24    1128     sit                       ✓ sit                      0.0212   ✗ stand                    0.0216   sit/SweeneyTodd_sit_u_cm_np1_fr_med_14.mp4
+  25    1130     sit                       ✓ sit                      0.0214   ✗ stand                    0.0214   sit/SweeneyTodd_sit_u_cm_np1_le_med_19.mp4
+  26    1132     sit                       ✓ sit                      0.0213   ✗ stand                    0.0215   sit/TheBoondockSaints_sit_f_cm_np1_ri_med_42.mp4
+  27    1134     sit                       ✓ sit                      0.0218   ✗ stand                    0.0217   sit/TheBoondockSaints_sit_u_cm_np1_fr_med_29.mp4
+  28    1190     smile                     ✓ smile                    0.0215   ✗ laugh                    0.0212   smile/SMILES_FROM_OFF_THE_ROAD_3_-TRAVELS_WITH_A_HAT_smile_h_nm_np1_fr_bad_2.mp4
+  29    1236     somersault                ✓ somersault               0.0220   ✗ cartwheel                0.0220   somersault/Paul_Hamm_on_Floor_Exercise_at_2008_Pacific_Rim_somersault_f_cm_np1_le_med_2.mp4
+  30    1314     swing baseball            ✓ swing baseball           0.0218   ✗ throw                    0.0216   swing_baseball/Faith_Rewarded_swing_baseball_u_nm_np1_le_bad_12.mp4
+  31    1356     sword exercise            ✓ sword exercise           0.0214   ✗ sword                    0.0221   sword_exercise/Highlander_I_with_Christophe_Lambert_&_Sean_Connery_sword_exercise_f_cm_np2_ba_med_1.mp4
+  32    1364     sword exercise            ✓ sword exercise           0.0218   ✗ sword                    0.0217   sword_exercise/MAF_Tenshin_Ryu_sword_exercise_f_nm_np1_ri_bad_2.mp4
+  33    1382     talk                      ✓ talk                     0.0215   ✗ turn                     0.0215   talk/Fellowship_3_talk_h_nm_np1_fr_goo_1.mp4
+  34    1428     throw                     ✓ throw                    0.0211   ✗ kick                     0.0214   throw/Prelinger_ActYourA1949_throw_f_cm_np1_ri_med_8.mp4
+  35    1448     turn                      ✓ turn                     0.0212   ✗ wave                     0.0209   turn/TheBigBangS01E02TheBigBranHypothesis_turn_u_nm_np1_ri_med_2.mp4
+  36    1464     turn                      ✓ turn                     0.0210   ✗ throw                    0.0211   turn/Veoh_Alpha_Dog_2_turn_u_nm_np2_ri_med_18.mp4
+
+==================================================================================================================================
+[SECTION 2]  CoAPT WRONG  /  CoAPT+fution CORRECT   (A✗ B✓)  —  59 samples
+==================================================================================================================================
+  #     ListIdx  GT Label                  [CoAPT] Pred                       Conf   [CoAPT+fution] Pred                       Conf   Video Path
+  --------------------------------------------------------------------------------------------------------------------------------
+  1     30       cartwheel                 ✗ handstand                0.0217   ✓ cartwheel                0.0221   cartwheel/Aerial_Cartwheel_Tutorial_By_Jujimufu_cartwheel_f_nm_np1_ri_med_0.mp4
+  2     32       cartwheel                 ✗ handstand                0.0219   ✓ cartwheel                0.0218   cartwheel/CarTwHeeL_PerFecT_cartwheel_f_cm_np1_le_med_0.mp4
+  3     34       cartwheel                 ✗ handstand                0.0220   ✓ cartwheel                0.0216   cartwheel/Gymnastics__-_Steps_to_Do_a_Cartwheel_cartwheel_f_nm_np1_le_med_0.mp4
+  4     38       cartwheel                 ✗ handstand                0.0215   ✓ cartwheel                0.0214   cartwheel/Jessica_and_Gregs_Cartwheel_Competition_cartwheel_f_cm_np1_fr_med_6.mp4
+  5     42       cartwheel                 ✗ handstand                0.0218   ✓ cartwheel                0.0219   cartwheel/Jessica_and_Gregs_Cartwheel_Competition_cartwheel_f_cm_np1_ri_med_7.mp4
+  6     48       cartwheel                 ✗ handstand                0.0217   ✓ cartwheel                0.0220   cartwheel/Zwei_hoffnungslose_Pflegef_lle_beim_Turnen(Part2)_cartwheel_f_cm_np1_le_bad_0.mp4
+  7     60       catch                     ✗ hit                      0.0207   ✓ catch                    0.0205   catch/Fangen_und_Werfen_catch_u_nm_np1_fr_bad_0.mp4
+  8     64       catch                     ✗ kick ball                0.0212   ✓ catch                    0.0214   catch/Florian_Fromlowitz_beim_Training_der_U_21_Nationalmannschaft_catch_u_cm_np1_le_med_1.mp4
+  9     268      draw sword                ✗ sword exercise           0.0215   ✓ draw sword               0.0215   draw_sword/Yet_another_point_about_drawing_swords_draw_sword_u_nm_np1_fr_med_3.mp4
+  10    364      fall floor                ✗ kick                     0.0214   ✓ fall floor               0.0217   fall_floor/LONGESTYARD_fall_floor_f_cm_np1_ba_med_13.mp4
+  11    370      fall floor                ✗ climb stairs             0.0214   ✓ fall floor               0.0221   fall_floor/RATRACE_fall_floor_f_cm_np1_fr_med_2.mp4
+  12    378      fall floor                ✗ jump                     0.0209   ✓ fall floor               0.0212   fall_floor/RETURN_OF_THE_KING_fall_floor_u_nm_np2_ba_med_35.mp4
+  13    382      fall floor                ✗ climb                    0.0211   ✓ fall floor               0.0212   fall_floor/TheBoondockSaints_fall_floor_f_nm_np2_ba_bad_66.mp4
+  14    384      fall floor                ✗ fencing                  0.0210   ✓ fall floor               0.0210   fall_floor/TheBoondockSaints_fall_floor_u_cm_np1_fr_med_63.mp4
+  15    434      flic flac                 ✗ handstand                0.0218   ✓ flic flac                0.0217   flic_flac/JOAKIN_(air_tricks_extreme)_flic_flac_f_cm_np1_ri_med_8.mp4
+  16    440      flic flac                 ✗ handstand                0.0218   ✓ flic flac                0.0219   flic_flac/Round-Off_Flick_Flack!!_flic_flac_f_cm_np1_le_med_0.mp4
+  17    442      flic flac                 ✗ handstand                0.0217   ✓ flic flac                0.0216   flic_flac/Round-off_flick_1_flic_flac_f_cm_np1_ri_med_0.mp4
+  18    444      flic flac                 ✗ somersault               0.0219   ✓ flic flac                0.0220   flic_flac/Rush_Hour_4_Turnk_r_flic_flac_f_cm_np1_ri_med_5.mp4
+  19    446      flic flac                 ✗ somersault               0.0216   ✓ flic flac                0.0219   flic_flac/Turnen_Training_flick_flack_salto_gymnastics_backhandspring_backtuck_flic_flac_f_cm_np1_ri_bad_0.mp4
+  20    478      golf                      ✗ hit                      0.0211   ✓ golf                     0.0208   golf/Probably_the_best_golf_shot_in_the_world_ever!!!_golf_f_cm_np1_ba_med_0.mp4
+  21    584      jump                      ✗ dive                     0.0211   ✓ jump                     0.0214   jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_3.mp4
+  22    590      jump                      ✗ dive                     0.0211   ✓ jump                     0.0215   jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_ri_bad_1.mp4
+  23    714      laugh                     ✗ smile                    0.0217   ✓ laugh                    0.0218   laugh/Skype_Laughter_Chain_reaction_(-_laugh_u_nm_np2_ri_med_0.mp4
+  24    726      pick                      ✗ kick ball                0.0207   ✓ pick                     0.0214   pick/David_Letterman_picks_up_trash_on_Broadway_pick_f_cm_np1_fr_med_0.mp4
+  25    744      pick                      ✗ hit                      0.0215   ✓ pick                     0.0210   pick/ThreeStories_pick_u_cm_np1_ri_goo_2.mp4
+  26    748      pick                      ✗ handstand                0.0210   ✓ pick                     0.0212   pick/Wallet_Trick_pick_f_cm_np4_ri_med_0.mp4
+  27    838      punch                     ✗ swing baseball           0.0209   ✓ punch                    0.0219   punch/Two_Towers_3_punch_u_cm_np1_fr_bad_3.mp4
+  28    966      run                       ✗ jump                     0.0210   ✓ run                      0.0218   run/BLACK_HAWK_DOWN_run_f_cm_np1_ba_med_30.mp4
+  29    970      run                       ✗ shoot gun                0.0213   ✓ run                      0.0216   run/BLACK_HAWK_DOWN_run_f_nm_np1_ba_med_31.mp4
+  30    972      run                       ✗ climb stairs             0.0210   ✓ run                      0.0214   run/BLACK_HAWK_DOWN_run_l_nm_np1_ba_med_33.mp4
+  31    974      run                       ✗ ride horse               0.0209   ✓ run                      0.0216   run/Fellowship_2_run_f_cm_np2_fr_med_5.mp4
+  32    982      run                       ✗ kick ball                0.0215   ✓ run                      0.0217   run/The_Matrix_3_run_f_cm_np1_ba_med_8.mp4
+  33    988      run                       ✗ jump                     0.0210   ✓ run                      0.0218   run/veoh_harold_and_kumar_run_f_nm_np2_fr_bad_10.mp4
+  34    1104     shoot gun                 ✗ draw sword               0.0214   ✓ shoot gun                0.0218   shoot_gun/TheBoondockSaints_shoot_gun_u_cm_np1_ri_med_109.mp4
+  35    1216     smoke                     ✗ drink                    0.0213   ✓ smoke                    0.0213   smoke/Veoh_Alpha_Dog_2_smoke_h_cm_np1_fr_med_4.mp4
+  36    1260     stand                     ✗ sit                      0.0214   ✓ stand                    0.0217   stand/20060723sfjffjewgotmail_stand_u_cm_np1_ri_med_0.mp4
+  37    1272     stand                     ✗ sit                      0.0219   ✓ stand                    0.0214   stand/Crash_stand_f_cm_np1_le_med_15.mp4
+  38    1278     stand                     ✗ sit                      0.0215   ✓ stand                    0.0222   stand/GardenWiseA256kb_stand_f_cm_np1_fr_med_1.mp4
+  39    1332     sword                     ✗ fencing                  0.0217   ✓ sword                    0.0219   sword/Medieval_knight_fight_sword_f_cm_np1_ri_med_1.mp4
+  40    1334     sword                     ✗ fencing                  0.0214   ✓ sword                    0.0217   sword/Medieval_knight_fight_sword_f_cm_np1_ri_med_4.mp4
+  41    1344     sword                     ✗ sword exercise           0.0214   ✓ sword                    0.0214   sword/Samurai_Fight_Scene_sword_u_cm_np1_le_goo_0.mp4
+  42    1348     sword                     ✗ sword exercise           0.0214   ✓ sword                    0.0218   sword/Takeda_Ryu_Iaido_sword_f_nm_np2_le_med_0.mp4
+  43    1376     sword exercise            ✗ shoot ball               0.0212   ✓ sword exercise           0.0213   sword_exercise/samurai_training_sword_exercise_f_cm_np1_fr_med_5.mp4
+  44    1394     talk                      ✗ chew                     0.0214   ✓ talk                     0.0216   talk/Prelinger_FamilyLi1949_talk_h_nm_np1_fr_goo_24.mp4
+  45    1408     talk                      ✗ smile                    0.0214   ✓ talk                     0.0217   talk/prelinger_they_grow_up_so_fast_1_talk_h_nm_np1_ri_goo_4.mp4
+  46    1440     turn                      ✗ talk                     0.0214   ✓ turn                     0.0214   turn/A_Beautiful_Mind_1_turn_h_nm_np1_ri_goo_10.mp4
+  47    1456     turn                      ✗ talk                     0.0214   ✓ turn                     0.0216   turn/The_Fugitive_6_turn_h_cm_np1_le_goo_2.mp4
+  48    1472     walk                      ✗ sit                      0.0215   ✓ walk                     0.0216   walk/AmericanGangster_walk_f_nm_np1_fr_med_38.mp4
+  49    1474     walk                      ✗ sit                      0.0210   ✓ walk                     0.0216   walk/AmericanGangster_walk_u_cm_np1_ba_med_37.mp4
+  50    1478     walk                      ✗ pick                     0.0211   ✓ walk                     0.0212   walk/EverythingisIlluminated_walk_f_nm_np1_le_med_0.mp4
+  51    1484     walk                      ✗ turn                     0.0211   ✓ walk                     0.0217   walk/MeettheFockers_walk_f_nm_np1_ba_med_9.mp4
+  52    1486     walk                      ✗ sit                      0.0213   ✓ walk                     0.0219   walk/Panic_in_the_Streets_walk_u_cm_np1_ba_med_5.mp4
+  53    1500     wave                      ✗ clap                     0.0213   ✓ wave                     0.0214   wave/20060723sfjffbartsinger_wave_f_cm_np1_ba_med_0.mp4
+  54    1504     wave                      ✗ draw sword               0.0209   ✓ wave                     0.0213   wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_0.mp4
+  55    1506     wave                      ✗ throw                    0.0210   ✓ wave                     0.0213   wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_10.mp4
+  56    1512     wave                      ✗ shake hands              0.0213   ✓ wave                     0.0218   wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_9.mp4
+  57    1514     wave                      ✗ talk                     0.0212   ✓ wave                     0.0211   wave/DONNIE_DARKO_wave_u_nm_np1_fr_goo_9.mp4
+  58    1516     wave                      ✗ turn                     0.0208   ✓ wave                     0.0209   wave/Eurotrip_wave_u_nm_np1_fr_goo_4.mp4
+  59    1518     wave                      ✗ talk                     0.0209   ✓ wave                     0.0210   wave/HP_PRISONER_OF_AZKABAN_wave_f_cm_np1_fr_med_12.mp4
+
+==================================================================================================================================
+[SECTION 3]  BOTH WRONG but DIFFERENT predictions   (A✗ B✗ →diff)  —  48 samples
+==================================================================================================================================
+  #     ListIdx  GT Label                  [CoAPT] Pred                       Conf   [CoAPT+fution] Pred                       Conf   Video Path
+  --------------------------------------------------------------------------------------------------------------------------------
+  1     58       cartwheel                 ✗ handstand                0.0214   ✗ flic flac                0.0220   cartwheel/turnles!!_cartwheel_f_cm_np1_ri_med_4.mp4
+  2     128      clap                      ✗ brush hair               0.0209   ✗ stand                    0.0212   clap/Martin_klatscht_in_die_h_nde_und_FURZT_clap_u_cm_np1_fr_med_0.mp4
+  3     132      clap                      ✗ shoot gun                0.0213   ✗ wave                     0.0214   clap/The_Slow_Clap_clap_u_cm_np1_fr_med_3.mp4
+  4     142      clap                      ✗ sword exercise           0.0208   ✗ wave                     0.0211   clap/The_Slow_Clap_clap_u_nm_np1_fr_med_2.mp4
+  5     228      dive                      ✗ somersault               0.0213   ✗ jump                     0.0218   dive/OldSchool_dive_f_cm_np2_ri_bad_15.mp4
+  6     296      dribble                   ✗ shoot ball               0.0215   ✗ throw                    0.0214   dribble/PlayingBasketball_dribble_f_nm_np1_fr_med_8.mp4
+  7     360      fall floor                ✗ somersault               0.0210   ✗ punch                    0.0213   fall_floor/50_FIRST_DATES_fall_floor_f_cm_np1_fr_med_14.mp4
+  8     362      fall floor                ✗ climb stairs             0.0217   ✗ run                      0.0214   fall_floor/Fellowship_3_fall_floor_f_nm_np1_fr_med_3.mp4
+  9     374      fall floor                ✗ dive                     0.0212   ✗ run                      0.0215   fall_floor/RETURN_OF_THE_KING_fall_floor_f_cm_np1_fr_med_33.mp4
+  10    376      fall floor                ✗ jump                     0.0210   ✗ run                      0.0218   fall_floor/RETURN_OF_THE_KING_fall_floor_f_nm_np1_fr_med_49.mp4
+  11    380      fall floor                ✗ climb                    0.0209   ✗ dive                     0.0213   fall_floor/TheBoondockSaints_fall_floor_f_nm_np1_ba_bad_40.mp4
+  12    386      fall floor                ✗ kick                     0.0209   ✗ hit                      0.0210   fall_floor/TheBoondockSaints_fall_floor_u_nm_np2_fr_med_64.mp4
+  13    388      fall floor                ✗ somersault               0.0211   ✗ jump                     0.0213   fall_floor/Veoh_Alpha_Dog_1_fall_floor_f_cm_np1_fr_med_35.mp4
+  14    418      fencing                   ✗ somersault               0.0209   ✗ fall floor               0.0215   fencing/The_Three_Musketeers_(1993)_Final_Battle_1_3_fencing_u_cm_np2_fr_bad_3.mp4
+  15    572      jump                      ✗ clap                     0.0208   ✗ wave                     0.0209   jump/Faith_Rewarded_jump_f_nm_np1_ri_bad_86.mp4
+  16    574      jump                      ✗ run                      0.0210   ✗ fall floor               0.0214   jump/Fellowship_2_jump_f_nm_np1_ba_bad_7.mp4
+  17    614      kick                      ✗ sword                    0.0209   ✗ punch                    0.0211   kick/kick__Baddest_Fight_Scenes_EVER!_-_Kickboxer_-_Part_1_of_2_kick_u_cm_np1_ba_med_6.mp4
+  18    616      kick                      ✗ kiss                     0.0209   ✗ punch                    0.0209   kick/kick__Baddest_Fight_Scenes_EVER!_-_Kickboxer_-_Part_1_of_2_kick_u_cm_np1_ri_med_9.mp4
+  19    688      kiss                      ✗ somersault               0.0208   ✗ dive                     0.0212   kiss/kiss_mix_kiss_f_cm_np2_le_med_0.mp4
+  20    720      pick                      ✗ pour                     0.0210   ✗ eat                      0.0214   pick/AMADEUS_pick_u_nm_np1_fr_med_8.mp4
+  21    734      pick                      ✗ pour                     0.0207   ✗ talk                     0.0207   pick/Oceans13_pick_u_nm_np1_ba_goo_5.mp4
+  22    832      punch                     ✗ shoot gun                0.0212   ✗ fall floor               0.0210   punch/Glory_punch_u_cm_np1_ba_med_50.mp4
+  23    834      punch                     ✗ kick                     0.0210   ✗ hit                      0.0217   punch/HARD_FACE_SLAP_COMPILATION_-_THE_FUNNIEST_FACE_SLAPS_EVER!!_-_Old_school_Vids_punch_f_cm_np1_fr_bad_0.mp4
+  24    928      ride bike                 ✗ catch                    0.0210   ✗ dribble                  0.0210   ride_bike/lady_on_bike_ride_bike_f_cm_np1_ba_med_1.mp4
+  25    960      run                       ✗ kick ball                0.0213   ✗ kick                     0.0217   run/20060723sfjffbumblebeesuitman_run_f_cm_np2_ri_med_1.mp4
+  26    978      run                       ✗ throw                    0.0211   ✗ walk                     0.0218   run/Juno_run_f_cm_np1_ba_med_5.mp4
+  27    980      run                       ✗ climb stairs             0.0209   ✗ walk                     0.0214   run/Man_Who_Cheated_Himself_512kb_run_f_cm_np1_le_bad_5.mp4
+  28    984      run                       ✗ kick ball                0.0211   ✗ walk                     0.0210   run/likebeckam_run_f_cm_np1_ba_med_22.mp4
+  29    1136     sit                       ✗ push                     0.0208   ✗ walk                     0.0209   sit/TheBoondockSaints_sit_u_cm_np1_le_med_15.mp4
+  30    1264     stand                     ✗ throw                    0.0209   ✗ sit                      0.0207   stand/AmericanGangster_stand_u_cm_np1_fr_bad_19.mp4
+  31    1270     stand                     ✗ handstand                0.0210   ✗ run                      0.0209   stand/CastAway1_stand_f_nm_np1_le_med_24.mp4
+  32    1276     stand                     ✗ clap                     0.0209   ✗ sit                      0.0211   stand/FestivalofColors_stand_f_nm_np1_fr_med_0.mp4
+  33    1284     stand                     ✗ talk                     0.0210   ✗ turn                     0.0211   stand/RETURN_OF_THE_KING_stand_f_nm_np1_ri_bad_23.mp4
+  34    1342     sword                     ✗ jump                     0.0208   ✗ punch                    0.0211   sword/RETURN_OF_THE_KING_sword_u_nm_np1_fr_bad_42.mp4
+  35    1346     sword                     ✗ sword exercise           0.0219   ✗ draw sword               0.0220   sword/Takeda_Ryu_Iaido_sword_f_nm_np1_fr_med_7.mp4
+  36    1352     sword exercise            ✗ draw sword               0.0211   ✗ talk                     0.0212   sword_exercise/Epee_Fencing_Attacks_-_Remises_sword_exercise_u_nm_np1_fr_bad_0.mp4
+  37    1410     throw                     ✗ turn                     0.0208   ✗ walk                     0.0209   throw/AboutABoy_throw_f_nm_np1_ba_med_2.mp4
+  38    1412     throw                     ✗ push                     0.0208   ✗ punch                    0.0212   throw/Fellowship_5_throw_u_cm_np1_fr_med_9.mp4
+  39    1420     throw                     ✗ turn                     0.0211   ✗ pick                     0.0211   throw/KnifeThrowingJackDaggerDemoReel_throw_u_nm_np1_ba_med_3.mp4
+  40    1422     throw                     ✗ sword exercise           0.0213   ✗ draw sword               0.0216   throw/KnifeThrowing_throw_f_nm_np1_le_med_0.mp4
+  41    1424     throw                     ✗ sword exercise           0.0213   ✗ draw sword               0.0215   throw/KnifeThrowing_throw_f_nm_np1_le_med_2.mp4
+  42    1430     throw                     ✗ kick                     0.0206   ✗ punch                    0.0208   throw/Return_of_the_King_12_throw_f_nm_np1_fr_med_0.mp4
+  43    1454     turn                      ✗ sit                      0.0216   ✗ walk                     0.0218   turn/The_Fugitive_5_turn_u_nm_np1_ba_med_9.mp4
+  44    1470     walk                      ✗ sit                      0.0214   ✗ run                      0.0213   walk/AmericanGangster_walk_f_cm_np1_le_bad_8.mp4
+  45    1480     walk                      ✗ somersault               0.0209   ✗ jump                     0.0211   walk/HP_PRISONER_OF_AZKABAN_walk_f_cm_np1_ri_med_2.mp4
+  46    1490     walk                      ✗ kick ball                0.0214   ✗ run                      0.0214   walk/RATRACE_walk_f_cm_np1_ba_med_17.mp4
+  47    1498     walk                      ✗ turn                     0.0209   ✗ run                      0.0213   walk/prideandprejudice1_walk_f_nm_np1_fr_med_4.mp4
+  48    1502     wave                      ✗ climb stairs             0.0213   ✗ run                      0.0215   wave/BATMAN_BEGINS_wave_u_cm_np1_fr_med_19.mp4
+
+==================================================================================================================================
+[SECTION 4]  BOTH WRONG and SAME prediction   (A✗ B✗ →same)  —  105 samples
+==================================================================================================================================
+  #     ListIdx  GT Label                  [CoAPT] Pred                       Conf   [CoAPT+fution] Pred                       Conf   Video Path
+  --------------------------------------------------------------------------------------------------------------------------------
+  1     4        brush hair                ✗ smile                    0.0220   ✗ smile                    0.0217   brush_hair/Brushing_Her_Hair__[_NEW_AUDIO_]_UPDATED!!!!_brush_hair_h_cm_np1_fr_goo_0.mp4
+  2     18       brush hair                ✗ drink                    0.0209   ✗ drink                    0.0212   brush_hair/Prelinger_HabitPat1954_brush_hair_u_cm_np1_le_med_10.mp4
+  3     36       cartwheel                 ✗ handstand                0.0218   ✗ handstand                0.0216   cartwheel/Jessica_and_Gregs_Cartwheel_Competition_cartwheel_f_cm_np1_fr_med_3.mp4
+  4     44       cartwheel                 ✗ handstand                0.0216   ✗ handstand                0.0215   cartwheel/Parada_de_mao_cartwheel_f_cm_np1_ba_med_1.mp4
+  5     46       cartwheel                 ✗ handstand                0.0219   ✗ handstand                0.0215   cartwheel/Parada_de_mao_cartwheel_f_cm_np1_fr_med_3.mp4
+  6     56       cartwheel                 ✗ flic flac                0.0214   ✗ flic flac                0.0220   cartwheel/turnles!!_cartwheel_f_cm_np1_ri_med_1.mp4
+  7     62       catch                     ✗ kick ball                0.0214   ✗ kick ball                0.0214   catch/Florian_Fromlowitz_beim_Training_der_U_21_Nationalmannschaft_catch_f_cm_np1_ri_med_2.mp4
+  8     68       catch                     ✗ kick ball                0.0212   ✗ kick ball                0.0215   catch/Goalkeeper_Training_Day_#_2_catch_f_cm_np1_ba_bad_4.mp4
+  9     102      chew                      ✗ brush hair               0.0213   ✗ brush hair               0.0213   chew/Me_chewing_hubba_bubba_bubble_gum_chew_h_nm_np1_fr_bad_2.mp4
+  10    104      chew                      ✗ drink                    0.0211   ✗ drink                    0.0215   chew/TheBoondockSaints_chew_u_cm_np1_le_med_35.mp4
+  11    172      climb                     ✗ pullup                   0.0214   ✗ pullup                   0.0214   climb/Seamus_OD_arms_exploding-_rope_climb_climb_f_cm_np1_ba_med_0.mp4
+  12    210      dive                      ✗ climb                    0.0218   ✗ climb                    0.0218   dive/BASE_Jumping_Compilation_-_Brilliant_dive_f_cm_np1_le_bad_0.mp4
+  13    218      dive                      ✗ climb                    0.0214   ✗ climb                    0.0213   dive/BungyjumpingAJHackettNewZealand_dive_f_cm_np1_fr_bad_1.mp4
+  14    240      draw sword                ✗ sword exercise           0.0218   ✗ sword exercise           0.0219   draw_sword/Eishin-Ryu_Iaido_draw_sword_f_cm_np1_fr_med_0.mp4
+  15    242      draw sword                ✗ sword exercise           0.0218   ✗ sword exercise           0.0218   draw_sword/Eishin-Ryu_Iaido_draw_sword_f_cm_np1_fr_med_2.mp4
+  16    244      draw sword                ✗ sword exercise           0.0215   ✗ sword exercise           0.0217   draw_sword/Iaido_13_katas_draw_sword_f_nm_np1_fr_med_0.mp4
+  17    246      draw sword                ✗ sword exercise           0.0219   ✗ sword exercise           0.0220   draw_sword/Iaido_13_katas_draw_sword_f_nm_np1_fr_med_7.mp4
+  18    254      draw sword                ✗ sword exercise           0.0216   ✗ sword exercise           0.0215   draw_sword/Samurai_Fight_Scene_draw_sword_f_cm_np2_fr_goo_2.mp4
+  19    264      draw sword                ✗ sword exercise           0.0218   ✗ sword exercise           0.0218   draw_sword/VERGIL_(DEVIL_MAY_CRY)_swinging_his_sword_draw_sword_f_cm_np1_fr_med_4.mp4
+  20    298      dribble                   ✗ shoot ball               0.0214   ✗ shoot ball               0.0214   dribble/PlayingBasketball_dribble_f_nm_np2_le_med_3.mp4
+  21    366      fall floor                ✗ kick ball                0.0217   ✗ kick ball                0.0218   fall_floor/LONGESTYARD_fall_floor_f_cm_np1_fr_med_25.mp4
+  22    368      fall floor                ✗ kick                     0.0217   ✗ kick                     0.0220   fall_floor/LONGESTYARD_fall_floor_f_cm_np1_le_med_17.mp4
+  23    410      fencing                   ✗ sword                    0.0215   ✗ sword                    0.0219   fencing/Swordplay_Alliance_Rapier_and_Dagger_fight_fencing_f_cm_np2_le_bad_0.mp4
+  24    414      fencing                   ✗ sword                    0.0215   ✗ sword                    0.0220   fencing/Swordplay_Alliance_Rapier_and_Dagger_fight_fencing_f_cm_np2_ri_bad_2.mp4
+  25    420      flic flac                 ✗ handstand                0.0217   ✗ handstand                0.0218   flic_flac/17flaks_flic_flac_f_cm_np1_fr_med_1.mp4
+  26    422      flic flac                 ✗ somersault               0.0221   ✗ somersault               0.0220   flic_flac/Flick-flack_van_Yanniek_flic_flac_f_cm_np1_ri_med_0.mp4
+  27    426      flic flac                 ✗ somersault               0.0221   ✗ somersault               0.0222   flic_flac/JOAKIN_(air_tricks_extreme)_flic_flac_f_cm_np1_ba_med_6.mp4
+  28    428      flic flac                 ✗ somersault               0.0221   ✗ somersault               0.0224   flic_flac/JOAKIN_(air_tricks_extreme)_flic_flac_f_cm_np1_fr_med_11.mp4
+  29    436      flic flac                 ✗ cartwheel                0.0215   ✗ cartwheel                0.0219   flic_flac/Kristina_Goryunova_-_Floor_Exercise_-_2009_Tyson_American_Cu_flic_flac_f_cm_np1_ba_med_0.mp4
+  30    438      flic flac                 ✗ handstand                0.0219   ✗ handstand                0.0218   flic_flac/My_Gymnastics_Outside_flic_flac_f_cm_np1_le_med_0.mp4
+  31    566      hug                       ✗ pick                     0.0214   ✗ pick                     0.0217   hug/Free_Hugs_-_Medellin_hug_f_cm_np2_le_med_4.mp4
+  32    570      jump                      ✗ catch                    0.0215   ✗ catch                    0.0215   jump/Faith_Rewarded_jump_f_cm_np1_ba_bad_15.mp4
+  33    576      jump                      ✗ handstand                0.0215   ✗ handstand                0.0214   jump/Huge_Dive-Roll_jump_f_cm_np1_ri_bad_0.mp4
+  34    578      jump                      ✗ somersault               0.0221   ✗ somersault               0.0219   jump/Learn_Freerunning_and_Parkour__-_Diving_Kong_jump_f_cm_np1_le_bad_2.mp4
+  35    580      jump                      ✗ somersault               0.0217   ✗ somersault               0.0215   jump/Learn_Freerunning_and_Parkour__-_Diving_Kong_jump_f_cm_np1_le_bad_5.mp4
+  36    586      jump                      ✗ somersault               0.0213   ✗ somersault               0.0215   jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_5.mp4
+  37    596      jump                      ✗ climb stairs             0.0218   ✗ climb stairs             0.0219   jump/Stadium_Plyometric_Workout_jump_f_cm_np1_ba_bad_5.mp4
+  38    598      jump                      ✗ climb stairs             0.0217   ✗ climb stairs             0.0220   jump/Stadium_Plyometric_Workout_jump_f_cm_np1_ba_bad_7.mp4
+  39    600      kick                      ✗ kick ball                0.0219   ✗ kick ball                0.0222   kick/FOOT_2009_(REMI_GAILLARD)_kick_f_cm_np1_ba_med_5.mp4
+  40    610      kick                      ✗ fencing                  0.0214   ✗ fencing                  0.0214   kick/kick__Baddest_Fight_Scenes_EVER!_-_Kickboxer_-_Part_1_of_2_kick_f_nm_np1_ri_bad_2.mp4
+  41    638      kick ball                 ✗ fall floor               0.0211   ✗ fall floor               0.0215   kick_ball/Das_Wunder_von_Bern_(Deutschland_2002_2003)_kick_ball_f_cm_np1_ri_goo_3.mp4
+  42    644      kick ball                 ✗ run                      0.0214   ✗ run                      0.0222   kick_ball/FOOT_2009_(REMI_GAILLARD)_kick_ball_f_cm_np1_fr_bad_3.mp4
+  43    656      kick ball                 ✗ fall floor               0.0216   ✗ fall floor               0.0221   kick_ball/Nike_Soccer_Freestyle_kick_ball_f_cm_np1_ba_med_1.mp4
+  44    692      laugh                     ✗ smile                    0.0219   ✗ smile                    0.0217   laugh/Glory_laugh_h_cm_np1_fr_med_3.mp4
+  45    694      laugh                     ✗ talk                     0.0216   ✗ talk                     0.0215   laugh/Glory_laugh_u_nm_np1_fr_bad_19.mp4
+  46    718      laugh                     ✗ smile                    0.0217   ✗ smile                    0.0217   laugh/best_laugh_attack_ever!_laugh_h_nm_np1_fr_goo_1.mp4
+  47    722      pick                      ✗ shoot ball               0.0220   ✗ shoot ball               0.0220   pick/Clay_sBasketballSkillz_pick_f_nm_np1_ri_med_8.mp4
+  48    746      pick                      ✗ ride bike                0.0216   ✗ ride bike                0.0219   pick/Wallet_Trick_pick_f_cm_np1_le_bad_2.mp4
+  49    826      punch                     ✗ sword exercise           0.0216   ✗ sword exercise           0.0216   punch/BeginnerKyokushinKarateTechniques_punch_f_nm_np2_fr_med_1.mp4
+  50    836      punch                     ✗ kick                     0.0213   ✗ kick                     0.0214   punch/Return_of_the_King_4_punch_u_cm_np1_le_bad_0.mp4
+  51    840      push                      ✗ turn                     0.0210   ✗ turn                     0.0214   push/American_History_X_push_u_nm_np1_ba_med_22.mp4
+  52    964      run                       ✗ push                     0.0213   ✗ push                     0.0213   run/BIG_FISH_run_f_cm_np1_fr_med_33.mp4
+  53    968      run                       ✗ dive                     0.0208   ✗ dive                     0.0209   run/BLACK_HAWK_DOWN_run_f_cm_np1_fr_med_10.mp4
+  54    976      run                       ✗ kick ball                0.0214   ✗ kick ball                0.0216   run/GOAL_2_living_the_dream_movie_part_2_run_f_cm_np4_fr_med_1.mp4
+  55    986      run                       ✗ kick ball                0.0218   ✗ kick ball                0.0221   run/likebeckam_run_f_cm_np1_ri_med_0.mp4
+  56    1004     shake hands               ✗ clap                     0.0216   ✗ clap                     0.0218   shake_hands/IPL_Awards_Ceremony_shake_hands_u_cm_np2_ba_med_3.mp4
+  57    1122     sit                       ✗ stand                    0.0207   ✗ stand                    0.0216   sit/NOVA_ELEGANTUNIVERSE3_sit_f_nm_np1_fr_med_2.mp4
+  58    1172     smile                     ✗ talk                     0.0218   ✗ talk                     0.0217   smile/Prelinger_ActYourA1949_smile_u_nm_np1_fr_med_19.mp4
+  59    1186     smile                     ✗ chew                     0.0209   ✗ chew                     0.0209   smile/SMILES_FROM_OFF_THE_ROAD_2_-TREASURING_THE_GIRLCHILD_smile_h_cm_np1_fr_bad_1.mp4
+  60    1206     smoke                     ✗ drink                    0.0214   ✗ drink                    0.0221   smoke/Glory_smoke_u_nm_np1_le_goo_35.mp4
+  61    1232     somersault                ✗ handstand                0.0220   ✗ handstand                0.0220   somersault/Monikas_Staatsexamen__Turnen_somersault_f_cm_np1_ba_med_1.mp4
+  62    1234     somersault                ✗ handstand                0.0217   ✗ handstand                0.0216   somersault/Parkour_Napoli_-_Dive_Roll_somersault_f_cm_np1_le_bad_0.mp4
+  63    1256     somersault                ✗ handstand                0.0214   ✗ handstand                0.0212   somersault/hechtsprung_xx_somersault_f_cm_np2_fr_bad_0.mp4
+  64    1262     stand                     ✗ sit                      0.0217   ✗ sit                      0.0217   stand/AmericanGangster_stand_f_nm_np1_le_med_33.mp4
+  65    1266     stand                     ✗ sit                      0.0221   ✗ sit                      0.0221   stand/BIG_FISH_stand_u_nm_np1_fr_med_27.mp4
+  66    1268     stand                     ✗ drink                    0.0214   ✗ drink                    0.0217   stand/BLACK_HAWK_DOWN_stand_u_cm_np1_fr_med_35.mp4
+  67    1274     stand                     ✗ sit                      0.0214   ✗ sit                      0.0215   stand/Crash_stand_u_cm_np1_fr_med_28.mp4
+  68    1280     stand                     ✗ pushup                   0.0219   ✗ pushup                   0.0216   stand/RATRACE_stand_f_cm_np1_fr_med_36.mp4
+  69    1282     stand                     ✗ sit                      0.0217   ✗ sit                      0.0214   stand/RATRACE_stand_f_cm_np1_ri_med_28.mp4
+  70    1286     stand                     ✗ sit                      0.0216   ✗ sit                      0.0214   stand/RomeEpisode1_stand_f_cm_np1_fr_med_0.mp4
+  71    1288     stand                     ✗ sit                      0.0218   ✗ sit                      0.0216   stand/SchoolRulesHowTheyHelpUs_stand_u_nm_np1_fr_med_1.mp4
+  72    1292     swing baseball            ✗ throw                    0.0218   ✗ throw                    0.0217   swing_baseball/Faith_Rewarded_swing_baseball_f_cm_np1_ba_bad_11.mp4
+  73    1294     swing baseball            ✗ throw                    0.0218   ✗ throw                    0.0218   swing_baseball/Faith_Rewarded_swing_baseball_f_cm_np1_ri_bad_37.mp4
+  74    1296     swing baseball            ✗ throw                    0.0217   ✗ throw                    0.0219   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ba_bad_22.mp4
+  75    1298     swing baseball            ✗ throw                    0.0222   ✗ throw                    0.0223   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ba_bad_78.mp4
+  76    1302     swing baseball            ✗ throw                    0.0220   ✗ throw                    0.0222   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ba_med_80.mp4
+  77    1304     swing baseball            ✗ throw                    0.0215   ✗ throw                    0.0217   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_fr_bad_36.mp4
+  78    1306     swing baseball            ✗ throw                    0.0218   ✗ throw                    0.0216   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_fr_bad_70.mp4
+  79    1308     swing baseball            ✗ throw                    0.0220   ✗ throw                    0.0220   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_fr_bad_85.mp4
+  80    1310     swing baseball            ✗ throw                    0.0218   ✗ throw                    0.0215   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_le_bad_38.mp4
+  81    1312     swing baseball            ✗ throw                    0.0224   ✗ throw                    0.0225   swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_le_bad_51.mp4
+  82    1320     sword                     ✗ fencing                  0.0222   ✗ fencing                  0.0223   sword/AHF_longsword_against_Rapier_and_Dagger_Fight_sword_f_cm_np2_ri_bad_0.mp4
+  83    1322     sword                     ✗ draw sword               0.0218   ✗ draw sword               0.0217   sword/Fellowship_4_sword_u_cm_np1_fr_med_4.mp4
+  84    1324     sword                     ✗ ride horse               0.0214   ✗ ride horse               0.0214   sword/HIGHLANDER___TRAINING___WEEPING_OF_THE_SPIRITS_sword_u_cm_np2_fr_med_1.mp4
+  85    1340     sword                     ✗ throw                    0.0212   ✗ throw                    0.0213   sword/Pirates_2_sword_u_cm_np1_fr_med_3.mp4
+  86    1358     sword exercise            ✗ sword                    0.0214   ✗ sword                    0.0223   sword_exercise/Kendo_Basics_sword_exercise_f_cm_np2_le_bad_3.mp4
+  87    1360     sword exercise            ✗ sword                    0.0214   ✗ sword                    0.0221   sword_exercise/Kendo_Basics_sword_exercise_f_nm_np1_le_bad_4.mp4
+  88    1362     sword exercise            ✗ sword                    0.0213   ✗ sword                    0.0223   sword_exercise/Kendo_Basics_sword_exercise_f_nm_np1_ri_bad_7.mp4
+  89    1366     sword exercise            ✗ fencing                  0.0220   ✗ fencing                  0.0219   sword_exercise/Spanish_counters_to_Italian_fencing_sword_exercise_f_cm_np2_le_bad_2.mp4
+  90    1374     sword exercise            ✗ draw sword               0.0220   ✗ draw sword               0.0222   sword_exercise/samurai_training_sword_exercise_f_cm_np1_fr_med_2.mp4
+  91    1392     talk                      ✗ turn                     0.0210   ✗ turn                     0.0217   talk/Prelinger_FamilyLi1949_talk_h_nm_np1_fr_goo_2.mp4
+  92    1400     talk                      ✗ chew                     0.0215   ✗ chew                     0.0215   talk/Prelinger_FamilyLi1949_talk_u_nm_np1_ri_med_23.mp4
+  93    1416     throw                     ✗ clap                     0.0211   ✗ clap                     0.0213   throw/KnifeThrowingJackDaggerDemoReel_throw_f_nm_np1_fr_med_2.mp4
+  94    1426     throw                     ✗ sword exercise           0.0215   ✗ sword exercise           0.0215   throw/KnifeThrowing_throw_f_nm_np1_le_med_4.mp4
+  95    1442     turn                      ✗ smoke                    0.0210   ✗ smoke                    0.0212   turn/Italian_Job_2_turn_h_nm_np1_ri_med_7.mp4
+  96    1450     turn                      ✗ sit                      0.0220   ✗ sit                      0.0219   turn/TheLastManOnearth_turn_u_nm_np1_le_med_11.mp4
+  97    1460     turn                      ✗ talk                     0.0215   ✗ talk                     0.0214   turn/Two_Towers_5_turn_u_nm_np1_ba_med_4.mp4
+  98    1462     turn                      ✗ laugh                    0.0210   ✗ laugh                    0.0210   turn/Veoh_Alpha_Dog_2_turn_u_nm_np1_le_med_1.mp4
+  99    1466     turn                      ✗ catch                    0.0206   ✗ catch                    0.0210   turn/likebeckam_turn_f_cm_np1_ba_med_44.mp4
+  100   1482     walk                      ✗ run                      0.0206   ✗ run                      0.0219   walk/IamLegend_walk_f_nm_np1_fr_med_17.mp4
+  101   1488     walk                      ✗ turn                     0.0211   ✗ turn                     0.0213   walk/Prelinger_HabitPat1954_walk_f_nm_np6_fr_med_20.mp4
+  102   1492     walk                      ✗ pick                     0.0215   ✗ pick                     0.0216   walk/Sixthsense_walk_u_nm_np1_fr_med_4.mp4
+  103   1508     wave                      ✗ shake hands              0.0210   ✗ shake hands              0.0213   wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_3.mp4
+  104   1522     wave                      ✗ sit                      0.0215   ✗ sit                      0.0212   wave/IamLegend_wave_u_nm_np1_ba_med_6.mp4
+  105   1524     wave                      ✗ throw                    0.0212   ✗ throw                    0.0212   wave/OldSchool_wave_f_cm_np1_fr_med_13.mp4
+
+==================================================================================================================================
+[SECTION 5]  PER-CLASS DIFFERENCE SUMMARY
+==================================================================================================================================
+  GT Class                         Total    A✓B✗    A✗B✓   Net(A-B)   Advantage
+  ---------------------------------------------------------------------------
+  brush hair                          15       1       0         +1   ← CoAPT
+  cartwheel                           15       0       6         -6   ← CoAPT+fution
+  catch                               15       0       2         -2   ← CoAPT+fution
+  chew                                15       0       0         +0   tie
+  clap                                15       1       0         +1   ← CoAPT
+  climb                               15       0       0         +0   tie
+  climb stairs                        15       2       0         +2   ← CoAPT
+  dive                                15       0       0         +0   tie
+  draw sword                          15       2       1         +1   ← CoAPT
+  dribble                             15       0       0         +0   tie
+  drink                               15       1       0         +1   ← CoAPT
+  eat                                 15       0       0         +0   tie
+  fall floor                          15       0       5         -5   ← CoAPT+fution
+  fencing                             15       2       0         +2   ← CoAPT
+  flic flac                           15       0       5         -5   ← CoAPT+fution
+  golf                                15       0       1         -1   ← CoAPT+fution
+  handstand                           15       1       0         +1   ← CoAPT
+  hit                                 15       3       0         +3   ← CoAPT
+  hug                                 15       0       0         +0   tie
+  jump                                15       1       2         -1   ← CoAPT+fution
+  kick                                15       3       0         +3   ← CoAPT
+  kick ball                           15       0       0         +0   tie
+  kiss                                15       0       0         +0   tie
+  laugh                               15       0       1         -1   ← CoAPT+fution
+  pick                                15       0       3         -3   ← CoAPT+fution
+  pour                                15       1       0         +1   ← CoAPT
+  pullup                              15       0       0         +0   tie
+  punch                               15       0       1         -1   ← CoAPT+fution
+  push                                15       1       0         +1   ← CoAPT
+  pushup                              15       0       0         +0   tie
+  ride bike                           15       0       0         +0   tie
+  ride horse                          15       1       0         +1   ← CoAPT
+  run                                 15       0       6         -6   ← CoAPT+fution
+  shake hands                         15       0       0         +0   tie
+  shoot ball                          15       0       0         +0   tie
+  shoot bow                           15       0       0         +0   tie
+  shoot gun                           15       0       1         -1   ← CoAPT+fution
+  sit                                 15       7       0         +7   ← CoAPT
+  situp                               15       0       0         +0   tie
+  smile                               15       1       0         +1   ← CoAPT
+  smoke                               15       0       1         -1   ← CoAPT+fution
+  somersault                          15       1       0         +1   ← CoAPT
+  stand                               15       0       3         -3   ← CoAPT+fution
+  swing baseball                      15       1       0         +1   ← CoAPT
+  sword                               15       0       4         -4   ← CoAPT+fution
+  sword exercise                      15       2       1         +1   ← CoAPT
+  talk                                15       1       2         -1   ← CoAPT+fution
+  throw                               15       1       0         +1   ← CoAPT
+  turn                                15       2       2         +0   tie
+  walk                                15       0       5         -5   ← CoAPT+fution
+  wave                                15       0       7         -7   ← CoAPT+fution
+
