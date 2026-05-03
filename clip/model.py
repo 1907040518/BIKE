@@ -659,8 +659,11 @@ class InstanceAwareDynamicFusion(nn.Module):
         
         # 收集每一层的注意力权重用于可视化
         attn_weights_list = [F.softmax(torch.bmm(self.q_proj[i](mod), K.transpose(1,2))/(K.size(-1)**0.5), dim=-1) for i, mod in enumerate(modalities)]
-        
-        return fused, final_weights, weight_residual, attn_weights_list
+
+        # 为保持与历史接口兼容，只返回 (fused, final_weights, weight_residual)
+        # 如果需要注意力列表，可从模块属性 `attn_weights_list` 读取
+        self.attn_weights_list = attn_weights_list
+        return fused, final_weights, weight_residual
 
         
 class VisualTransformer(nn.Module):

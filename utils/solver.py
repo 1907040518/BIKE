@@ -27,8 +27,42 @@ def _optimizer(config, model, video_head, extra_params=None):
 
         # 计算不同部分的基础学习率
         backbone_lr = config.solver.lr * config.solver.clip_ratio
-        fusion_scale = config.network.get('textcomp', {}).get('fusion_lr_scale', 10.0)
-        fusion_lr = backbone_lr * fusion_scale
+        # 优先从 config.network.attribute_guided_fusion 读取 fusion_lr_scale，
+        # 若不存在则回退到 config.network.textcomp，再回退到默认值 10.0
+        fusion_scale = None
+        try:
+            # 支持 dict-like 或 DotMap
+            agf = None
+            if isinstance(config.network, dict):
+                agf = config.network.get('attribute_guided_fusion')
+            else:
+                agf = config.network.get('attribute_guided_fusion', None)
+
+            if agf is not None:
+                if hasattr(agf, 'get'):
+                    fusion_scale = agf.get('fusion_lr_scale', None)
+                else:
+                    fusion_scale = getattr(agf, 'fusion_lr_scale', None)
+        except Exception:
+            fusion_scale = None
+
+        if fusion_scale is None:
+            try:
+                fusion_scale = config.network.get('textcomp', {}).get('fusion_lr_scale', 10.0)
+            except Exception:
+                fusion_scale = 10.0
+
+        try:
+            fusion_lr = backbone_lr * float(fusion_scale)
+        except Exception:
+            fusion_lr = backbone_lr * 10.0
+
+        # 打印所用的 fusion_lr_scale 来源，便于排查 YAML 与代码一致性
+        try:
+            src = 'attribute_guided_fusion' if (isinstance(config.network, dict) and config.network.get('attribute_guided_fusion') and config.network.get('attribute_guided_fusion').get('fusion_lr_scale') is not None) or (not isinstance(config.network, dict) and getattr(config.network, 'attribute_guided_fusion', None) and ((hasattr(config.network.attribute_guided_fusion, 'get') and config.network.attribute_guided_fusion.get('fusion_lr_scale', None) is not None) or getattr(config.network.attribute_guided_fusion, 'fusion_lr_scale', None) is not None)) else ('textcomp' if (isinstance(config.network, dict) and config.network.get('textcomp') and config.network.get('textcomp').get('fusion_lr_scale') is not None) or (not isinstance(config.network, dict) and getattr(config.network, 'textcomp', None) and ((hasattr(config.network.textcomp, 'get') and config.network.textcomp.get('fusion_lr_scale', None) is not None) or getattr(config.network.textcomp, 'fusion_lr_scale', None) is not None)) else 'default')
+        except Exception:
+            src = 'default'
+        print(f'Using fusion_lr_scale={fusion_scale} (source={src})')
 
         for name, param in model.named_parameters():
             if not param.requires_grad:

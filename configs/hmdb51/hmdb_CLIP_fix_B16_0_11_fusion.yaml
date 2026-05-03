@@ -39,11 +39,11 @@ network:
     # attribute_guided_fusion / 融合模块 配置
     # ============================================
     attribute_guided_fusion:
-        enable: True          # 🔥 致命错误1：你原本是 False！如果你的动态融合模块是通过这个开关控制的，它之前根本没参与前向传播！
+        enable: True         
         num_heads: 8
         num_attributes: 16
         dropout: 0.1
-        fusion_lr_scale: 10.0 # 🔥 致命错误2：2.0 太小了！(解释见下方)
+        fusion_lr_scale: 10.0 
     action_prompt:
         enable: True
         vocab_root: '/home/neimedia/gmk/BIKE/attributes/qwen'
