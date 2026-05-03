@@ -5,13 +5,13 @@ Grad-CAM Visualization for ResNet-based Compressed Video Model
 支持 iframe / mv / residual 三种模态
 
 Usage:
-    python grad_cam_resnet.py \
-        --checkpoint hmdb51_iframe_model_best.pth.tar \
-        --video_path /path/to/video.mp4 \
-        --output_dir gradcam_resnet_output \
+    python /home/neimedia/gmk/BIKE/Coviar/grad_cam_resnet.py \
+        --checkpoint /home/neimedia/gmk/BIKE/Coviar/hmdb51_iframe_model_iframe_model_best.pth.tar \
+        --video_path '/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/Veoh_Alpha_Dog_2_turn_u_nm_np2_ri_med_18.mp4' \
+        --output_dir /home/neimedia/gmk/BIKE/Coviar/visualization/turn \
         --data_name hmdb51 \
         --representation iframe \
-        --num_segments 3 \
+        --num_segments 16 \
         --target_class 42
 """
 

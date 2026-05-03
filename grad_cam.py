@@ -10,11 +10,11 @@ w.r.t. the **patch embeddings** that enter the transformer. These
 embeddings are always on the main autograd graph.
 
 Usage:
-    python grad_cam_fixed_v2.py \
-        --config configs/k400_res.yaml \
-        --checkpoint model_best.pt \
-        --video_path /path/to/video.mp4 \
-        --output_dir gradcam_output \
+    python /home/neimedia/gmk/BIKE/grad_cam.py \
+        --config /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/hmdb_CLIP_fix_B16_0_11_fusion.yaml \
+        --checkpoint /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt \
+        --video_path '/home/neimedia/action_data/hmdb51/mpeg4_videos/hit/Destruction_of_a_TV_hit_f_cm_np1_ri_bad_2.mp4' \
+        --output_dir /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/hit \
         --modality all
 """
 
