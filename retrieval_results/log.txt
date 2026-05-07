@@ -1,0 +1,748 @@
+[03/11 20:54:33] Retrieval INFO: ============================================================
+[03/11 20:54:33] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 20:54:33] Retrieval INFO: ============================================================
+[03/11 20:54:36] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 20:54:36] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 20:54:37] Retrieval INFO: Checkpoint loaded successfully
+[03/11 20:54:37] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 20:54:37] Retrieval INFO: ------------------------------------------------------------
+[03/11 20:54:37] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 20:54:37] Retrieval INFO:   Example: a video of brush hair.
+[03/11 20:54:37] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 20:54:37] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 20:54:38] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 20:54:38] Retrieval INFO: ------------------------------------------------------------
+[03/11 20:54:38] Retrieval INFO: Extracting video features...
+[03/11 20:54:38] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 20:56:13] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 20:56:13] Retrieval INFO: ============================================================
+[03/11 20:56:13] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 20:56:13] Retrieval INFO: ============================================================
+[03/11 20:56:16] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 20:56:16] Retrieval INFO:   R@1: 52.94
+[03/11 20:56:16] Retrieval INFO:   R@5: 74.51
+[03/11 20:56:16] Retrieval INFO:   R@10: 80.39
+[03/11 20:56:16] Retrieval INFO:   MedianR: 1.00
+[03/11 20:56:16] Retrieval INFO:   MeanR: 14.31
+[03/11 20:56:16] Retrieval INFO: [BASE] Video→Text:
+[03/11 20:56:16] Retrieval INFO:   R@1: 26.99
+[03/11 20:56:16] Retrieval INFO:   R@5: 49.93
+[03/11 20:56:16] Retrieval INFO:   R@10: 60.78
+[03/11 20:56:16] Retrieval INFO:   MedianR: 6.00
+[03/11 20:56:16] Retrieval INFO:   MeanR: 11.00
+[03/11 20:56:16] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 20:56:16] Retrieval INFO:   R@1: 1.76
+[03/11 20:56:16] Retrieval INFO:   R@5: 8.17
+[03/11 20:56:16] Retrieval INFO:   R@10: 15.75
+[03/11 20:56:16] Retrieval INFO:   MedianR: 41.00
+[03/11 20:56:16] Retrieval INFO:   MeanR: 135.34
+[03/11 20:56:16] Retrieval INFO: ============================================================
+[03/11 20:56:16] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 20:56:16] Retrieval INFO: ============================================================
+[03/11 20:56:20] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 20:56:20] Retrieval INFO:   R@1: 49.02
+[03/11 20:56:20] Retrieval INFO:   R@5: 68.63
+[03/11 20:56:20] Retrieval INFO:   R@10: 80.39
+[03/11 20:56:20] Retrieval INFO:   MedianR: 2.00
+[03/11 20:56:20] Retrieval INFO:   MeanR: 10.25
+[03/11 20:56:20] Retrieval INFO: [OURS] Video→Text:
+[03/11 20:56:20] Retrieval INFO:   R@1: 23.40
+[03/11 20:56:20] Retrieval INFO:   R@5: 50.98
+[03/11 20:56:20] Retrieval INFO:   R@10: 63.01
+[03/11 20:56:20] Retrieval INFO:   MedianR: 5.00
+[03/11 20:56:20] Retrieval INFO:   MeanR: 11.86
+[03/11 20:56:20] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 20:56:20] Retrieval INFO:   R@1: 1.63
+[03/11 20:56:20] Retrieval INFO:   R@5: 8.95
+[03/11 20:56:20] Retrieval INFO:   R@10: 17.32
+[03/11 20:56:20] Retrieval INFO:   MedianR: 34.00
+[03/11 20:56:20] Retrieval INFO:   MeanR: 141.41
+[03/11 20:56:20] Retrieval INFO: ============================================================
+[03/11 20:56:20] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 20:56:20] Retrieval INFO: ============================================================
+[03/11 20:56:20] Retrieval INFO: Text→Video Improvement:
+[03/11 20:56:20] Retrieval INFO:   R@1: 52.94 → 49.02 (↓3.92)
+[03/11 20:56:20] Retrieval INFO:   R@5: 74.51 → 68.63 (↓5.88)
+[03/11 20:56:20] Retrieval INFO:   R@10: 80.39 → 80.39 (↓0.00)
+[03/11 20:56:20] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 20:56:20] Retrieval INFO:   MeanR: 14.31 → 10.25 (↓4.06)
+[03/11 20:56:20] Retrieval INFO: Video→Text Improvement:
+[03/11 20:56:20] Retrieval INFO:   R@1: 26.99 → 23.40 (↓3.59)
+[03/11 20:56:20] Retrieval INFO:   R@5: 49.93 → 50.98 (↑1.05)
+[03/11 20:56:20] Retrieval INFO:   R@10: 60.78 → 63.01 (↑2.22)
+[03/11 20:56:20] Retrieval INFO:   MedianR: 6.00 → 5.00 (↓1.00)
+[03/11 20:56:20] Retrieval INFO:   MeanR: 11.00 → 11.86 (↑0.86)
+[03/11 20:56:20] Retrieval INFO: ============================================================
+[03/11 20:56:20] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 20:56:20] Retrieval INFO: ============================================================
+[03/11 20:58:20] Retrieval INFO: ============================================================
+[03/11 20:58:20] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 20:58:20] Retrieval INFO: ============================================================
+[03/11 20:58:22] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 20:58:22] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 20:58:24] Retrieval INFO: Checkpoint loaded successfully
+[03/11 20:58:24] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 20:58:24] Retrieval INFO: ------------------------------------------------------------
+[03/11 20:58:24] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 20:58:24] Retrieval INFO:   Example: a video of brush hair.
+[03/11 20:58:24] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 20:58:24] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 20:58:24] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 20:58:24] Retrieval INFO: ------------------------------------------------------------
+[03/11 20:58:24] Retrieval INFO: Extracting video features...
+[03/11 20:58:24] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 20:59:59] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 20:59:59] Retrieval INFO: ============================================================
+[03/11 20:59:59] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 20:59:59] Retrieval INFO: ============================================================
+[03/11 21:00:03] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:00:03] Retrieval INFO:   R@1: 52.94
+[03/11 21:00:03] Retrieval INFO:   R@5: 76.47
+[03/11 21:00:03] Retrieval INFO:   R@10: 82.35
+[03/11 21:00:03] Retrieval INFO:   MedianR: 1.00
+[03/11 21:00:03] Retrieval INFO:   MeanR: 13.61
+[03/11 21:00:03] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:00:03] Retrieval INFO:   R@1: 27.06
+[03/11 21:00:03] Retrieval INFO:   R@5: 50.59
+[03/11 21:00:03] Retrieval INFO:   R@10: 60.33
+[03/11 21:00:03] Retrieval INFO:   MedianR: 5.00
+[03/11 21:00:03] Retrieval INFO:   MeanR: 11.01
+[03/11 21:00:03] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:00:03] Retrieval INFO:   R@1: 1.76
+[03/11 21:00:03] Retrieval INFO:   R@5: 8.37
+[03/11 21:00:03] Retrieval INFO:   R@10: 16.21
+[03/11 21:00:03] Retrieval INFO:   MedianR: 42.00
+[03/11 21:00:03] Retrieval INFO:   MeanR: 135.80
+[03/11 21:00:03] Retrieval INFO: ============================================================
+[03/11 21:00:03] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:00:03] Retrieval INFO: ============================================================
+[03/11 21:00:07] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:00:07] Retrieval INFO:   R@1: 49.02
+[03/11 21:00:07] Retrieval INFO:   R@5: 66.67
+[03/11 21:00:07] Retrieval INFO:   R@10: 78.43
+[03/11 21:00:07] Retrieval INFO:   MedianR: 2.00
+[03/11 21:00:07] Retrieval INFO:   MeanR: 13.12
+[03/11 21:00:07] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:00:07] Retrieval INFO:   R@1: 23.33
+[03/11 21:00:07] Retrieval INFO:   R@5: 50.78
+[03/11 21:00:07] Retrieval INFO:   R@10: 62.75
+[03/11 21:00:07] Retrieval INFO:   MedianR: 5.00
+[03/11 21:00:07] Retrieval INFO:   MeanR: 11.89
+[03/11 21:00:07] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:00:07] Retrieval INFO:   R@1: 1.63
+[03/11 21:00:07] Retrieval INFO:   R@5: 8.95
+[03/11 21:00:07] Retrieval INFO:   R@10: 17.39
+[03/11 21:00:07] Retrieval INFO:   MedianR: 35.00
+[03/11 21:00:07] Retrieval INFO:   MeanR: 141.29
+[03/11 21:00:07] Retrieval INFO: ============================================================
+[03/11 21:00:07] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:00:07] Retrieval INFO: ============================================================
+[03/11 21:00:07] Retrieval INFO: Text→Video Improvement:
+[03/11 21:00:07] Retrieval INFO:   R@1: 52.94 → 49.02 (↓3.92)
+[03/11 21:00:07] Retrieval INFO:   R@5: 76.47 → 66.67 (↓9.80)
+[03/11 21:00:07] Retrieval INFO:   R@10: 82.35 → 78.43 (↓3.92)
+[03/11 21:00:07] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 21:00:07] Retrieval INFO:   MeanR: 13.61 → 13.12 (↓0.49)
+[03/11 21:00:07] Retrieval INFO: Video→Text Improvement:
+[03/11 21:00:07] Retrieval INFO:   R@1: 27.06 → 23.33 (↓3.73)
+[03/11 21:00:07] Retrieval INFO:   R@5: 50.59 → 50.78 (↑0.20)
+[03/11 21:00:07] Retrieval INFO:   R@10: 60.33 → 62.75 (↑2.42)
+[03/11 21:00:07] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:00:07] Retrieval INFO:   MeanR: 11.01 → 11.89 (↑0.88)
+[03/11 21:00:07] Retrieval INFO: ============================================================
+[03/11 21:00:07] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:00:07] Retrieval INFO: ============================================================
+[03/11 21:01:42] Retrieval INFO: [OURS+Fusion] Text→Video:
+[03/11 21:01:42] Retrieval INFO:   R@1: 88.24
+[03/11 21:01:42] Retrieval INFO:   R@5: 98.04
+[03/11 21:01:42] Retrieval INFO:   R@10: 100.00
+[03/11 21:01:42] Retrieval INFO:   MedianR: 1.00
+[03/11 21:01:42] Retrieval INFO:   MeanR: 1.29
+[03/11 21:01:42] Retrieval INFO: [OURS+Fusion] Video→Text:
+[03/11 21:01:42] Retrieval INFO:   R@1: 74.84
+[03/11 21:01:42] Retrieval INFO:   R@5: 94.71
+[03/11 21:01:42] Retrieval INFO:   R@10: 97.45
+[03/11 21:01:42] Retrieval INFO:   MedianR: 1.00
+[03/11 21:01:42] Retrieval INFO:   MeanR: 1.94
+[03/11 21:01:42] Retrieval INFO: Fusion vs Base Improvement (Text→Video):
+[03/11 21:01:42] Retrieval INFO:   R@1: 52.94 → 88.24 (↑35.29)
+[03/11 21:01:42] Retrieval INFO:   R@5: 76.47 → 98.04 (↑21.57)
+[03/11 21:01:42] Retrieval INFO:   R@10: 82.35 → 100.00 (↑17.65)
+[03/11 21:01:42] Retrieval INFO:   MedianR: 1.00 → 1.00 (↑0.00)
+[03/11 21:01:42] Retrieval INFO:   MeanR: 13.61 → 1.29 (↓12.31)
+[03/11 21:01:42] Retrieval INFO: 
+Results saved to retrieval_results/retrieval_results.json
+[03/11 21:01:42] Retrieval INFO: Prompt comparison saved to retrieval_results/prompt_comparison.txt
+[03/11 21:01:42] Retrieval INFO: Features saved to retrieval_results/features.pt
+[03/11 21:01:42] Retrieval INFO: 
+================================================================================
+[03/11 21:01:42] Retrieval INFO: FINAL SUMMARY
+[03/11 21:01:42] Retrieval INFO: ================================================================================
+[03/11 21:01:42] Retrieval INFO: Method                T2V R@1  T2V R@5  T2V R@10  T2V MdR |  V2T R@1  V2T R@5  V2T R@10  V2T MdR
+[03/11 21:01:42] Retrieval INFO: ------------------------------------------------------------------------------------------------
+[03/11 21:01:42] Retrieval INFO: base                    52.94    76.47     82.35      1.0 |    27.06    50.59     60.33      5.0
+[03/11 21:01:42] Retrieval INFO: ours                    49.02    66.67     78.43      2.0 |    23.33    50.78     62.75      5.0
+[03/11 21:01:42] Retrieval INFO: ours_fusion             88.24    98.04    100.00      1.0 |    74.84    94.71     97.45      1.0
+[03/11 21:01:42] Retrieval INFO: ================================================================================
+[03/11 21:01:42] Retrieval INFO: Done!
+[03/11 21:11:14] Retrieval INFO: ============================================================
+[03/11 21:11:14] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:11:14] Retrieval INFO: ============================================================
+[03/11 21:11:17] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:11:17] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:11:18] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:11:18] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:11:18] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:11:18] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:11:19] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:11:19] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:11:19] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:11:19] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:11:19] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:11:19] Retrieval INFO: Extracting video features...
+[03/11 21:11:19] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:12:53] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:12:53] Retrieval INFO: ============================================================
+[03/11 21:12:53] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:12:53] Retrieval INFO: ============================================================
+[03/11 21:12:57] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:12:57] Retrieval INFO:   R@1: 56.86
+[03/11 21:12:57] Retrieval INFO:   R@5: 72.55
+[03/11 21:12:57] Retrieval INFO:   R@10: 80.39
+[03/11 21:12:57] Retrieval INFO:   MedianR: 1.00
+[03/11 21:12:57] Retrieval INFO:   MeanR: 14.24
+[03/11 21:12:57] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:12:57] Retrieval INFO:   R@1: 27.78
+[03/11 21:12:57] Retrieval INFO:   R@5: 50.33
+[03/11 21:12:57] Retrieval INFO:   R@10: 60.72
+[03/11 21:12:57] Retrieval INFO:   MedianR: 5.00
+[03/11 21:12:57] Retrieval INFO:   MeanR: 10.97
+[03/11 21:12:57] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:12:57] Retrieval INFO:   R@1: 1.90
+[03/11 21:12:57] Retrieval INFO:   R@5: 8.24
+[03/11 21:12:57] Retrieval INFO:   R@10: 15.82
+[03/11 21:12:57] Retrieval INFO:   MedianR: 42.00
+[03/11 21:12:57] Retrieval INFO:   MeanR: 134.72
+[03/11 21:12:57] Retrieval INFO: ============================================================
+[03/11 21:12:57] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:12:57] Retrieval INFO: ============================================================
+[03/11 21:13:01] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:13:01] Retrieval INFO:   R@1: 52.94
+[03/11 21:13:01] Retrieval INFO:   R@5: 70.59
+[03/11 21:13:01] Retrieval INFO:   R@10: 78.43
+[03/11 21:13:01] Retrieval INFO:   MedianR: 1.00
+[03/11 21:13:01] Retrieval INFO:   MeanR: 12.71
+[03/11 21:13:01] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:13:01] Retrieval INFO:   R@1: 23.66
+[03/11 21:13:01] Retrieval INFO:   R@5: 50.46
+[03/11 21:13:01] Retrieval INFO:   R@10: 63.33
+[03/11 21:13:01] Retrieval INFO:   MedianR: 5.00
+[03/11 21:13:01] Retrieval INFO:   MeanR: 11.84
+[03/11 21:13:01] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:13:01] Retrieval INFO:   R@1: 1.76
+[03/11 21:13:01] Retrieval INFO:   R@5: 8.95
+[03/11 21:13:01] Retrieval INFO:   R@10: 17.25
+[03/11 21:13:01] Retrieval INFO:   MedianR: 35.00
+[03/11 21:13:01] Retrieval INFO:   MeanR: 140.12
+[03/11 21:13:01] Retrieval INFO: ============================================================
+[03/11 21:13:01] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:13:01] Retrieval INFO: ============================================================
+[03/11 21:13:01] Retrieval INFO: Text→Video Improvement:
+[03/11 21:13:01] Retrieval INFO:   R@1: 56.86 → 52.94 (↓3.92)
+[03/11 21:13:01] Retrieval INFO:   R@5: 72.55 → 70.59 (↓1.96)
+[03/11 21:13:01] Retrieval INFO:   R@10: 80.39 → 78.43 (↓1.96)
+[03/11 21:13:01] Retrieval INFO:   MedianR: 1.00 → 1.00 (↑0.00)
+[03/11 21:13:01] Retrieval INFO:   MeanR: 14.24 → 12.71 (↓1.53)
+[03/11 21:13:01] Retrieval INFO: Video→Text Improvement:
+[03/11 21:13:01] Retrieval INFO:   R@1: 27.78 → 23.66 (↓4.12)
+[03/11 21:13:01] Retrieval INFO:   R@5: 50.33 → 50.46 (↑0.13)
+[03/11 21:13:01] Retrieval INFO:   R@10: 60.72 → 63.33 (↑2.61)
+[03/11 21:13:01] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:13:01] Retrieval INFO:   MeanR: 10.97 → 11.84 (↑0.87)
+[03/11 21:13:01] Retrieval INFO: ============================================================
+[03/11 21:13:01] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:13:01] Retrieval INFO: ============================================================
+[03/11 21:14:14] Retrieval INFO: ============================================================
+[03/11 21:14:14] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:14:14] Retrieval INFO: ============================================================
+[03/11 21:14:17] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:14:17] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:14:18] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:14:18] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:14:18] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:14:18] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:14:19] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:14:19] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:14:19] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:14:19] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:14:19] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:14:19] Retrieval INFO: Extracting video features...
+[03/11 21:14:19] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:15:53] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:15:53] Retrieval INFO: ============================================================
+[03/11 21:15:53] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:15:53] Retrieval INFO: ============================================================
+[03/11 21:15:57] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:15:57] Retrieval INFO:   R@1: 49.02
+[03/11 21:15:57] Retrieval INFO:   R@5: 74.51
+[03/11 21:15:57] Retrieval INFO:   R@10: 80.39
+[03/11 21:15:57] Retrieval INFO:   MedianR: 2.00
+[03/11 21:15:57] Retrieval INFO:   MeanR: 12.80
+[03/11 21:15:57] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:15:57] Retrieval INFO:   R@1: 27.65
+[03/11 21:15:57] Retrieval INFO:   R@5: 50.39
+[03/11 21:15:57] Retrieval INFO:   R@10: 60.26
+[03/11 21:15:57] Retrieval INFO:   MedianR: 5.00
+[03/11 21:15:57] Retrieval INFO:   MeanR: 10.98
+[03/11 21:15:57] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:15:57] Retrieval INFO:   R@1: 1.63
+[03/11 21:15:57] Retrieval INFO:   R@5: 7.91
+[03/11 21:15:57] Retrieval INFO:   R@10: 15.62
+[03/11 21:15:57] Retrieval INFO:   MedianR: 40.00
+[03/11 21:15:57] Retrieval INFO:   MeanR: 134.97
+[03/11 21:15:57] Retrieval INFO: ============================================================
+[03/11 21:15:57] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:15:57] Retrieval INFO: ============================================================
+[03/11 21:16:01] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:16:01] Retrieval INFO:   R@1: 56.86
+[03/11 21:16:01] Retrieval INFO:   R@5: 68.63
+[03/11 21:16:01] Retrieval INFO:   R@10: 76.47
+[03/11 21:16:01] Retrieval INFO:   MedianR: 1.00
+[03/11 21:16:01] Retrieval INFO:   MeanR: 11.78
+[03/11 21:16:01] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:16:01] Retrieval INFO:   R@1: 23.27
+[03/11 21:16:01] Retrieval INFO:   R@5: 50.59
+[03/11 21:16:01] Retrieval INFO:   R@10: 62.75
+[03/11 21:16:01] Retrieval INFO:   MedianR: 5.00
+[03/11 21:16:01] Retrieval INFO:   MeanR: 11.88
+[03/11 21:16:01] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:16:01] Retrieval INFO:   R@1: 1.90
+[03/11 21:16:01] Retrieval INFO:   R@5: 8.89
+[03/11 21:16:01] Retrieval INFO:   R@10: 17.25
+[03/11 21:16:01] Retrieval INFO:   MedianR: 36.00
+[03/11 21:16:01] Retrieval INFO:   MeanR: 140.22
+[03/11 21:16:01] Retrieval INFO: ============================================================
+[03/11 21:16:01] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:16:01] Retrieval INFO: ============================================================
+[03/11 21:16:01] Retrieval INFO: Text→Video Improvement:
+[03/11 21:16:01] Retrieval INFO:   R@1: 49.02 → 56.86 (↑7.84)
+[03/11 21:16:01] Retrieval INFO:   R@5: 74.51 → 68.63 (↓5.88)
+[03/11 21:16:01] Retrieval INFO:   R@10: 80.39 → 76.47 (↓3.92)
+[03/11 21:16:01] Retrieval INFO:   MedianR: 2.00 → 1.00 (↓1.00)
+[03/11 21:16:01] Retrieval INFO:   MeanR: 12.80 → 11.78 (↓1.02)
+[03/11 21:16:01] Retrieval INFO: Video→Text Improvement:
+[03/11 21:16:01] Retrieval INFO:   R@1: 27.65 → 23.27 (↓4.38)
+[03/11 21:16:01] Retrieval INFO:   R@5: 50.39 → 50.59 (↑0.20)
+[03/11 21:16:01] Retrieval INFO:   R@10: 60.26 → 62.75 (↑2.48)
+[03/11 21:16:01] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:16:01] Retrieval INFO:   MeanR: 10.98 → 11.88 (↑0.90)
+[03/11 21:16:01] Retrieval INFO: ============================================================
+[03/11 21:16:01] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:16:01] Retrieval INFO: ============================================================
+[03/11 21:17:42] Retrieval INFO: ============================================================
+[03/11 21:17:42] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:17:42] Retrieval INFO: ============================================================
+[03/11 21:17:45] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:17:45] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:17:46] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:17:47] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:17:47] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:17:47] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:17:47] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:17:47] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:17:47] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:17:47] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:17:47] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:17:47] Retrieval INFO: Extracting video features...
+[03/11 21:17:47] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:19:21] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:19:21] Retrieval INFO: ============================================================
+[03/11 21:19:21] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:19:21] Retrieval INFO: ============================================================
+[03/11 21:19:25] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:19:25] Retrieval INFO:   R@1: 52.94
+[03/11 21:19:25] Retrieval INFO:   R@5: 72.55
+[03/11 21:19:25] Retrieval INFO:   R@10: 82.35
+[03/11 21:19:25] Retrieval INFO:   MedianR: 1.00
+[03/11 21:19:25] Retrieval INFO:   MeanR: 12.51
+[03/11 21:19:25] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:19:25] Retrieval INFO:   R@1: 27.65
+[03/11 21:19:25] Retrieval INFO:   R@5: 50.13
+[03/11 21:19:25] Retrieval INFO:   R@10: 60.39
+[03/11 21:19:25] Retrieval INFO:   MedianR: 5.00
+[03/11 21:19:25] Retrieval INFO:   MeanR: 11.00
+[03/11 21:19:25] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:19:25] Retrieval INFO:   R@1: 1.76
+[03/11 21:19:25] Retrieval INFO:   R@5: 8.17
+[03/11 21:19:25] Retrieval INFO:   R@10: 15.95
+[03/11 21:19:25] Retrieval INFO:   MedianR: 42.00
+[03/11 21:19:25] Retrieval INFO:   MeanR: 136.03
+[03/11 21:19:25] Retrieval INFO: ============================================================
+[03/11 21:19:25] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:19:25] Retrieval INFO: ============================================================
+[03/11 21:19:29] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:19:29] Retrieval INFO:   R@1: 50.98
+[03/11 21:19:29] Retrieval INFO:   R@5: 72.55
+[03/11 21:19:29] Retrieval INFO:   R@10: 82.35
+[03/11 21:19:29] Retrieval INFO:   MedianR: 1.00
+[03/11 21:19:29] Retrieval INFO:   MeanR: 12.04
+[03/11 21:19:29] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:19:29] Retrieval INFO:   R@1: 23.73
+[03/11 21:19:29] Retrieval INFO:   R@5: 50.85
+[03/11 21:19:29] Retrieval INFO:   R@10: 63.27
+[03/11 21:19:29] Retrieval INFO:   MedianR: 5.00
+[03/11 21:19:29] Retrieval INFO:   MeanR: 11.87
+[03/11 21:19:29] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:19:29] Retrieval INFO:   R@1: 1.70
+[03/11 21:19:29] Retrieval INFO:   R@5: 8.76
+[03/11 21:19:29] Retrieval INFO:   R@10: 17.39
+[03/11 21:19:29] Retrieval INFO:   MedianR: 35.00
+[03/11 21:19:29] Retrieval INFO:   MeanR: 140.83
+[03/11 21:19:29] Retrieval INFO: ============================================================
+[03/11 21:19:29] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:19:29] Retrieval INFO: ============================================================
+[03/11 21:19:29] Retrieval INFO: Text→Video Improvement:
+[03/11 21:19:29] Retrieval INFO:   R@1: 52.94 → 50.98 (↓1.96)
+[03/11 21:19:29] Retrieval INFO:   R@5: 72.55 → 72.55 (↓0.00)
+[03/11 21:19:29] Retrieval INFO:   R@10: 82.35 → 82.35 (↓0.00)
+[03/11 21:19:29] Retrieval INFO:   MedianR: 1.00 → 1.00 (↑0.00)
+[03/11 21:19:29] Retrieval INFO:   MeanR: 12.51 → 12.04 (↓0.47)
+[03/11 21:19:29] Retrieval INFO: Video→Text Improvement:
+[03/11 21:19:29] Retrieval INFO:   R@1: 27.65 → 23.73 (↓3.92)
+[03/11 21:19:29] Retrieval INFO:   R@5: 50.13 → 50.85 (↑0.72)
+[03/11 21:19:29] Retrieval INFO:   R@10: 60.39 → 63.27 (↑2.88)
+[03/11 21:19:29] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:19:29] Retrieval INFO:   MeanR: 11.00 → 11.87 (↑0.87)
+[03/11 21:19:29] Retrieval INFO: ============================================================
+[03/11 21:19:29] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:19:29] Retrieval INFO: ============================================================
+[03/11 21:21:06] Retrieval INFO: [OURS+Fusion] Text→Video:
+[03/11 21:21:06] Retrieval INFO:   R@1: 49.02
+[03/11 21:21:06] Retrieval INFO:   R@5: 66.67
+[03/11 21:21:06] Retrieval INFO:   R@10: 78.43
+[03/11 21:21:06] Retrieval INFO:   MedianR: 2.00
+[03/11 21:21:06] Retrieval INFO:   MeanR: 11.80
+[03/11 21:21:06] Retrieval INFO: [OURS+Fusion] Video→Text:
+[03/11 21:21:06] Retrieval INFO:   R@1: 23.33
+[03/11 21:21:06] Retrieval INFO:   R@5: 50.78
+[03/11 21:21:06] Retrieval INFO:   R@10: 63.01
+[03/11 21:21:06] Retrieval INFO:   MedianR: 5.00
+[03/11 21:21:06] Retrieval INFO:   MeanR: 11.84
+[03/11 21:21:06] Retrieval INFO: Fusion vs Base Improvement (Text→Video):
+[03/11 21:21:06] Retrieval INFO:   R@1: 52.94 → 49.02 (↓3.92)
+[03/11 21:21:06] Retrieval INFO:   R@5: 72.55 → 66.67 (↓5.88)
+[03/11 21:21:06] Retrieval INFO:   R@10: 82.35 → 78.43 (↓3.92)
+[03/11 21:21:06] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 21:21:06] Retrieval INFO:   MeanR: 12.51 → 11.80 (↓0.71)
+[03/11 21:21:06] Retrieval INFO: 
+Results saved to retrieval_results/retrieval_results.json
+[03/11 21:21:06] Retrieval INFO: Prompt comparison saved to retrieval_results/prompt_comparison.txt
+[03/11 21:21:06] Retrieval INFO: Features saved to retrieval_results/features.pt
+[03/11 21:21:06] Retrieval INFO: 
+================================================================================
+[03/11 21:21:06] Retrieval INFO: FINAL SUMMARY
+[03/11 21:21:06] Retrieval INFO: ================================================================================
+[03/11 21:21:06] Retrieval INFO: Method                T2V R@1  T2V R@5  T2V R@10  T2V MdR |  V2T R@1  V2T R@5  V2T R@10  V2T MdR
+[03/11 21:21:06] Retrieval INFO: ------------------------------------------------------------------------------------------------
+[03/11 21:21:06] Retrieval INFO: base                    52.94    72.55     82.35      1.0 |    27.65    50.13     60.39      5.0
+[03/11 21:21:06] Retrieval INFO: ours                    50.98    72.55     82.35      1.0 |    23.73    50.85     63.27      5.0
+[03/11 21:21:06] Retrieval INFO: ours_fusion             49.02    66.67     78.43      2.0 |    23.33    50.78     63.01      5.0
+[03/11 21:21:06] Retrieval INFO: ================================================================================
+[03/11 21:21:06] Retrieval INFO: Done!
+[03/11 21:24:05] Retrieval INFO: ============================================================
+[03/11 21:24:05] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:24:05] Retrieval INFO: ============================================================
+[03/11 21:24:07] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:24:07] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:24:08] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:24:08] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:24:08] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:24:08] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:24:09] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:24:09] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:24:09] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:24:09] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:24:09] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:24:09] Retrieval INFO: Extracting video features...
+[03/11 21:24:09] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:25:44] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:25:44] Retrieval INFO: ============================================================
+[03/11 21:25:44] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:25:44] Retrieval INFO: ============================================================
+[03/11 21:25:48] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:25:48] Retrieval INFO:   R@1: 54.90
+[03/11 21:25:48] Retrieval INFO:   R@5: 74.51
+[03/11 21:25:48] Retrieval INFO:   R@10: 82.35
+[03/11 21:25:48] Retrieval INFO:   MedianR: 1.00
+[03/11 21:25:48] Retrieval INFO:   MeanR: 12.51
+[03/11 21:25:48] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:25:48] Retrieval INFO:   R@1: 27.58
+[03/11 21:25:48] Retrieval INFO:   R@5: 50.46
+[03/11 21:25:48] Retrieval INFO:   R@10: 60.20
+[03/11 21:25:48] Retrieval INFO:   MedianR: 5.00
+[03/11 21:25:48] Retrieval INFO:   MeanR: 10.99
+[03/11 21:25:48] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:25:48] Retrieval INFO:   R@1: 1.83
+[03/11 21:25:48] Retrieval INFO:   R@5: 8.17
+[03/11 21:25:48] Retrieval INFO:   R@10: 15.42
+[03/11 21:25:48] Retrieval INFO:   MedianR: 43.00
+[03/11 21:25:48] Retrieval INFO:   MeanR: 135.27
+[03/11 21:25:48] Retrieval INFO: ============================================================
+[03/11 21:25:48] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:25:48] Retrieval INFO: ============================================================
+[03/11 21:25:52] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:25:52] Retrieval INFO:   R@1: 49.02
+[03/11 21:25:52] Retrieval INFO:   R@5: 68.63
+[03/11 21:25:52] Retrieval INFO:   R@10: 80.39
+[03/11 21:25:52] Retrieval INFO:   MedianR: 2.00
+[03/11 21:25:52] Retrieval INFO:   MeanR: 14.02
+[03/11 21:25:52] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:25:52] Retrieval INFO:   R@1: 22.81
+[03/11 21:25:52] Retrieval INFO:   R@5: 50.78
+[03/11 21:25:52] Retrieval INFO:   R@10: 62.68
+[03/11 21:25:52] Retrieval INFO:   MedianR: 5.00
+[03/11 21:25:52] Retrieval INFO:   MeanR: 11.88
+[03/11 21:25:52] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:25:52] Retrieval INFO:   R@1: 1.63
+[03/11 21:25:52] Retrieval INFO:   R@5: 8.89
+[03/11 21:25:52] Retrieval INFO:   R@10: 17.71
+[03/11 21:25:52] Retrieval INFO:   MedianR: 35.00
+[03/11 21:25:52] Retrieval INFO:   MeanR: 141.25
+[03/11 21:25:52] Retrieval INFO: ============================================================
+[03/11 21:25:52] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:25:52] Retrieval INFO: ============================================================
+[03/11 21:25:52] Retrieval INFO: Text→Video Improvement:
+[03/11 21:25:52] Retrieval INFO:   R@1: 54.90 → 49.02 (↓5.88)
+[03/11 21:25:52] Retrieval INFO:   R@5: 74.51 → 68.63 (↓5.88)
+[03/11 21:25:52] Retrieval INFO:   R@10: 82.35 → 80.39 (↓1.96)
+[03/11 21:25:52] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 21:25:52] Retrieval INFO:   MeanR: 12.51 → 14.02 (↑1.51)
+[03/11 21:25:52] Retrieval INFO: Video→Text Improvement:
+[03/11 21:25:52] Retrieval INFO:   R@1: 27.58 → 22.81 (↓4.77)
+[03/11 21:25:52] Retrieval INFO:   R@5: 50.46 → 50.78 (↑0.33)
+[03/11 21:25:52] Retrieval INFO:   R@10: 60.20 → 62.68 (↑2.48)
+[03/11 21:25:52] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:25:52] Retrieval INFO:   MeanR: 10.99 → 11.88 (↑0.90)
+[03/11 21:25:52] Retrieval INFO: ============================================================
+[03/11 21:25:52] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:25:52] Retrieval INFO: ============================================================
+[03/11 21:27:28] Retrieval INFO: [OURS+Fusion] Text→Video:
+[03/11 21:27:28] Retrieval INFO:   R@1: 47.06
+[03/11 21:27:28] Retrieval INFO:   R@5: 70.59
+[03/11 21:27:28] Retrieval INFO:   R@10: 80.39
+[03/11 21:27:28] Retrieval INFO:   MedianR: 2.00
+[03/11 21:27:28] Retrieval INFO:   MeanR: 11.76
+[03/11 21:27:28] Retrieval INFO: [OURS+Fusion] Video→Text:
+[03/11 21:27:28] Retrieval INFO:   R@1: 23.40
+[03/11 21:27:28] Retrieval INFO:   R@5: 50.59
+[03/11 21:27:28] Retrieval INFO:   R@10: 63.40
+[03/11 21:27:28] Retrieval INFO:   MedianR: 5.00
+[03/11 21:27:28] Retrieval INFO:   MeanR: 11.86
+[03/11 21:27:28] Retrieval INFO: Fusion vs Base Improvement (Text→Video):
+[03/11 21:27:28] Retrieval INFO:   R@1: 54.90 → 47.06 (↓7.84)
+[03/11 21:27:28] Retrieval INFO:   R@5: 74.51 → 70.59 (↓3.92)
+[03/11 21:27:28] Retrieval INFO:   R@10: 82.35 → 80.39 (↓1.96)
+[03/11 21:27:28] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 21:27:28] Retrieval INFO:   MeanR: 12.51 → 11.76 (↓0.75)
+[03/11 21:27:28] Retrieval INFO: 
+Results saved to retrieval_results/retrieval_results.json
+[03/11 21:27:28] Retrieval INFO: Prompt comparison saved to retrieval_results/prompt_comparison.txt
+[03/11 21:27:28] Retrieval INFO: Features saved to retrieval_results/features.pt
+[03/11 21:27:28] Retrieval INFO: 
+================================================================================
+[03/11 21:27:28] Retrieval INFO: FINAL SUMMARY
+[03/11 21:27:28] Retrieval INFO: ================================================================================
+[03/11 21:27:28] Retrieval INFO: Method                T2V R@1  T2V R@5  T2V R@10  T2V MdR |  V2T R@1  V2T R@5  V2T R@10  V2T MdR
+[03/11 21:27:28] Retrieval INFO: ------------------------------------------------------------------------------------------------
+[03/11 21:27:28] Retrieval INFO: base                    54.90    74.51     82.35      1.0 |    27.58    50.46     60.20      5.0
+[03/11 21:27:28] Retrieval INFO: ours                    49.02    68.63     80.39      2.0 |    22.81    50.78     62.68      5.0
+[03/11 21:27:28] Retrieval INFO: ours_fusion             47.06    70.59     80.39      2.0 |    23.40    50.59     63.40      5.0
+[03/11 21:27:28] Retrieval INFO: ================================================================================
+[03/11 21:27:28] Retrieval INFO: Done!
+[03/11 21:28:09] Retrieval INFO: ============================================================
+[03/11 21:28:09] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:28:09] Retrieval INFO: ============================================================
+[03/11 21:28:12] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:28:12] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:28:13] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:28:13] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:28:13] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:28:13] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:28:13] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:28:13] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:28:13] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:28:13] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:28:13] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:28:13] Retrieval INFO: Extracting video features...
+[03/11 21:28:13] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:29:47] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:29:47] Retrieval INFO: ============================================================
+[03/11 21:29:47] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:29:47] Retrieval INFO: ============================================================
+[03/11 21:29:51] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:29:51] Retrieval INFO:   R@1: 50.98
+[03/11 21:29:51] Retrieval INFO:   R@5: 74.51
+[03/11 21:29:51] Retrieval INFO:   R@10: 82.35
+[03/11 21:29:51] Retrieval INFO:   MedianR: 1.00
+[03/11 21:29:51] Retrieval INFO:   MeanR: 13.73
+[03/11 21:29:51] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:29:51] Retrieval INFO:   R@1: 26.99
+[03/11 21:29:51] Retrieval INFO:   R@5: 50.07
+[03/11 21:29:51] Retrieval INFO:   R@10: 60.65
+[03/11 21:29:51] Retrieval INFO:   MedianR: 5.00
+[03/11 21:29:51] Retrieval INFO:   MeanR: 11.00
+[03/11 21:29:51] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:29:51] Retrieval INFO:   R@1: 1.70
+[03/11 21:29:51] Retrieval INFO:   R@5: 8.17
+[03/11 21:29:51] Retrieval INFO:   R@10: 16.27
+[03/11 21:29:51] Retrieval INFO:   MedianR: 42.00
+[03/11 21:29:51] Retrieval INFO:   MeanR: 134.38
+[03/11 21:29:51] Retrieval INFO: ============================================================
+[03/11 21:29:51] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:29:51] Retrieval INFO: ============================================================
+[03/11 21:29:55] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:29:55] Retrieval INFO:   R@1: 49.02
+[03/11 21:29:55] Retrieval INFO:   R@5: 68.63
+[03/11 21:29:55] Retrieval INFO:   R@10: 82.35
+[03/11 21:29:55] Retrieval INFO:   MedianR: 2.00
+[03/11 21:29:55] Retrieval INFO:   MeanR: 11.71
+[03/11 21:29:55] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:29:55] Retrieval INFO:   R@1: 22.94
+[03/11 21:29:55] Retrieval INFO:   R@5: 50.59
+[03/11 21:29:55] Retrieval INFO:   R@10: 63.01
+[03/11 21:29:55] Retrieval INFO:   MedianR: 5.00
+[03/11 21:29:55] Retrieval INFO:   MeanR: 11.87
+[03/11 21:29:55] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:29:55] Retrieval INFO:   R@1: 1.63
+[03/11 21:29:55] Retrieval INFO:   R@5: 8.63
+[03/11 21:29:55] Retrieval INFO:   R@10: 17.45
+[03/11 21:29:55] Retrieval INFO:   MedianR: 36.00
+[03/11 21:29:55] Retrieval INFO:   MeanR: 140.63
+[03/11 21:29:55] Retrieval INFO: ============================================================
+[03/11 21:29:55] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:29:55] Retrieval INFO: ============================================================
+[03/11 21:29:55] Retrieval INFO: Text→Video Improvement:
+[03/11 21:29:55] Retrieval INFO:   R@1: 50.98 → 49.02 (↓1.96)
+[03/11 21:29:55] Retrieval INFO:   R@5: 74.51 → 68.63 (↓5.88)
+[03/11 21:29:55] Retrieval INFO:   R@10: 82.35 → 82.35 (↓0.00)
+[03/11 21:29:55] Retrieval INFO:   MedianR: 1.00 → 2.00 (↑1.00)
+[03/11 21:29:55] Retrieval INFO:   MeanR: 13.73 → 11.71 (↓2.02)
+[03/11 21:29:55] Retrieval INFO: Video→Text Improvement:
+[03/11 21:29:55] Retrieval INFO:   R@1: 26.99 → 22.94 (↓4.05)
+[03/11 21:29:55] Retrieval INFO:   R@5: 50.07 → 50.59 (↑0.52)
+[03/11 21:29:55] Retrieval INFO:   R@10: 60.65 → 63.01 (↑2.35)
+[03/11 21:29:55] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:29:55] Retrieval INFO:   MeanR: 11.00 → 11.87 (↑0.88)
+[03/11 21:29:55] Retrieval INFO: ============================================================
+[03/11 21:29:55] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:29:55] Retrieval INFO: ============================================================
+[03/11 21:33:49] Retrieval INFO: ============================================================
+[03/11 21:33:49] Retrieval INFO: Zero-shot Video-Text Retrieval Evaluation
+[03/11 21:33:49] Retrieval INFO: ============================================================
+[03/11 21:33:52] Retrieval INFO: Attribute-guided fusion enabled
+[03/11 21:33:52] Retrieval INFO: Loading checkpoint from: /home/neimedia/gmk/BIKE/exps/hmdb51/ViT-B/16/Video-Text不交互/model_best.pt
+[03/11 21:33:53] Retrieval INFO: Checkpoint loaded successfully
+[03/11 21:33:53] Retrieval INFO: Dataset: hmdb51, Classes: 51, Videos: 1530
+[03/11 21:33:53] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:33:53] Retrieval INFO: Building BASE text features (class name only)...
+[03/11 21:33:53] Retrieval INFO:   Example: a video of brush hair.
+[03/11 21:33:53] Retrieval INFO: Building OURS text features (class name + attributes)...
+[03/11 21:33:53] Retrieval INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/qwen/HMDB51_1.json
+[03/11 21:33:53] Retrieval INFO:   Example: a video about brush hair. brush comb style arrange neat tidy smooth glossy tangle untangle curl straighten fix secure manipulate direct.
+[03/11 21:33:53] Retrieval INFO: ------------------------------------------------------------
+[03/11 21:33:53] Retrieval INFO: Extracting video features...
+[03/11 21:33:53] Retrieval INFO: Fusion weights (iframe/res/mv): [0.3335205316543579, 0.33323946595191956, 0.3332400321960449]
+[03/11 21:35:27] Retrieval INFO: Extracted 1530 video features, dim=512
+[03/11 21:35:27] Retrieval INFO: ============================================================
+[03/11 21:35:27] Retrieval INFO: 【BASE】Text-Video Retrieval (class name only)
+[03/11 21:35:27] Retrieval INFO: ============================================================
+[03/11 21:35:31] Retrieval INFO: [BASE] Text→Video (best-rank per class):
+[03/11 21:35:31] Retrieval INFO:   R@1: 49.02
+[03/11 21:35:31] Retrieval INFO:   R@5: 76.47
+[03/11 21:35:31] Retrieval INFO:   R@10: 80.39
+[03/11 21:35:31] Retrieval INFO:   MedianR: 2.00
+[03/11 21:35:31] Retrieval INFO:   MeanR: 14.12
+[03/11 21:35:31] Retrieval INFO: [BASE] Video→Text:
+[03/11 21:35:31] Retrieval INFO:   R@1: 27.39
+[03/11 21:35:31] Retrieval INFO:   R@5: 50.26
+[03/11 21:35:31] Retrieval INFO:   R@10: 60.46
+[03/11 21:35:31] Retrieval INFO:   MedianR: 5.00
+[03/11 21:35:31] Retrieval INFO:   MeanR: 11.02
+[03/11 21:35:31] Retrieval INFO: [BASE] Text→Video (instance-level, stricter):
+[03/11 21:35:31] Retrieval INFO:   R@1: 1.63
+[03/11 21:35:31] Retrieval INFO:   R@5: 8.17
+[03/11 21:35:31] Retrieval INFO:   R@10: 15.95
+[03/11 21:35:31] Retrieval INFO:   MedianR: 43.00
+[03/11 21:35:31] Retrieval INFO:   MeanR: 136.03
+[03/11 21:35:31] Retrieval INFO: ============================================================
+[03/11 21:35:31] Retrieval INFO: 【OURS】Text-Video Retrieval (class name + attributes)
+[03/11 21:35:31] Retrieval INFO: ============================================================
+[03/11 21:35:35] Retrieval INFO: [OURS] Text→Video (best-rank per class):
+[03/11 21:35:35] Retrieval INFO:   R@1: 52.94
+[03/11 21:35:35] Retrieval INFO:   R@5: 70.59
+[03/11 21:35:35] Retrieval INFO:   R@10: 80.39
+[03/11 21:35:35] Retrieval INFO:   MedianR: 1.00
+[03/11 21:35:35] Retrieval INFO:   MeanR: 11.88
+[03/11 21:35:35] Retrieval INFO: [OURS] Video→Text:
+[03/11 21:35:35] Retrieval INFO:   R@1: 23.66
+[03/11 21:35:35] Retrieval INFO:   R@5: 50.39
+[03/11 21:35:35] Retrieval INFO:   R@10: 63.07
+[03/11 21:35:35] Retrieval INFO:   MedianR: 5.00
+[03/11 21:35:35] Retrieval INFO:   MeanR: 11.87
+[03/11 21:35:35] Retrieval INFO: [OURS] Text→Video (instance-level, stricter):
+[03/11 21:35:35] Retrieval INFO:   R@1: 1.76
+[03/11 21:35:35] Retrieval INFO:   R@5: 8.56
+[03/11 21:35:35] Retrieval INFO:   R@10: 16.93
+[03/11 21:35:35] Retrieval INFO:   MedianR: 35.00
+[03/11 21:35:35] Retrieval INFO:   MeanR: 140.88
+[03/11 21:35:35] Retrieval INFO: ============================================================
+[03/11 21:35:35] Retrieval INFO: 【IMPROVEMENT】Ours vs Base
+[03/11 21:35:35] Retrieval INFO: ============================================================
+[03/11 21:35:35] Retrieval INFO: Text→Video Improvement:
+[03/11 21:35:35] Retrieval INFO:   R@1: 49.02 → 52.94 (↑3.92)
+[03/11 21:35:35] Retrieval INFO:   R@5: 76.47 → 70.59 (↓5.88)
+[03/11 21:35:35] Retrieval INFO:   R@10: 80.39 → 80.39 (↓0.00)
+[03/11 21:35:35] Retrieval INFO:   MedianR: 2.00 → 1.00 (↓1.00)
+[03/11 21:35:35] Retrieval INFO:   MeanR: 14.12 → 11.88 (↓2.24)
+[03/11 21:35:35] Retrieval INFO: Video→Text Improvement:
+[03/11 21:35:35] Retrieval INFO:   R@1: 27.39 → 23.66 (↓3.73)
+[03/11 21:35:35] Retrieval INFO:   R@5: 50.26 → 50.39 (↑0.13)
+[03/11 21:35:35] Retrieval INFO:   R@10: 60.46 → 63.07 (↑2.61)
+[03/11 21:35:35] Retrieval INFO:   MedianR: 5.00 → 5.00 (↑0.00)
+[03/11 21:35:35] Retrieval INFO:   MeanR: 11.02 → 11.87 (↑0.85)
+[03/11 21:35:35] Retrieval INFO: ============================================================
+[03/11 21:35:35] Retrieval INFO: 【OURS + Fusion】Attribute-Guided Fusion Retrieval
+[03/11 21:35:35] Retrieval INFO: ============================================================
+[03/11 21:37:14] Retrieval INFO: [OURS+Fusion] Text→Video:
+[03/11 21:37:14] Retrieval INFO:   R@1: 50.98
+[03/11 21:37:14] Retrieval INFO:   R@5: 70.59
+[03/11 21:37:14] Retrieval INFO:   R@10: 80.39
+[03/11 21:37:14] Retrieval INFO:   MedianR: 1.00
+[03/11 21:37:14] Retrieval INFO:   MeanR: 12.25
+[03/11 21:37:14] Retrieval INFO: [OURS+Fusion] Video→Text:
+[03/11 21:37:14] Retrieval INFO:   R@1: 22.88
+[03/11 21:37:14] Retrieval INFO:   R@5: 50.52
+[03/11 21:37:14] Retrieval INFO:   R@10: 62.88
+[03/11 21:37:14] Retrieval INFO:   MedianR: 5.00
+[03/11 21:37:14] Retrieval INFO:   MeanR: 11.91
+[03/11 21:37:14] Retrieval INFO: Fusion vs Base Improvement (Text→Video):
+[03/11 21:37:14] Retrieval INFO:   R@1: 49.02 → 50.98 (↑1.96)
+[03/11 21:37:14] Retrieval INFO:   R@5: 76.47 → 70.59 (↓5.88)
+[03/11 21:37:14] Retrieval INFO:   R@10: 80.39 → 80.39 (↓0.00)
+[03/11 21:37:14] Retrieval INFO:   MedianR: 2.00 → 1.00 (↓1.00)
+[03/11 21:37:14] Retrieval INFO:   MeanR: 14.12 → 12.25 (↓1.86)
+[03/11 21:37:14] Retrieval INFO: 
+Results saved to retrieval_results/retrieval_results.json
+[03/11 21:37:14] Retrieval INFO: Prompt comparison saved to retrieval_results/prompt_comparison.txt
+[03/11 21:37:14] Retrieval INFO: Features saved to retrieval_results/features.pt
+[03/11 21:37:14] Retrieval INFO: 
+================================================================================
+[03/11 21:37:14] Retrieval INFO: FINAL SUMMARY
+[03/11 21:37:14] Retrieval INFO: ================================================================================
+[03/11 21:37:14] Retrieval INFO: Method                T2V R@1  T2V R@5  T2V R@10  T2V MdR |  V2T R@1  V2T R@5  V2T R@10  V2T MdR
+[03/11 21:37:14] Retrieval INFO: ------------------------------------------------------------------------------------------------
+[03/11 21:37:14] Retrieval INFO: base                    49.02    76.47     80.39      2.0 |    27.39    50.26     60.46      5.0
+[03/11 21:37:14] Retrieval INFO: ours                    52.94    70.59     80.39      1.0 |    23.66    50.39     63.07      5.0
+[03/11 21:37:14] Retrieval INFO: ours_fusion             50.98    70.59     80.39      1.0 |    22.88    50.52     62.88      5.0
+[03/11 21:37:14] Retrieval INFO: ================================================================================
+[03/11 21:37:14] Retrieval INFO: Done!

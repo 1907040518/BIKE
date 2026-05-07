@@ -7,7 +7,7 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 32
+    batch_size: 64
     workers: 4
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'

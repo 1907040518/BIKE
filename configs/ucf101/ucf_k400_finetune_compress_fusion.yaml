@@ -1,4 +1,4 @@
-pretrain: home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
 resume:
 seed: 1024
 data:
@@ -6,8 +6,8 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 32
-    workers: 4
+    batch_size: 64
+    workers: 8
     num_classes: 101
     image_tmpl: 'img_{:05d}.jpg'
     train_root: '/home/neimedia/action_data/UCF101/Cucf101'
@@ -34,19 +34,20 @@ network:
     fix_video: False
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    # ============================================
+    # attribute_guided_fusion / 融合模块 配置
+    # ============================================
     attribute_guided_fusion:
-        enable: True          # 🔥 致命错误1：你原本是 False！如果你的动态融合模块是通过这个开关控制的，它之前根本没参与前向传播！
+        enable: False         
         num_heads: 8
         num_attributes: 16
         dropout: 0.1
-        fusion_lr_scale: 10.0 # 🔥 致命错误2：2.0 太小了！(解释见下方)
-
-
+        fusion_lr_scale: 10.0 
     action_prompt:
         enable: True
         vocab_root: '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'
         dataset_key: UCF101
-        seed_index: 2
+        seed_index: 1
         num_attributes: 16
         attribute_ctx: 2
         n_ctx: 4

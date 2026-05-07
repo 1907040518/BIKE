@@ -1,4 +1,4 @@
-pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
 # pretrain:
 resume:
 seed: 1024
@@ -7,15 +7,15 @@ data:
     modality: residual
     num_segments: 16
     seg_length: 1
-    batch_size: 32
-    workers: 4
+    batch_size: 64
+    workers: 8
     num_classes: 174
     image_tmpl: 'image_{:06d}.jpg'
-    train_root: '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2'
-    val_root: '/mnt/data/sthv2/mpeg4_video/20bn-something-something-v2'
-    train_list: '/home/stu_b/BIKE/lists/sthv2/train_rgb.txt'
-    val_list: '/home/stu_b/BIKE/lists/sthv2/val_rgb.txt'
-    label_list: '/home/stu_b/BIKE/lists/sthv2/sthv2_labels.csv'
+    train_root: '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
+    val_root: '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
+    train_list: '/home/neimedia/gmk/BIKE/lists/sthv2/train_rgb.txt'
+    val_list: '/home/neimedia/gmk/BIKE/lists/sthv2/val_rgb.txt'
+    label_list: '/home/neimedia/gmk/BIKE/lists/sthv2/sthv2_labels.csv'
     input_size: 224
     random_shift: True
     output_path: exps
@@ -33,12 +33,21 @@ network:
     joint_st: False
     drop: 0      
     fix_text: True  
-    fix_video: False 
+    fix_video: False
     residual_layers_to_use: [0, 11]
     mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    # ============================================
+    # attribute_guided_fusion / 融合模块 配置
+    # ============================================
+    attribute_guided_fusion:
+        enable: False         
+        num_heads: 8
+        num_attributes: 16
+        dropout: 0.1
+        fusion_lr_scale: 10.0 
     action_prompt:
         enable: True
-        vocab_root: '/home/stu_b/BIKE/attributes/llama3.1:8b'   # llama3.1:8b  qwen
+        vocab_root: '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'
         dataset_key: SOMETHING_SOMETHING_V2
         seed_index: 1
         num_attributes: 16
@@ -46,23 +55,13 @@ network:
         n_ctx: 4
         class_specific: True
         template: "a video about {}."
-    coapt_bias:
-        enable: False
-        layers: [1024, 512, 512]
-    attribute_guided_fusion:
-        enable: False
-        hidden_dim: 256
-        num_heads: 4
-        residual_scale: 0.2
-        dropout: 0.0
-        detach_text: True
+
 solver:
     type: cosine
     epochs: 30
     start_epoch: 0
     optim: adamw
     lr: 5.e-5
-    mv_lr_ratio: 1  # mv_head学习率
     lr_warmup_step: 5
     weight_decay: 0.2
     loss_type: NCE

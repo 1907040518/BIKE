@@ -7,7 +7,8 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
+export CUDA_VISIBLE_DEVICES=1,2,3,4
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  # ← 必须 export
 
-python -m torch.distributed.launch --master_port 1246 --nproc_per_node=4 \
-         train_comp_CoAPT.py  --config ${config} --log_time $now
-         
+torchrun --nproc_per_node=4 --master_port=12345 \
+         train_comp_CoAPT.py --config ${config} --log_time $now

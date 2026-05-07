@@ -559,6 +559,7 @@ def main(args):
     else:
         model.coapt_bias = None
 
+    # 属性指导融合 （Attribute-Guided Fusion）配置解析 - 这部分代码负责从配置中解析属性指导融合模块的相关设置，并根据这些设置启用或禁用该模块，同时记录相关信息以便调试和验证。
     attribute_fusion_cfg = config.network.get('attribute_guided_fusion', None)
     attribute_fusion_enabled = False
     fusion_kwargs = {}
@@ -713,12 +714,14 @@ def main(args):
                     epoch, val_loader, classes, device, model, video_head,
                     config, n_class, logger, coapt_bias_enabled=coapt_bias_enabled,
                     attribute_prompt_enabled=attribute_prompt_enabled)
+                torch.cuda.empty_cache()  # ← 加这一行
             else:
                 prec1, output_list, labels_list = validate(
                     epoch, val_loader, classes, device, model, video_head,
                     config, n_class, logger, return_sim=save_score,
                     coapt_bias_enabled=coapt_bias_enabled,
                     attribute_prompt_enabled=attribute_prompt_enabled)
+                torch.cuda.empty_cache()  # ← 加这一行
 
             if dist.get_rank() == 0:
                 is_best = prec1 > best_prec1
@@ -948,9 +951,9 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
                     elif cls_sim.dim() == 1:
                         cls_sim = cls_sim.unsqueeze(1)
                     
-                    batch_similarities.append(cls_sim)
+                    batch_similarities.append(cls_sim.detach().cpu())
                 
-                similarity = torch.cat(batch_similarities, dim=1)  # (B, n_class)
+                similarity = torch.cat(batch_similarities, dim=1).to(device)  # (B, n_class)
                 similarity = F.softmax(similarity, dim=-1)
                 
             else:

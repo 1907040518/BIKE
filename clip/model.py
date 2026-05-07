@@ -1093,13 +1093,21 @@ class CLIP(nn.Module):
         # 编码原始图像
         image_feat = self.visual(images.type(self.dtype))
         
-        # 编码残差信息
-        if self.residual_encoder is not None:
-            res_feat = self.residual_encoder(res.type(self.dtype))
-            mvs_feats = self.mvs_encoder(mv.type(self.dtype))
+        if res is None:
+            res_feat = torch.zeros_like(image_feat)
         else:
-            # 如果没有专门的残差编码器(例如在ResNet的情况下)，则回退到使用完整的编码器
-            res_feat = self.visual(res.type(self.dtype))
+            if self.residual_encoder is not None:
+                res_feat = self.residual_encoder(res.type(self.dtype))
+            else:
+                res_feat = self.visual(res.type(self.dtype))
+
+        if mv is None:
+            mvs_feats = torch.zeros_like(image_feat)
+        else:
+            if self.mvs_encoder is not None:
+                mvs_feats = self.mvs_encoder(mv.type(self.dtype))
+            else:
+                mvs_feats = self.visual(mv.type(self.dtype))
         
         
         return image_feat, res_feat, mvs_feats
