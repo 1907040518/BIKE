@@ -572,32 +572,31 @@ class CrossModalAttentionFusion(nn.Module):
 
 
 class InstanceAwareDynamicFusion(nn.Module):
-    """火力全开版：帧级动态路由 + 特征语义注入"""
-    
-    def __init__(self, visual_dim=512, semantic_dim=512, hidden_dim=128, num_modalities=3):
+    def __init__(self, visual_dim=512, semantic_dim=512, 
+                 hidden_dim=128, num_modalities=3,
+                 num_heads=4,      # ✅ 新增
+                 dropout=0.0):     # ✅ 新增
         super().__init__()
         self.num_modalities = num_modalities
         
-        # 1. 跨模态语义投影 
         self.q_proj = nn.ModuleList([nn.Linear(visual_dim, hidden_dim) for _ in range(num_modalities)])
         self.k_proj = nn.Linear(semantic_dim, hidden_dim)
         self.v_proj = nn.Linear(semantic_dim, hidden_dim)
         
-        # 🔥 涨点修改1：不仅融合权重，还要把文本语义作为残差注入到视觉特征中
         self.feat_inject_proj = nn.ModuleList([nn.Linear(hidden_dim, visual_dim) for _ in range(num_modalities)])
-        self.inject_scale = nn.Parameter(torch.zeros(num_modalities)) # 可学习的特征注入控制门
+        self.inject_scale = nn.Parameter(torch.zeros(num_modalities))
         
-        # 2. 动态权重生成器 (注意这里输入维度的变化，我们保留时序维度 T)
         self.dynamic_router = nn.Sequential(
             nn.Linear(num_modalities * hidden_dim + semantic_dim, hidden_dim),
             nn.GELU(),
             nn.LayerNorm(hidden_dim),
+            nn.Dropout(dropout),   # ✅ 使用传入的 dropout
             nn.Linear(hidden_dim, num_modalities)
         )
         
-        # 🔥 涨点修改2：用可学习的门控参数代替最后一层的全零初始化
-        # 这样不会破坏网络权重的初始化分布，同时又能实现初始态等于 base_weights
-        self.router_gate = nn.Parameter(torch.tensor(0.01)) 
+        self.router_gate = nn.Parameter(torch.tensor(0.01))
+        # num_heads 暂时存储，如果后续需要多头注意力可以扩展
+        self.num_heads = num_heads
 
     def forward(self, iframe_feats, mv_feats, residual_feats, attribute_tokens, base_weights):
         B, T, D = iframe_feats.shape
@@ -1137,6 +1136,7 @@ class CLIP(nn.Module):
     def attach_attribute_prompt(self, prompt_learner):
         self.attribute_prompt_learner = prompt_learner
 
+    # ✅ model.py 中修改
     def configure_attribute_guided_fusion(
         self, enable=True, hidden_dim=256, num_heads=4, dropout=0.0, detach_text=False
     ):
@@ -1146,7 +1146,9 @@ class CLIP(nn.Module):
                 visual_dim=embed_dim,
                 semantic_dim=embed_dim,
                 hidden_dim=hidden_dim,
+                num_heads=num_heads,   # ✅ 修复：传入 num_heads
                 num_modalities=3,
+                dropout=dropout,       # ✅ 修复：传入 dropout
             )
             self.detach_attribute_semantics = bool(detach_text)
         else:
@@ -1155,6 +1157,7 @@ class CLIP(nn.Module):
 
         self._last_fusion_weights = None
         self._last_weight_residual = None
+
 
     def encode_attribute_prompts(self, class_ids=None, return_token=False):
         if self.attribute_prompt_learner is None:

@@ -38,13 +38,13 @@ network:
     # attribute_guided_fusion / 融合模块 配置
     # ============================================
     attribute_guided_fusion:
-        enable: False         
+        enable: True         
         num_heads: 8
         num_attributes: 16
         dropout: 0.1
         fusion_lr_scale: 10.0 
     action_prompt:
-        enable: True
+        enable: False
         vocab_root: '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'
         dataset_key: UCF101
         seed_index: 1

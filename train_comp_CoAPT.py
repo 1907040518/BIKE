@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import os
 import sys
 import time
@@ -571,9 +572,10 @@ def main(args):
     elif attribute_fusion_cfg is not None:
         attribute_fusion_enabled = bool(attribute_fusion_cfg)
 
+    # ✅ 修改后：去掉这个强制禁用逻辑，或者改为只是警告
     if attribute_fusion_enabled and not attribute_prompt_enabled and dist.get_rank() == 0:
-        logger.warning("Attribute-guided fusion requires attribute prompts; disabling module.")
-        attribute_fusion_enabled = False
+        logger.warning("Attribute-guided fusion is enabled without attribute prompts; "
+                    "will use default text features as text tokens.")
 
     if attribute_fusion_enabled:
         model.configure_attribute_guided_fusion(enable=True, **fusion_kwargs)
@@ -917,7 +919,7 @@ def validate(epoch, val_loader, classes, device, model, video_head, config, n_cl
             res_features = res_features.view(b, t, -1)
             mvs_features = mvs_features.view(b, t, -1)
 
-            if attribute_prompt_enabled and getattr(clip_model, "attribute_guided_fusion", None) is not None:
+            if getattr(clip_model, "attribute_guided_fusion", None) is not None:
                 # 🔥 方案A：遍历所有类别（精度更高但慢）
                 batch_similarities = []
                 
