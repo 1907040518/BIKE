@@ -1,4 +1,4 @@
-pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+pretrain: /NetMedia_Nas/gmk/BIKE/exps/k400/ViT-L/14/16f/k400-vit-l-14-f16.pt
 resume:
 seed: 1024
 data:
@@ -20,7 +20,7 @@ data:
     output_path: exps
     GOP_SIZE: 12
 network:
-    arch: ViT-B/16
+    arch: ViT-L/14
     init: True 
     tm: False
     drop_out: 0.0 
@@ -47,7 +47,7 @@ network:
         fusion_lr_scale: 10.0 
     action_prompt:
         enable: True
-        vocab_root: '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'
+        vocab_root: '/home/neimedia/gmk/BIKE/attributes/qwen'
         dataset_key: HMDB51
         seed_index: 1
         num_attributes: 16

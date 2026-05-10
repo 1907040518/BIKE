@@ -445,7 +445,7 @@ class Video_dataset(data.Dataset):
         input_residual = (input_residual - 0.5) / self.input_std
         input_mv = (input_mv - 0.5)
 
-        return input_iframe, input_mv, input_residual, label
+        return input_iframe, input_mv, input_residual, label, video_path
 
 
 #         # decode frames to video_list

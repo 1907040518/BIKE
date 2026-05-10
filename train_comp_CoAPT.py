@@ -229,6 +229,9 @@ def get_parser():
     )        
     parser.add_argument('--no-accumulation', action='store_true',
                     help='disable accumulation of motion vectors and residuals.')                
+    # ✅ 新增：断点续训参数
+    parser.add_argument('--resume', type=str, default='',
+                        help='path to checkpoint to resume from (e.g. outputs/xxx/last_model.pt)')
     args = parser.parse_args()
     return args
 
@@ -652,6 +655,36 @@ def main(args):
     optimizer = _optimizer(config, model, video_head)
     lr_scheduler = _lr_scheduler(config, optimizer)
 
+    if args.resume:
+        if os.path.isfile(args.resume):
+            logger.info(f"=> 加载断点续训 checkpoint: '{args.resume}'")
+            checkpoint = torch.load(args.resume, map_location='cpu')
+
+            # ✅ 只恢复模型权重，strict=False 允许新增/删除的参数
+            missing, unexpected = model.load_state_dict(
+                checkpoint['model_state_dict'], strict=False
+            )
+            video_head.load_state_dict(
+                checkpoint['fusion_model_state_dict'], strict=False
+            )
+
+            # ✅ 恢复 epoch 和最佳精度（可选）
+            start_epoch = checkpoint.get('epoch', start_epoch) + 1
+            best_prec1  = checkpoint.get('best_prec1', 0.0)
+
+            # ❌ 不加载 optimizer state（结构已变，无法复用）
+            # 打印缺失/多余的 key，方便确认新模块是否正确初始化
+            if dist.get_rank() == 0:
+                if missing:
+                    logger.warning(f"Missing keys (新增模块，将随机初始化): {missing}")
+                if unexpected:
+                    logger.warning(f"Unexpected keys (旧模块已删除): {unexpected}")
+                logger.info(f"=> 模型权重恢复成功，从 epoch {start_epoch} 开始续训")
+
+            del checkpoint
+        else:
+            logger.warning(f"=> 未找到 checkpoint: '{args.resume}'，从头训练")
+
     if args.distributed:
         model = DistributedDataParallel(model.cuda(), device_ids=[args.gpu], find_unused_parameters=True)
 
@@ -693,22 +726,22 @@ def main(args):
             train_loader.sampler.set_epoch(epoch)        
 
         # print(model)
-        train(
-            model,
-            video_head,
-            train_loader,
-            optimizer,
-            criterion,
-            scaler,
-            epoch,
-            device,
-            lr_scheduler,
-            config,
-            classes,
-            logger,
-            coapt_bias_enabled,
-            attribute_prompt_enabled,
-        )
+        # train(
+        #     model,
+        #     video_head,
+        #     train_loader,
+        #     optimizer,
+        #     criterion,
+        #     scaler,
+        #     epoch,
+        #     device,
+        #     lr_scheduler,
+        #     config,
+        #     classes,
+        #     logger,
+        #     coapt_bias_enabled,
+        #     attribute_prompt_enabled,
+        # )
 
         if (epoch+1) % config.logging.eval_freq == 0:
             if config.data.dataset == 'charades':
@@ -722,7 +755,10 @@ def main(args):
                     epoch, val_loader, classes, device, model, video_head,
                     config, n_class, logger, return_sim=save_score,
                     coapt_bias_enabled=coapt_bias_enabled,
-                    attribute_prompt_enabled=attribute_prompt_enabled)
+                    attribute_prompt_enabled=attribute_prompt_enabled,
+                    save_results=True,
+                    results_save_dir=working_dir,   # 保存到训练输出目录
+                    )
                 torch.cuda.empty_cache()  # ← 加这一行
 
             if dist.get_rank() == 0:
@@ -877,130 +913,292 @@ def train_data_p(model, video_head, train_loader, optimizer, criterion, scaler,
 
 
 def validate(epoch, val_loader, classes, device, model, video_head, config, n_class, logger,
-             return_sim=False, coapt_bias_enabled=False, attribute_prompt_enabled=False):
+             return_sim=False, coapt_bias_enabled=False, attribute_prompt_enabled=False,
+             save_results=True, results_save_dir=None):
     top1 = AverageMeter()
     top5 = AverageMeter()
-    sims_list = []
-    labels_list = []
-    
+    sims_list    = []
+    labels_list  = []
+
+    # 逐样本结果收集（仅 rank0 写入）
+    all_sample_names = []
+    all_gt_labels    = []
+    all_pred_labels  = []
+    all_confidences  = []
+    all_correct      = []
+    all_similarities = []
+
     model.eval()
     video_head.eval()
     clip_model = model.module if hasattr(model, "module") else model
 
+    # 类别名列表
+    classname_list = None
+    if hasattr(val_loader.dataset, 'classes'):
+        classname_list = [name for _, name in val_loader.dataset.classes]
+
     with torch.no_grad():
         if classes is None:
             raise RuntimeError("Text classes tensor is required for evaluation")
-        
+
         text_inputs = classes.to(device)
-        base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
-        coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
-        
-        # 🔥 获取基础权重（所有类别共享）
-        base_weights = F.softmax(clip_model.beta, dim=0)  # (3,)
-        
-        for i, (image, mv, residual, class_id) in enumerate(val_loader):
-            image = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
-            mv = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])
+        base_cls_feature, text_features = clip_model.encode_text(
+            text_inputs, return_token=True
+        )
+        coapt_module = (
+            clip_model.coapt_bias
+            if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias"))
+            else None
+        )
+        base_weights = F.softmax(clip_model.beta, dim=0)   # (3,)
+
+        # ── dataset 现在返回 5 个值 ──────────────────────────────────
+        for i, (image, mv, residual, class_id, video_paths) in enumerate(val_loader):
+            # video_paths: tuple of str，长度 = batch_size
+
+            image    = image.view((-1, config.data.num_segments, 3) + image.size()[-2:])
+            mv       = mv.view((-1, config.data.num_segments, 2) + mv.size()[-2:])
             residual = residual.view((-1, config.data.num_segments, 3) + residual.size()[-2:])
-            
+
             b, t, c_i, h, w = image.size()
             _, _, c_m, _, _ = mv.size()
 
-            class_id = class_id.to(device)
-            image_input = image.to(device).view(-1, c_i, h, w)
-            mv_input = mv.to(device).view(-1, c_m, h, w)
+            class_id       = class_id.to(device)
+            image_input    = image.to(device).view(-1, c_i, h, w)
+            mv_input       = mv.to(device).view(-1, c_m, h, w)
             residual_input = residual.to(device).view(-1, c_i, h, w)
 
-            # 编码视觉特征（一次性）
+            # ── 编码视觉特征 ─────────────────────────────────────────
             image_features, res_features, mvs_features = clip_model.encode_image(
                 image_input, residual_input, mv_input
             )
             image_features = image_features.view(b, t, -1)
-            res_features = res_features.view(b, t, -1)
-            mvs_features = mvs_features.view(b, t, -1)
+            res_features   = res_features.view(b, t, -1)
+            mvs_features   = mvs_features.view(b, t, -1)
 
+            # ── 计算 similarity ──────────────────────────────────────
             if getattr(clip_model, "attribute_guided_fusion", None) is not None:
-                # 🔥 方案A：遍历所有类别（精度更高但慢）
                 batch_similarities = []
-                
                 for cls_idx in range(n_class):
-                    cls_text_tokens = text_features[cls_idx:cls_idx+1].expand(b, -1, -1)  # (B, L, D)
-                    
-                    # 使用属性引导融合
-                    fused_feats, final_weights, _ = clip_model.attribute_guided_fusion(
-                        image_features,
-                        mvs_features,
-                        res_features,
-                        cls_text_tokens,
-                        base_weights,  # 传入基础权重
+                    cls_text_tokens    = text_features[cls_idx:cls_idx+1].expand(b, -1, -1)
+                    fused_feats, _, _  = clip_model.attribute_guided_fusion(
+                        image_features, mvs_features, res_features,
+                        cls_text_tokens, base_weights,
                     )
-                    
-                    # 计算相似度
-                    cls_cls_feat = base_cls_feature[cls_idx:cls_idx+1]
-                    cls_text_feat = text_features[cls_idx:cls_idx+1]
-                    
-                    cls_cls_feat_batch = cls_cls_feat.expand(b, -1)
-                    # print("fused_feats shape:", fused_feats.shape)    torch.Size([32, 16, 512])
-                    # print("cls_text_feat.expand(b, -1, -1) shape:", cls_text_feat.expand(b, -1, -1).shape) torch.Size([32, 77, 512])
-                    # print("cls_cls_feat_batch shape:", cls_cls_feat_batch.shape)  torch.Size([32, 512])
-                    cls_sim = video_head(fused_feats, cls_text_feat.expand(b, -1, -1), cls_cls_feat_batch)
-                    
-                    # 统一维度
+                    cls_cls_feat_batch = base_cls_feature[cls_idx:cls_idx+1].expand(b, -1)
+                    cls_text_feat      = text_features[cls_idx:cls_idx+1]
+                    cls_sim = video_head(
+                        fused_feats,
+                        cls_text_feat.expand(b, -1, -1),
+                        cls_cls_feat_batch,
+                    )
                     if cls_sim.dim() == 3:
                         cls_sim = cls_sim.mean(dim=1)
                     elif cls_sim.dim() == 2 and cls_sim.size(1) > 1:
                         cls_sim = cls_sim.mean(dim=1, keepdim=True)
                     elif cls_sim.dim() == 1:
                         cls_sim = cls_sim.unsqueeze(1)
-                    
                     batch_similarities.append(cls_sim.detach().cpu())
-                
-                similarity = torch.cat(batch_similarities, dim=1).to(device)  # (B, n_class)
-                similarity = F.softmax(similarity, dim=-1)
-                
-            else:
-                # 降级：使用基础权重
-                merged_feats = (base_weights[0] * image_features + 
-                               base_weights[1] * res_features + 
-                               base_weights[2] * mvs_features)
 
+                similarity = torch.cat(batch_similarities, dim=1).to(device)
+                similarity = F.softmax(similarity, dim=-1)
+
+            else:
+                merged_feats = (base_weights[0] * image_features +
+                                base_weights[1] * res_features +
+                                base_weights[2] * mvs_features)
                 cls_feature = base_cls_feature
                 if coapt_module is not None:
                     video_token = merged_feats.mean(dim=1)
                     cls_feature = coapt_module(video_token, base_cls_feature)
-
                 similarity = video_head(merged_feats, text_features, cls_feature)
                 similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
                 similarity = similarity.mean(dim=1, keepdim=False)
 
-            # 后续评估逻辑不变...
-            if return_sim:
-                sims = allgather(similarity)
-                labels = gather_labels(class_id)
-                sims_list.append(sims)
-                labels_list.append(labels)
+            # ── 分布式聚合 ───────────────────────────────────────────
+            gathered_sim    = allgather(similarity)          # (B*world, n_class)
+            gathered_labels = gather_labels(class_id)        # (B*world,)
+            gathered_names  = _allgather_strings(list(video_paths))  # List[str]
 
-            prec = accuracy(similarity, class_id, topk=(1, 5))
+            if return_sim:
+                sims_list.append(gathered_sim)
+                labels_list.append(gathered_labels)
+
+            # ── rank0 收集逐样本结果 ─────────────────────────────────
+            if dist.get_rank() == 0:
+                top1_preds   = gathered_sim.argmax(dim=-1)
+                top1_confs   = gathered_sim.max(dim=-1).values
+                correct_mask = top1_preds.eq(gathered_labels)
+
+                all_sample_names.extend(gathered_names)
+                all_gt_labels.extend(gathered_labels.cpu().tolist())
+                all_pred_labels.extend(top1_preds.cpu().tolist())
+                all_confidences.extend(top1_confs.cpu().tolist())
+                all_correct.extend(correct_mask.cpu().tolist())
+                all_similarities.append(gathered_sim.cpu())
+
+            # ── 精度统计（各 rank 独立计算本地 batch）───────────────
+            prec  = accuracy(similarity, class_id, topk=(1, 5))
             prec1 = reduce_tensor(prec[0])
             prec5 = reduce_tensor(prec[1])
-
             top1.update(prec1.item(), class_id.size(0))
             top5.update(prec5.item(), class_id.size(0))
 
             if i % config.logging.print_freq == 0:
-                logger.info((
+                logger.info(
                     'Test: [{0}/{1}]\t'
                     'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                     'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'
-                ).format(i, len(val_loader), top1=top1, top5=top5))
-    
-    logger.info(('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
-        .format(top1=top1, top5=top5)))
-    
+                    .format(i, len(val_loader), top1=top1, top5=top5)
+                )
+
+    logger.info(
+        'Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
+        .format(top1=top1, top5=top5)
+    )
+
+    # ── rank0 保存结果 ────────────────────────────────────────────────
+    if dist.get_rank() == 0 and save_results and all_sample_names:
+        _save_prediction_results(
+            sample_names   = all_sample_names,
+            gt_labels      = all_gt_labels,
+            pred_labels    = all_pred_labels,
+            confidences    = all_confidences,
+            correct        = all_correct,
+            all_sims       = torch.cat(all_similarities, dim=0),
+            classname_list = classname_list,
+            n_class        = n_class,
+            epoch          = epoch,
+            logger         = logger,
+            save_dir       = results_save_dir or config.data.get('output_path', './results'),
+            dataset_name   = config.data.dataset,
+        )
+
     if return_sim:
         return top1.avg, sims_list, labels_list
     else:
         return top1.avg, None, None
+
+
+# ══════════════════════════════════════════════════════════════════════
+# 辅助函数 1：跨 rank allgather 字符串列表
+# ══════════════════════════════════════════════════════════════════════
+def _allgather_strings(str_list: list) -> list:
+    """各 rank 贡献自己的字符串列表，返回所有 rank 按 rank 顺序拼接的结果。"""
+    world_size = dist.get_world_size() if dist.is_initialized() else 1
+    if world_size == 1:
+        return str_list
+
+    # 序列化
+    local_bytes = json.dumps(str_list, ensure_ascii=False).encode('utf-8')
+    local_len   = torch.tensor([len(local_bytes)], dtype=torch.long, device='cuda')
+
+    # Step1: 同步各 rank 字节长度
+    all_lens_t = [torch.zeros(1, dtype=torch.long, device='cuda')
+                  for _ in range(world_size)]
+    dist.all_gather(all_lens_t, local_len)
+    all_lens = [t.item() for t in all_lens_t]
+
+    # Step2: padding 到最大长度
+    max_len  = max(all_lens)
+    padded   = local_bytes + b'\x00' * (max_len - len(local_bytes))
+    local_t  = torch.frombuffer(bytearray(padded), dtype=torch.uint8).cuda()
+
+    # Step3: allgather
+    gathered = [torch.zeros(max_len, dtype=torch.uint8, device='cuda')
+                for _ in range(world_size)]
+    dist.all_gather(gathered, local_t)
+
+    # Step4: 解码（按 rank 顺序拼接，与 allgather tensor 顺序一致）
+    result = []
+    for rank_t, length in zip(gathered, all_lens):
+        decoded = json.loads(
+            rank_t[:length].cpu().numpy().tobytes().decode('utf-8')
+        )
+        result.extend(decoded)
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════════
+# 辅助函数 2：保存预测结果 CSV + 每类别准确率
+# ══════════════════════════════════════════════════════════════════════
+def _save_prediction_results(sample_names, gt_labels, pred_labels, confidences,
+                              correct, all_sims, classname_list, n_class,
+                              epoch, logger, save_dir, dataset_name):
+    import csv
+    from pathlib import Path
+
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── 1. 逐样本 CSV ────────────────────────────────────────────────
+    sample_csv = save_dir / f"{dataset_name}_epoch{epoch:03d}_predictions.csv"
+    with open(sample_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'video_path',
+            'gt_idx', 'gt_name',
+            'pred_idx', 'pred_name',
+            'confidence', 'correct',
+        ])
+        for name, gt, pred, conf, corr in zip(
+                sample_names, gt_labels, pred_labels, confidences, correct):
+            gt_name   = classname_list[gt]   if classname_list else str(gt)
+            pred_name = classname_list[pred] if classname_list else str(pred)
+            writer.writerow([
+                name, gt, gt_name, pred, pred_name,
+                f"{conf:.6f}", int(corr),
+            ])
+    logger.info(f"逐样本预测结果 → {sample_csv}  ({len(sample_names)} 条)")
+
+    # ── 2. 每类别准确率 CSV ──────────────────────────────────────────
+    class_correct_cnt = [0] * n_class
+    class_total_cnt   = [0] * n_class
+    for gt, corr in zip(gt_labels, correct):
+        class_total_cnt[gt]   += 1
+        class_correct_cnt[gt] += int(corr)
+
+    class_csv = save_dir / f"{dataset_name}_epoch{epoch:03d}_per_class_acc.csv"
+    with open(class_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['class_idx', 'class_name', 'correct', 'total', 'accuracy'])
+        for cls_idx in range(n_class):
+            total = class_total_cnt[cls_idx]
+            corr  = class_correct_cnt[cls_idx]
+            acc   = corr / total if total > 0 else 0.0
+            name  = classname_list[cls_idx] if classname_list else str(cls_idx)
+            writer.writerow([cls_idx, name, corr, total, f"{acc:.4f}"])
+    logger.info(f"每类别准确率     → {class_csv}")
+
+    # ── 3. 日志：Top5 / Bottom5 类别 ─────────────────────────────────
+    class_accs = [
+        (cls_idx,
+         classname_list[cls_idx] if classname_list else str(cls_idx),
+         class_correct_cnt[cls_idx] / class_total_cnt[cls_idx],
+         class_total_cnt[cls_idx])
+        for cls_idx in range(n_class)
+        if class_total_cnt[cls_idx] > 0
+    ]
+    class_accs.sort(key=lambda x: x[2], reverse=True)
+
+    logger.info("── Top-5 准确率最高类别 ──────────────────────────")
+    for idx, name, acc, total in class_accs[:5]:
+        logger.info(f"  [{idx:4d}] {name:<40s}  {acc*100:6.1f}%  ({total} 样本)")
+    logger.info("── Top-5 准确率最低类别 ──────────────────────────")
+    for idx, name, acc, total in class_accs[-5:]:
+        logger.info(f"  [{idx:4d}] {name:<40s}  {acc*100:6.1f}%  ({total} 样本)")
+
+    # ── 4. 完整 similarity 矩阵（.pt，供混淆矩阵等后续分析）─────────
+    sim_pt = save_dir / f"{dataset_name}_epoch{epoch:03d}_similarities.pt"
+    torch.save({
+        'similarities' : all_sims,
+        'gt_labels'    : torch.tensor(gt_labels),
+        'pred_labels'  : torch.tensor(pred_labels),
+        'sample_names' : sample_names,
+    }, sim_pt)
+    logger.info(f"Similarity 矩阵  → {sim_pt}")
+
+
 
 def validate_mAP(epoch, val_loader, classes, device, model, video_head, config, n_class, logger,
                  coapt_bias_enabled=False, attribute_prompt_enabled=False):

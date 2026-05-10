@@ -7,8 +7,8 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-export CUDA_VISIBLE_DEVICES=1,2,3,4
+export CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  # ← 必须 export
 
-torchrun --nproc_per_node=4 --master_port=12345 \
-         train_comp_CoAPT.py --config ${config} --log_time $now
+torchrun --nproc_per_node=7 --master_port=12345 \
+         train_comp_CoAPT.py --config ${config} --log_time $now --resume /home/neimedia/gmk/BIKE/exps/sthv2/ViT-B/16/20260510_095522/model_best.pt

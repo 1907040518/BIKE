@@ -34,7 +34,7 @@ from utils.utils import AverageMeter, init_distributed_mode, reduce_tensor
 
 try:
     from Coviar.transforms import get_compress_augmentation
-except ImportError:  # pragma: no cover
+except ImportError:
     get_compress_augmentation = None
 
 
@@ -51,6 +51,9 @@ def get_parser():
     parser.add_argument("--test_clips", type=int, default=1)
     parser.add_argument("--dense", action="store_true", help="use dense sampling for RGB modalities")
     parser.add_argument("--no-accumulation", action="store_true", help="disable residual accumulation for compressed data")
+    # ✅ 新增：保存每个样本预测结果的路径
+    parser.add_argument("--save_predictions", type=str, default=None,
+                        help="path to save per-sample predictions (txt file)")
     return parser
 
 
@@ -201,6 +204,8 @@ def build_attribute_prompts(classnames, attribute_cfg, logger, dataset_name):
 
     tokenized = torch.cat([clip.tokenize(p) for p in prompts])
     return tokenized, prompts
+
+
 def build_test_dataset(config, args):
     dense_sample = getattr(config.data, "dense", False) or args.dense
     test_list = getattr(config.data, "test_list", None)
@@ -212,7 +217,7 @@ def build_test_dataset(config, args):
     if config.data.modality in ["mv", "residual", "iframe"]:
         if get_compress_augmentation is None:
             raise RuntimeError("Coviar transforms are required for compressed modalities")
-        from datasets.compress_3 import Video_compress_dataset  # local import to avoid optional dep cost
+        from datasets.compress_3 import Video_compress_dataset
         transform = get_compress_augmentation(False, config)
         dataset = Video_compress_dataset(
             config.data.val_root,
@@ -351,7 +356,8 @@ def configure_attribute_modules(model, config, logger, attribute_prompt_cfg, att
 
 
 def validate(val_loader, classes, device, model, video_head, config, n_class, logger,
-             coapt_bias_enabled=False, attribute_prompt_enabled=False):
+             coapt_bias_enabled=False, attribute_prompt_enabled=False,
+             classnames=None, save_path=None):  # ✅ 新增 classnames 和 save_path 参数
     top1 = AverageMeter()
     top5 = AverageMeter()
 
@@ -359,12 +365,33 @@ def validate(val_loader, classes, device, model, video_head, config, n_class, lo
     video_head.eval()
     clip_model = model.module if hasattr(model, "module") else model
 
+    # ✅ 用于收集每个样本的预测记录
+    all_records = []
+
+    # ✅ 获取 dataset 的样本路径列表（支持 .video_list 或 .samples）
+    dataset = val_loader.dataset
+    sample_paths = None
+    if hasattr(dataset, "video_list"):
+        # 常见格式：dataset.video_list 是 list of (path, label) 或 list of namedtuple
+        raw_list = dataset.video_list
+        try:
+            sample_paths = [str(item.path) if hasattr(item, "path") else str(item[0]) for item in raw_list]
+        except Exception:
+            sample_paths = [str(item) for item in raw_list]
+    elif hasattr(dataset, "samples"):
+        sample_paths = [str(item[0]) for item in dataset.samples]
+    elif hasattr(dataset, "data_list"):
+        sample_paths = [str(item[0]) for item in dataset.data_list]
+
     with torch.no_grad():
         if classes is None:
             raise RuntimeError("Text classes tensor is required for evaluation")
         text_inputs = classes.to(device)
         base_cls_feature, text_features = clip_model.encode_text(text_inputs, return_token=True)
         coapt_module = clip_model.coapt_bias if (coapt_bias_enabled and hasattr(clip_model, "coapt_bias")) else None
+
+        # ✅ 用于追踪全局样本索引（分布式场景下每个 rank 处理不同子集）
+        global_sample_idx = 0
 
         for i, batch in enumerate(val_loader):
             if config.data.modality in ["mv", "residual", "iframe"]:
@@ -423,7 +450,7 @@ def validate(val_loader, classes, device, model, video_head, config, n_class, lo
 
             similarity = video_head(merged_feats, text_features, cls_feature)
             similarity = similarity.view(b, -1, n_class).softmax(dim=-1)
-            similarity = similarity.mean(dim=1, keepdim=False)
+            similarity = similarity.mean(dim=1, keepdim=False)  # [b, n_class]
 
             prec = accuracy(similarity, class_id, topk=(1, 5))
             prec1 = reduce_tensor(prec[0])
@@ -431,6 +458,45 @@ def validate(val_loader, classes, device, model, video_head, config, n_class, lo
 
             top1.update(prec1.item(), class_id.size(0))
             top5.update(prec5.item(), class_id.size(0))
+
+            # ✅ 收集每个样本的预测信息
+            if save_path is not None:
+                pred_indices = similarity.argmax(dim=1).cpu().tolist()   # 预测类别索引
+                gt_indices = class_id.cpu().tolist()                      # 真实类别索引
+
+                # ✅ 获取 DataLoader 使用的 sampler 全局索引（分布式场景）
+                if hasattr(val_loader.sampler, "dataset") or isinstance(
+                    val_loader.sampler, torch.utils.data.distributed.DistributedSampler
+                ):
+                    # 分布式采样器：每个 rank 的样本是全局 indices 的子集
+                    sampler_indices = list(val_loader.sampler)
+                    batch_start = i * val_loader.batch_size
+                    batch_global_indices = sampler_indices[batch_start: batch_start + b]
+                else:
+                    # 非分布式：顺序索引
+                    batch_global_indices = list(range(global_sample_idx, global_sample_idx + b))
+
+                for j in range(b):
+                    global_idx = batch_global_indices[j] if j < len(batch_global_indices) else -1
+                    sample_path = sample_paths[global_idx] if (sample_paths and 0 <= global_idx < len(sample_paths)) else f"sample_{global_idx}"
+                    sample_name = Path(sample_path).name
+
+                    pred_label = classnames[pred_indices[j]] if (classnames and pred_indices[j] < len(classnames)) else str(pred_indices[j])
+                    gt_label   = classnames[gt_indices[j]]   if (classnames and gt_indices[j]   < len(classnames)) else str(gt_indices[j])
+                    correct    = "✓" if pred_indices[j] == gt_indices[j] else "✗"
+
+                    all_records.append({
+                        "global_idx":  global_idx,
+                        "sample_path": sample_path,
+                        "sample_name": sample_name,
+                        "pred_idx":    pred_indices[j],
+                        "pred_label":  pred_label,
+                        "gt_idx":      gt_indices[j],
+                        "gt_label":    gt_label,
+                        "correct":     correct,
+                    })
+
+                global_sample_idx += b
 
             if i % config.logging.print_freq == 0 and logger is not None:
                 logger.info(
@@ -444,6 +510,52 @@ def validate(val_loader, classes, device, model, video_head, config, n_class, lo
         logger.info(
             "Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}".format(top1=top1, top5=top5)
         )
+
+    # ✅ 只在 rank 0 写入预测文件
+    # ✅ 多卡 gather：把所有 rank 的记录汇总到 rank 0
+    if save_path is not None:
+        save_path = Path(save_path)
+
+        if dist.is_initialized() and dist.get_world_size() > 1:
+            # 将本 rank 的 records 序列化为字节，用 dist.gather_object 汇总
+            gathered = [None] * dist.get_world_size() if dist.get_rank() == 0 else None
+            dist.gather_object(all_records, gathered, dst=0)
+
+            if dist.get_rank() == 0:
+                # 展平所有 rank 的记录列表
+                merged_records = []
+                for rank_records in gathered:
+                    merged_records.extend(rank_records)
+            else:
+                merged_records = []   # 非 rank 0 不写文件
+        else:
+            # 单卡直接用
+            merged_records = all_records
+
+        # 只有 rank 0（或单卡）执行写文件
+        if dist.get_rank() == 0 or not dist.is_initialized():
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # 按 global_idx 排序，保证输出顺序与原始数据集一致
+            merged_records.sort(key=lambda x: x["global_idx"])
+
+            with open(save_path, "w", encoding="utf-8") as f:
+                header = f"{'global_idx':<12}{'correct':<8}{'pred_label':<40}{'gt_label':<40}{'sample_name':<50}sample_path\n"
+                f.write(header)
+                f.write("-" * 180 + "\n")
+                for rec in merged_records:
+                    f.write(
+                        f"{rec['global_idx']:<12}"
+                        f"{rec['correct']:<8}"
+                        f"{rec['pred_label']:<40}"
+                        f"{rec['gt_label']:<40}"
+                        f"{rec['sample_name']:<50}"
+                        f"{rec['sample_path']}\n"
+                    )
+
+            if logger is not None:
+                logger.info(f"Per-sample predictions saved ({len(merged_records)} samples): {save_path}")
+
 
     return top1.avg, top5.avg
 
@@ -516,7 +628,7 @@ def main(args):
         mvs_layers_to_use=mvs_layers,
     )
 
-    transform_info = get_compress_augmentation if config.data.modality in ["mv", "residual", "iframe"] else get_augmentation
+    transform_info = get_compress_augmentation if config.data.modality in ["mv", "residual", "iframe"] else None
     logger.info(f"Evaluation modality: {config.data.modality}")
 
     video_head = video_header(
@@ -540,6 +652,9 @@ def main(args):
         sampler=sampler,
         shuffle=False,
         drop_last=False,
+        pin_memory=True,          # ← 新增：加速 CPU→GPU 传输
+        prefetch_factor=4,        # ← 新增：提前预取 4 个 batch
+        persistent_workers=True,  # ← 新增：避免每次重建 worker 进程
     )
 
     if hasattr(test_dataset, "classes"):
@@ -612,7 +727,9 @@ def main(args):
         n_class,
         logger,
         coapt_bias_enabled=coapt_bias_enabled,
-    attribute_prompt_enabled=using_attribute_prompts,
+        attribute_prompt_enabled=using_attribute_prompts,
+        classnames=classnames,              # ✅ 传入类别名列表
+        save_path=args.save_predictions,    # ✅ 传入保存路径
     )
 
     if dist.get_rank() == 0:

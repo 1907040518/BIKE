@@ -78,7 +78,7 @@ def inspect_and_save_pt_shapes(pt_file_path, output_txt_path):
 
 # --- 使用示例 ---
 if __name__ == "__main__":
-    INPUT_PT_FILE = "/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/20260301_101921/last_model.pt"  
-    OUTPUT_TEXT_FILE = "/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/20260301_101921/last_model_shapes_list.txt" 
+    INPUT_PT_FILE = "/home/neimedia/gmk/BIKE/exps/sthv2/ViT-B/16/20260509_211709/model_best.pt"  
+    OUTPUT_TEXT_FILE = "/home/neimedia/gmk/BIKE/exps/sthv2/ViT-B/16/20260509_211709/model_best_shapes_list.txt" 
     
     inspect_and_save_pt_shapes(INPUT_PT_FILE, OUTPUT_TEXT_FILE)
