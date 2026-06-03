@@ -594,7 +594,7 @@ class InstanceAwareDynamicFusion(nn.Module):
             nn.Linear(hidden_dim, num_modalities)
         )
         
-        self.router_gate = nn.Parameter(torch.tensor(0.01))
+        self.router_gate = nn.Parameter(torch.tensor(0.1))
         # num_heads 暂时存储，如果后续需要多头注意力可以扩展
         self.num_heads = num_heads
 

@@ -1,0 +1,187 @@
+video_path,gt_idx,gt_name,pred_idx_old,pred_name_old,confidence_old,correct_old,pred_idx_new,pred_name_new,confidence_new,correct_new,change_type
+/home/neimedia/action_data/hmdb51/mpeg4_videos/catch/Florian_Fromlowitz_beim_Training_der_U_21_Nationalmannschaft_catch_f_cm_np1_ri_med_4.mp4,2,catch,21,kick ball,0.021075,0,2,catch,0.021305,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/chew/Bubble_blowing_3!_chew_h_nm_np1_le_bad_0.mp4,3,chew,0,brush hair,0.021186,0,3,chew,0.021774,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/clap/The_Slow_Clap_clap_u_nm_np1_fr_med_12.mp4,4,clap,48,turn,0.020796,0,4,clap,0.021173,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/clap/The_Slow_Clap_clap_u_nm_np3_fr_med_11.mp4,4,clap,50,wave,0.021432,0,4,clap,0.021586,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np1_ba_med_0.mp4,6,climb stairs,32,run,0.021349,0,6,climb stairs,0.021616,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/TheBoondockSaints_climb_stairs_f_cm_np3_ba_med_125.mp4,6,climb stairs,32,run,0.021545,0,6,climb stairs,0.021627,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/dive/BungyjumpingAJHackettNewZealand_dive_f_cm_np1_fr_bad_1.mp4,7,dive,12,fall floor,0.020941,0,7,dive,0.021514,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/Jessica_and_Gregs_Cartwheel_Competition_cartwheel_f_cm_np1_fr_med_5.mp4,1,cartwheel,1,cartwheel,0.021444,1,14,flic flac,0.02147,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np2_ba_med_1.mp4,6,climb stairs,32,run,0.021281,0,6,climb stairs,0.021929,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/Beim_Radschlag_Hose_gerissen_(Nick)_xD_cartwheel_f_cm_np1_ri_med_0.mp4,1,cartwheel,1,cartwheel,0.02158,1,14,flic flac,0.021594,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/Jessica_and_Gregs_Cartwheel_Competition_cartwheel_f_cm_np1_fr_med_6.mp4,1,cartwheel,1,cartwheel,0.021324,1,14,flic flac,0.021273,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/cartwheel_challange_cartwheel_f_cm_np2_le_med_1.mp4,1,cartwheel,1,cartwheel,0.021504,1,7,dive,0.021032,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np2_ba_med_6.mp4,6,climb stairs,49,walk,0.021407,0,6,climb stairs,0.021539,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/brush_hair/Brushing_Her_Hair__[_NEW_AUDIO_]_UPDATED!!!!_brush_hair_h_cm_np1_fr_goo_0.mp4,0,brush hair,39,smile,0.021341,0,0,brush hair,0.021498,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/brush_hair/Prelinger_HabitPat1954_brush_hair_u_cm_np1_le_med_10.mp4,0,brush hair,49,walk,0.021076,0,0,brush hair,0.021101,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/Parada_de_mao_cartwheel_f_cm_np1_fr_med_3.mp4,1,cartwheel,16,handstand,0.021636,0,1,cartwheel,0.02145,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/cartwheel_competition_43_year_old_vs__15_year_old_cartwheel_f_cm_np2_ri_med_0.mp4,1,cartwheel,1,cartwheel,0.021523,1,16,handstand,0.021405,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/chew/Me_chewing_hubba_bubba_bubble_gum_chew_h_nm_np1_fr_bad_2.mp4,3,chew,50,wave,0.020883,0,3,chew,0.02127,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb/rope_climb_Olivia_Age_4_climb_f_cm_np1_ri_med_0.mp4,5,climb,5,climb,0.020986,1,26,pullup,0.021214,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/treppensteigen_1_climb_stairs_f_cm_np2_fr_med_0.mp4,6,climb stairs,49,walk,0.021298,0,6,climb stairs,0.021771,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/clap/Standing_clap_f_cm_np1_fr_med_1.mp4,4,clap,47,throw,0.020799,0,4,clap,0.020641,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np3_ba_med_2.mp4,6,climb stairs,32,run,0.021652,0,6,climb stairs,0.021929,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/treppensteigen_1_climb_stairs_f_cm_np2_fr_med_1.mp4,6,climb stairs,49,walk,0.021171,0,6,climb stairs,0.021854,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/cartwheel/Zwei_hoffnungslose_Pflegef_lle_beim_Turnen(Part2)_cartwheel_f_cm_np1_le_bad_0.mp4,1,cartwheel,1,cartwheel,0.021615,1,14,flic flac,0.021476,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/Piano_stairs__-_TheFunTheory_com_-_Rolighetsteorin_se_climb_stairs_f_nm_np3_ba_med_7.mp4,6,climb stairs,32,run,0.021442,0,6,climb stairs,0.021778,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/climb_stairs/treppensteigen_1_climb_stairs_f_cm_np2_fr_med_2.mp4,6,climb stairs,42,stand,0.021185,0,6,climb stairs,0.021178,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Ukigumo_Kata_from_Hasegawa_Eishin_Ryu_draw_sword_f_nm_np1_fr_med_0.mp4,8,draw sword,45,sword exercise,0.021869,0,8,draw sword,0.021786,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/RETURN_OF_THE_KING_fall_floor_u_nm_np2_ba_med_35.mp4,12,fall floor,12,fall floor,0.021059,1,19,jump,0.021133,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/TheBoondockSaints_fall_floor_u_nm_np1_ba_med_97.mp4,12,fall floor,17,hit,0.021226,0,12,fall floor,0.0213,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Round-Off_Flick_Flack!!_flic_flac_f_cm_np1_le_med_1.mp4,14,flic flac,16,handstand,0.021601,0,14,flic flac,0.02179,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Nakayama_Aikido_Iaido_Part_3_draw_sword_f_cm_np1_le_med_0.mp4,8,draw sword,45,sword exercise,0.021633,0,8,draw sword,0.021635,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Ukigumo_Kata_from_Hasegawa_Eishin_Ryu_draw_sword_f_nm_np1_fr_med_2.mp4,8,draw sword,45,sword exercise,0.021634,0,8,draw sword,0.021604,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/eat/TrumanShow_eat_u_cm_np1_ri_med_27.mp4,11,eat,11,eat,0.021381,1,40,smoke,0.021428,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/LONGESTYARD_fall_floor_f_cm_np1_fr_med_19.mp4,12,fall floor,12,fall floor,0.02136,1,41,somersault,0.021454,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/Return_of_the_King_4_fall_floor_u_cm_np1_fr_med_9.mp4,12,fall floor,12,fall floor,0.021062,1,42,stand,0.021471,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/JOAKIN_(air_tricks_extreme)_flic_flac_f_cm_np1_ri_med_9.mp4,14,flic flac,16,handstand,0.021447,0,14,flic flac,0.021584,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Round-off_flick_1_flic_flac_f_cm_np1_ri_med_0.mp4,14,flic flac,16,handstand,0.021421,0,14,flic flac,0.021586,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/dive/base_jumping_compilation_3_FMJ_dive_f_cm_np1_le_bad_1.mp4,7,dive,19,jump,0.021121,0,7,dive,0.021241,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Samurai_Fight_Scene_draw_sword_f_cm_np2_fr_goo_2.mp4,8,draw sword,8,draw sword,0.021362,1,45,sword exercise,0.021357,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Ukigumo_Kata_from_Hasegawa_Eishin_Ryu_draw_sword_f_nm_np1_le_med_1.mp4,8,draw sword,45,sword exercise,0.021891,0,8,draw sword,0.021629,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/dribble/Clay_sBasketballSkillz_dribble_f_nm_np1_le_med_1.mp4,9,dribble,34,shoot ball,0.021521,0,9,dribble,0.021702,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/eat/AMADEUS_eat_u_nm_np1_fr_goo_10.mp4,11,eat,40,smoke,0.021419,0,11,eat,0.021414,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/TheBoondockSaints_fall_floor_f_nm_np1_ba_bad_40.mp4,12,fall floor,12,fall floor,0.021006,1,7,dive,0.021343,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Rush_Hour_4_Turnk_r_flic_flac_f_cm_np1_ri_med_4.mp4,14,flic flac,41,somersault,0.021725,0,14,flic flac,0.021805,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Tenshin_Ryu_Aikido_draw_sword_f_nm_np1_ri_med_0.mp4,8,draw sword,8,draw sword,0.021461,1,44,sword,0.021692,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fencing/The_Duel_-_Reel_Kick_Films_fencing_f_cm_np2_le_bad_0.mp4,13,fencing,13,fencing,0.021629,1,44,sword,0.021878,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Flikflak_ala_Mustafa_flic_flac_f_cm_np1_le_med_0.mp4,14,flic flac,16,handstand,0.020785,0,14,flic flac,0.021244,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Rush_Hour_4_Turnk_r_flic_flac_f_cm_np1_ri_med_5.mp4,14,flic flac,41,somersault,0.021677,0,14,flic flac,0.021947,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/BLACK_HAWK_DOWN_fall_floor_f_cm_np1_fr_bad_34.mp4,12,fall floor,12,fall floor,0.021513,1,36,shoot gun,0.021523,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/RETURN_OF_THE_KING_fall_floor_f_cm_np1_fr_med_39.mp4,12,fall floor,12,fall floor,0.021055,1,7,dive,0.021222,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/TheBoondockSaints_fall_floor_f_nm_np2_ba_bad_66.mp4,12,fall floor,12,fall floor,0.021367,1,5,climb,0.021466,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/flic_flac/Turnen_Training_flick_flack_salto_gymnastics_backhandspring_backtuck_flic_flac_f_cm_np1_fr_bad_3.mp4,14,flic flac,41,somersault,0.021498,0,14,flic flac,0.021606,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/VERGIL_(DEVIL_MAY_CRY)_swinging_his_sword_draw_sword_f_cm_np1_fr_med_4.mp4,8,draw sword,8,draw sword,0.02117,1,45,sword exercise,0.021376,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/drink/DONNIE_DARKO_drink_u_nm_np1_fr_goo_4.mp4,10,drink,11,eat,0.021271,0,10,drink,0.021549,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fencing/Rapier_at_Clinton_2007_fencing_f_cm_np2_le_bad_3.mp4,13,fencing,13,fencing,0.021623,1,44,sword,0.022003,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/draw_sword/Iaido_13_katas_draw_sword_f_nm_np1_fr_med_0.mp4,8,draw sword,45,sword exercise,0.021914,0,8,draw sword,0.021823,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/eat/The_Departed_-_Part_1_eat_u_nm_np1_fr_med_2.mp4,11,eat,48,turn,0.021289,0,11,eat,0.021863,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/RETURN_OF_THE_KING_fall_floor_u_cm_np1_fr_med_37.mp4,12,fall floor,12,fall floor,0.021123,1,44,sword,0.021183,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fall_floor/TheBoondockSaints_fall_floor_u_cm_np1_fr_med_63.mp4,12,fall floor,12,fall floor,0.021046,1,27,punch,0.021513,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fencing/Rapier_at_Clinton_2007_fencing_f_cm_np2_le_bad_5.mp4,13,fencing,13,fencing,0.021727,1,44,sword,0.021899,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fencing/Swordplay_Alliance_Rapier_and_Dagger_fight_fencing_f_cm_np2_le_bad_5.mp4,13,fencing,44,sword,0.021575,0,13,fencing,0.021636,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/fencing/The_Three_Musketeers_(1993)_Final_Battle_1_3_fencing_u_cm_np2_ri_bad_2.mp4,13,fencing,12,fall floor,0.021105,0,13,fencing,0.021434,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/handstands_1_handstand_f_cm_np1_fr_med_0.mp4,16,handstand,16,handstand,0.020941,1,24,pick,0.0211,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/hit/Destruction_of_a_TV_hit_f_cm_np1_ri_bad_3.mp4,17,hit,17,hit,0.020839,1,24,pick,0.021284,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/hit/TV_Recycling_hit_f_cm_np1_le_bad_0.mp4,17,hit,17,hit,0.021248,1,24,pick,0.021488,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_13.mp4,19,jump,21,kick ball,0.02122,0,19,jump,0.021531,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/The_Matrix_3_kick_f_cm_np1_fr_med_5.mp4,20,kick,27,punch,0.021459,0,20,kick,0.021794,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_ba_bad_11.mp4,20,kick,20,kick,0.020901,1,17,hit,0.021211,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_ri_bad_1.mp4,20,kick,27,punch,0.021392,0,20,kick,0.021549,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/golf/Probably_the_best_golf_shot_in_the_world_ever!!!_golf_f_cm_np1_ba_med_0.mp4,15,golf,47,throw,0.020794,0,15,golf,0.020976,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/How_to_do_a_Handstand_handstand_f_nm_np1_ri_bad_0.mp4,16,handstand,16,handstand,0.021309,1,14,flic flac,0.021371,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/handstands_1_handstand_f_cm_np1_fr_med_1.mp4,16,handstand,16,handstand,0.021083,1,24,pick,0.0212,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_15.mp4,19,jump,21,kick ball,0.021176,0,19,jump,0.021473,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_fr_bad_10.mp4,20,kick,12,fall floor,0.021271,0,20,kick,0.021675,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_ri_bad_3.mp4,20,kick,27,punch,0.021408,0,20,kick,0.021279,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/Turnk_r_Pippi_Michel_handstand_f_cm_np2_le_med_5.mp4,16,handstand,16,handstand,0.021628,1,1,cartwheel,0.02175,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/Bodenturnen_f_r_Anf_nger_handstand_f_cm_np1_ri_med_0.mp4,16,handstand,16,handstand,0.02145,1,14,flic flac,0.021103,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/handstand/Turnk_r_handstand_f_cm_np4_ba_med_2.mp4,16,handstand,1,cartwheel,0.021357,0,16,handstand,0.021552,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/The_Matrix_3_kick_f_nm_np1_le_med_1.mp4,20,kick,27,punch,0.021416,0,20,kick,0.021591,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_u_cm_np1_fr_bad_12.mp4,20,kick,27,punch,0.021414,0,20,kick,0.021217,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_ri_bad_12.mp4,19,jump,21,kick ball,0.021152,0,19,jump,0.021607,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/hug/Cox_umarmt_JD!_hug_u_cm_np2_ba_med_0.mp4,18,hug,33,shake hands,0.021007,0,18,hug,0.021176,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_le_bad_7.mp4,19,jump,19,jump,0.021178,1,2,catch,0.021448,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/jump/St__Louis_Goalkeeping__Academy_elite_training_jump_f_nm_np1_ri_bad_14.mp4,19,jump,21,kick ball,0.021234,0,19,jump,0.021477,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kick/kick__Best_fight_scene_of_all_time_kick_f_cm_np1_le_bad_6.mp4,20,kick,27,punch,0.021217,0,20,kick,0.021549,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kiss/TVs_Best_Kisses_Top_50_(30_to_21)_kiss_f_cm_np2_le_goo_10.mp4,22,kiss,22,kiss,0.020892,1,42,stand,0.020861,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/laugh/Glory_laugh_h_nm_np1_fr_bad_4.mp4,23,laugh,39,smile,0.020993,0,23,laugh,0.021384,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pick/nameunknown256kb_pick_u_nm_np1_le_med_2.mp4,24,pick,42,stand,0.021019,0,24,pick,0.021364,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/punch/Glory_punch_u_cm_np1_fr_bad_37.mp4,27,punch,13,fencing,0.021045,0,27,punch,0.021169,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/kiss/TVs_Best_Kisses_Top_50_(30_to_21)_kiss_f_cm_np2_le_goo_9.mp4,22,kiss,42,stand,0.020971,0,22,kiss,0.021061,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pick/Dollar_Prank_at_the_Rivertown_Mall_pick_f_nm_np1_fr_med_1.mp4,24,pick,24,pick,0.02133,1,49,walk,0.021554,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/push/Dodge_Truck_Push_80_ft__23_seconds!_push_f_cm_np1_le_bad_3.mp4,28,push,12,fall floor,0.021124,0,28,push,0.02158,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pick/Cleaning_The_Beach_Jeton_Bardhi__Dimitar_Chaprazov_pick_f_cm_np3_ba_bad_3.mp4,24,pick,27,punch,0.02085,0,24,pick,0.021408,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/punch/Italian_Job_4_punch_u_cm_np1_fr_med_1.mp4,27,punch,37,sit,0.021222,0,27,punch,0.020939,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pushup/PUSH_UP_pushup_u_cm_np1_ba_med_3.mp4,29,pushup,38,situp,0.021105,0,29,pushup,0.021644,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pick/David_Letterman_picks_up_trash_on_Broadway_pick_f_cm_np1_fr_med_0.mp4,24,pick,24,pick,0.021386,1,49,walk,0.021434,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pushup/PUSH_UP_pushup_u_cm_np1_ba_med_5.mp4,29,pushup,38,situp,0.020928,0,29,pushup,0.021427,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/pick/David_Letterman_picks_up_trash_on_Broadway_pick_f_cm_np3_ri_med_1.mp4,24,pick,24,pick,0.021153,1,33,shake hands,0.02122,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/push/Davos_-_Anschieben_von_Michis_Auto_push_f_cm_np1_fr_bad_0.mp4,28,push,28,push,0.020965,1,18,hug,0.021297,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/run/Man_Who_Cheated_Himself_512kb_run_f_cm_np1_le_bad_5.mp4,32,run,42,stand,0.021542,0,32,run,0.021502,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/run/likebeckam_run_f_nm_np1_fr_bad_12.mp4,32,run,2,catch,0.020735,0,32,run,0.020915,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shoot_gun/DefensivePistolShootingTechniques_shoot_gun_f_nm_np1_fr_med_0.mp4,36,shoot gun,47,throw,0.021421,0,36,shoot gun,0.021412,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/run/Fellowship_2_run_f_cm_np2_fr_med_5.mp4,32,run,12,fall floor,0.021165,0,32,run,0.021189,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/run/The_Matrix_1_run_f_cm_np1_fr_bad_0.mp4,32,run,12,fall floor,0.02137,0,32,run,0.021446,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shoot_gun/DefensivePistolShootingTechniques_shoot_gun_f_nm_np1_fr_med_1.mp4,36,shoot gun,47,throw,0.021425,0,36,shoot gun,0.021608,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/run/Age13_1_run_f_nm_np1_fr_med_2.mp4,32,run,47,throw,0.021343,0,32,run,0.02169,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shoot_bow/Fellowship_7_shoot_bow_h_nm_np1_fr_med_8.mp4,35,shoot bow,47,throw,0.020758,0,35,shoot bow,0.021012,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shake_hands/IPL_Awards_Ceremony_shake_hands_u_cm_np2_ba_med_3.mp4,33,shake hands,4,clap,0.021258,0,33,shake hands,0.021455,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shoot_gun/TheBoondockSaints_shoot_gun_u_cm_np1_fr_med_107.mp4,36,shoot gun,47,throw,0.020986,0,36,shoot gun,0.020964,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/shoot_gun/American_History_X_shoot_gun_u_nm_np1_fr_goo_49.mp4,36,shoot gun,47,throw,0.021226,0,36,shoot gun,0.0218,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/AllThePresidentMen_sit_f_nm_np1_fr_goo_3.mp4,37,sit,48,turn,0.021601,0,37,sit,0.021417,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/SweeneyTodd_sit_f_nm_np1_fr_bad_34.mp4,37,sit,37,sit,0.021453,1,42,stand,0.021509,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/TheBoondockSaints_sit_u_cm_np1_fr_med_29.mp4,37,sit,42,stand,0.021652,0,37,sit,0.022021,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/SE7EN_SMILES_x3_smile_h_nm_np1_fr_med_4.mp4,39,smile,39,smile,0.021118,1,23,laugh,0.021408,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/SMILES_FROM_OFF_THE_ROAD_3_-TRAVELS_WITH_A_HAT_smile_h_nm_np1_fr_bad_2.mp4,39,smile,50,wave,0.021201,0,39,smile,0.021073,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/showyoursmile_smile_h_nm_np1_fr_goo_0.mp4,39,smile,39,smile,0.021574,1,3,chew,0.021329,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/20060723sfjffjewgotmail_stand_u_cm_np1_ri_med_0.mp4,42,stand,42,stand,0.021522,1,37,sit,0.021845,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/RATRACE_stand_f_cm_np1_le_med_35.mp4,42,stand,42,stand,0.020779,1,9,dribble,0.020955,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/SchoolRulesHowTheyHelpUs_stand_u_nm_np1_fr_med_1.mp4,42,stand,42,stand,0.02134,1,37,sit,0.021467,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword/HIGHLANDER___TRAINING___WEEPING_OF_THE_SPIRITS_sword_f_cm_np2_fr_med_0.mp4,44,sword,5,climb,0.020886,0,44,sword,0.021296,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/Man_Who_Cheated_Himself_512kb_sit_u_cm_np1_ri_med_6.mp4,37,sit,42,stand,0.021299,0,37,sit,0.021744,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/TheBoondockSaints_sit_u_cm_np1_fr_med_34.mp4,37,sit,42,stand,0.021452,0,37,sit,0.021459,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/somersault/Monikas_Staatsexamen__Turnen_somersault_f_cm_np1_le_med_5.mp4,41,somersault,16,handstand,0.021217,0,41,somersault,0.021655,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/SweeneyTodd_sit_u_cm_np1_fr_med_21.mp4,37,sit,37,sit,0.021247,1,10,drink,0.021219,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword/Medieval_knight_fight_sword_f_cm_np1_ri_med_1.mp4,44,sword,13,fencing,0.021646,0,44,sword,0.022021,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword/Pirates_2_sword_f_cm_np2_le_med_4.mp4,44,sword,12,fall floor,0.021096,0,44,sword,0.021173,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/AmericanGangster_stand_u_cm_np1_fr_bad_0.mp4,42,stand,42,stand,0.021306,1,50,wave,0.021224,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword/Medieval_knight_fight_sword_f_cm_np1_ri_med_3.mp4,44,sword,13,fencing,0.02123,0,44,sword,0.021349,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/SweeneyTodd_sit_u_nm_np1_le_med_20.mp4,37,sit,11,eat,0.021024,0,37,sit,0.021293,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/SE7EN_SMILES_x3_smile_h_nm_np1_fr_bad_7.mp4,39,smile,39,smile,0.021,1,3,chew,0.021298,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/SMILES_FROM_OFF_THE_ROAD_2_-TREASURING_THE_GIRLCHILD_smile_h_nm_np1_fr_goo_2.mp4,39,smile,39,smile,0.021269,1,23,laugh,0.021762,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/RETURN_OF_THE_KING_stand_u_cm_np1_fr_med_12.mp4,42,stand,42,stand,0.021265,1,37,sit,0.021163,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ba_med_23.mp4,43,swing baseball,47,throw,0.021326,0,43,swing baseball,0.021436,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ri_med_62.mp4,43,swing baseball,47,throw,0.021454,0,43,swing baseball,0.021465,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/TheRoyalTenenbaums_sit_u_nm_np1_fr_med_4.mp4,37,sit,42,stand,0.021371,0,37,sit,0.022269,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/Crash_stand_f_cm_np1_le_med_15.mp4,42,stand,42,stand,0.021511,1,49,walk,0.022076,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/LONGESTYARD_stand_u_cm_np1_le_med_18.mp4,42,stand,42,stand,0.021415,1,50,wave,0.021116,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/swing_baseball/Faith_Rewarded_swing_baseball_f_nm_np1_ba_med_28.mp4,43,swing baseball,47,throw,0.02154,0,43,swing baseball,0.021884,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/swing_baseball/Faith_Rewarded_swing_baseball_u_nm_np1_le_bad_12.mp4,43,swing baseball,47,throw,0.021479,0,43,swing baseball,0.021695,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sit/SweeneyTodd_sit_f_cm_np1_fr_bad_16.mp4,37,sit,42,stand,0.021456,0,37,sit,0.021755,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/smile/SE7EN_SMILES_x3_smile_h_cm_np1_fr_goo_5.mp4,39,smile,39,smile,0.020984,1,3,chew,0.02122,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/somersault/Kristina_Goryunova_-_Floor_Exercise_-_2009_Tyson_American_Cu_somersault_f_cm_np1_le_med_1.mp4,41,somersault,14,flic flac,0.021361,0,41,somersault,0.021612,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/BIG_FISH_stand_u_nm_np1_fr_med_27.mp4,42,stand,42,stand,0.021731,1,37,sit,0.022136,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/stand/RushHour2_stand_u_cm_np1_fr_med_11.mp4,42,stand,27,punch,0.020902,0,42,stand,0.021364,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/swing_baseball/Faith_Rewarded_swing_baseball_u_nm_np1_ri_bad_48.mp4,43,swing baseball,47,throw,0.021473,0,43,swing baseball,0.021586,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword/Samurai_Fight_Scene_sword_u_cm_np1_le_goo_0.mp4,44,sword,45,sword exercise,0.021401,0,44,sword,0.02138,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/talk/Prelinger_FamilyLi1949_talk_h_nm_np1_fr_goo_21.mp4,46,talk,3,chew,0.021188,0,46,talk,0.021797,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/talk/Prelinger_FamilyLi1949_talk_u_nm_np1_ri_med_23.mp4,46,talk,42,stand,0.021303,0,46,talk,0.021596,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/Prelinger_ActYourA1949_throw_f_cm_np1_ri_med_8.mp4,47,throw,47,throw,0.021181,1,17,hit,0.021354,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/Italian_Job_2_turn_h_nm_np1_ri_med_7.mp4,48,turn,48,turn,0.02124,1,40,smoke,0.021345,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/The_Fugitive_6_turn_h_cm_np1_le_goo_2.mp4,48,turn,48,turn,0.021577,1,11,eat,0.021409,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/Eurotrip_walk_f_nm_np1_fr_med_8.mp4,49,walk,49,walk,0.021344,1,32,run,0.021495,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/MeettheFockers_walk_f_nm_np1_ba_med_9.mp4,49,walk,49,walk,0.021206,1,48,turn,0.021633,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_1.mp4,50,wave,49,walk,0.021109,0,50,wave,0.020914,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/talk/Prelinger_FamilyLi1949_talk_h_nm_np1_fr_goo_12.mp4,46,talk,3,chew,0.021232,0,46,talk,0.021685,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/KnifeThrowingJackDaggerDemoReel_throw_f_nm_np1_fr_med_1.mp4,47,throw,47,throw,0.020979,1,4,clap,0.02125,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/The_Fugitive_6_turn_u_cm_np1_le_med_4.mp4,48,turn,50,wave,0.021151,0,48,turn,0.020957,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/Veoh_Alpha_Dog_2_turn_u_nm_np2_ri_med_18.mp4,48,turn,47,throw,0.021315,0,48,turn,0.021433,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/AmericanGangster_walk_f_nm_np1_ba_med_72.mp4,49,walk,49,walk,0.021121,1,48,turn,0.02134,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/samurai_training_sword_exercise_f_cm_np1_fr_med_2.mp4,45,sword exercise,8,draw sword,0.021745,0,45,sword exercise,0.021998,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/KnifeThrowingJackDaggerDemoReel_throw_f_nm_np1_fr_med_2.mp4,47,throw,47,throw,0.020935,1,4,clap,0.021286,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/The_Departed_-_Part_1_turn_h_cm_np1_ri_goo_11.mp4,48,turn,48,turn,0.021359,1,11,eat,0.020966,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/AmericanGangster_walk_f_nm_np1_fr_med_38.mp4,49,walk,49,walk,0.021354,1,37,sit,0.021504,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/HP_PRISONER_OF_AZKABAN_walk_f_cm_np1_ba_med_23.mp4,49,walk,49,walk,0.021266,1,32,run,0.021462,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/Panic_in_the_Streets_walk_u_cm_np1_ba_med_5.mp4,49,walk,42,stand,0.021635,0,49,walk,0.021692,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/wave/DONNIE_DARKO_wave_u_nm_np1_fr_goo_9.mp4,50,wave,50,wave,0.020991,1,4,clap,0.021457,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/wave/Hitch_Part_1_wave_u_nm_np1_fr_goo_1.mp4,50,wave,42,stand,0.02112,0,50,wave,0.021372,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/Ghost_Dog_Sword_Swinging_Scene_sword_exercise_u_cm_np1_le_med_1.mp4,45,sword exercise,45,sword exercise,0.021195,1,44,sword,0.021191,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/AmericanGangster_walk_f_nm_np1_fr_med_6.mp4,49,walk,49,walk,0.021289,1,37,sit,0.021644,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/HP_PRISONER_OF_AZKABAN_walk_f_cm_np1_ri_med_2.mp4,49,walk,49,walk,0.021129,1,32,run,0.021518,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/Panic_in_the_Streets_walk_u_nm_np1_fr_med_4.mp4,49,walk,42,stand,0.021567,0,49,walk,0.021616,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/wave/American_History_X_wave_u_nm_np1_fr_med_16.mp4,50,wave,47,throw,0.021218,0,50,wave,0.021231,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/wave/Bush_Wave_vs__Obama_Wave_and_Which_Commander-in-chief_Salutes_the_Best__You_Decide_wave_u_cm_np1_fr_med_3.mp4,50,wave,33,shake hands,0.021123,0,50,wave,0.021119,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/Ghost_Dog_Sword_Swinging_Scene_sword_exercise_u_cm_np1_le_med_2.mp4,45,sword exercise,45,sword exercise,0.020993,1,8,draw sword,0.021385,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/Veoh_Alpha_Dog_2_walk_f_cm_np2_ri_med_10.mp4,49,walk,37,sit,0.02111,0,49,walk,0.02129,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/samurai_training_sword_exercise_f_cm_np1_fr_med_6.mp4,45,sword exercise,45,sword exercise,0.021318,1,8,draw sword,0.021179,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/talk/Hamlet_(1996)_Fencing_Scenes_talk_u_cm_np1_fr_med_0.mp4,46,talk,39,smile,0.021132,0,46,talk,0.021439,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/Fellowship_5_throw_u_cm_np1_fr_med_9.mp4,47,throw,47,throw,0.020888,1,44,sword,0.021254,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/KnifeThrowingJackDaggerDemoReel_throw_u_nm_np1_ba_med_0.mp4,47,throw,47,throw,0.020691,1,48,turn,0.020716,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/Conan_gets_an_upgrade!_sword_exercise_u_cm_np1_ri_med_0.mp4,45,sword exercise,45,sword exercise,0.021345,1,44,sword,0.02123,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/sword_exercise/samurai_training_sword_exercise_f_cm_np1_fr_med_7.mp4,45,sword exercise,45,sword exercise,0.021231,1,8,draw sword,0.021196,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/talk/Prelinger_FamilyLi1949_talk_u_nm_np1_fr_med_3.mp4,46,talk,48,turn,0.021376,0,46,talk,0.021248,1,wrong_to_right
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/KnifeThrowingJackDaggerDemoReel_throw_u_nm_np1_ba_med_3.mp4,47,throw,47,throw,0.020864,1,28,push,0.0211,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/throw/Pirates_4_throw_u_nm_np1_ba_med_4.mp4,47,throw,47,throw,0.020882,1,11,eat,0.021142,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/turn/Veoh_Alpha_Dog_2_turn_u_nm_np1_le_med_1.mp4,48,turn,48,turn,0.021192,1,23,laugh,0.021207,0,right_to_wrong
+/home/neimedia/action_data/hmdb51/mpeg4_videos/walk/Veoh_Alpha_Dog_2_walk_u_nm_np1_le_med_29.mp4,49,walk,49,walk,0.021095,1,48,turn,0.02145,0,right_to_wrong
