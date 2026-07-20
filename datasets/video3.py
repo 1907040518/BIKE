@@ -182,7 +182,9 @@ class Video_dataset(data.Dataset):
     @property
     def classes(self):
         classes_all = pd.read_csv(self.labels_file)
-        return classes_all.values.tolist()
+        if "id" in classes_all.columns and "name" in classes_all.columns:
+            return classes_all[["id", "name"]].values.tolist()
+        return classes_all.iloc[:, :2].values.tolist()
         
 
     def _load_list(self, video_list):
@@ -348,17 +350,15 @@ class Video_dataset(data.Dataset):
         return get_gop_pos(v_frame_idx, modality)
 
     def __getitem__(self, index):
-            # 测试模式和训练模式的数据获取逻辑
-        if not self.test_mode:
-            video_record = random.choice(self.video_list)
-            video_path = os.path.join(self.root_path, video_record.path)
-            label = video_record.label
-            num_frames = video_record.num_frames
-        else:
-            video_record = self.video_list[index]
-            video_path = os.path.join(self.root_path, video_record.path)
-            label = video_record.label
-            num_frames = video_record.num_frames
+        # Always honor the DataLoader/Sampler index. Randomness for training is
+        # handled by frame sampling (_get_train_frame_index) and data augmentation,
+        # not by replacing the sampled video. This keeps DistributedSampler epochs
+        # deterministic and prevents different ranks from randomly colliding on
+        # the same video more often than expected.
+        video_record = self.video_list[index]
+        video_path = os.path.join(self.root_path, video_record.path)
+        label = video_record.label
+        num_frames = video_record.num_frames
 
         frames_iframe = []
         frames_mv = []

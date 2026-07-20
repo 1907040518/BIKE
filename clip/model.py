@@ -1282,7 +1282,7 @@ def build_model(state_dict: dict,  tm=None, T=8,dropout=0., joint=False,emb_drop
         image_resolution, vision_layers, vision_width, vision_patch_size,
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         tm=tm, T=T, joint=joint,
-        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=residual_layers_to_use
+        dropout=dropout, emb_dropout=emb_dropout,residual_layers_to_use=residual_layers_to_use,mvs_layers_to_use=mvs_layers_to_use
     )
 
     for key in ["input_resolution", "context_length", "vocab_size"]:

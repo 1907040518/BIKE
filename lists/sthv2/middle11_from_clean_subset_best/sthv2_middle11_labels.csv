@@ -1,0 +1,12 @@
+id,name,original_id,source_top1_acc,source_correct,source_total
+0,Dropping something into something,10,0.348315,62,178
+1,Holding something over something,20,0.350394,89,254
+2,Pushing something so that it slightly moves,100,0.358491,95,265
+3,Bending something until it breaks,3,0.359223,37,103
+4,Putting something into something,106,0.359589,105,292
+5,Digging something out of something,7,0.363636,12,33
+6,"Lifting something up completely, then letting it drop down",28,0.363636,40,110
+7,Closing something,5,0.377193,86,228
+8,Moving something closer to something,42,0.380282,81,213
+9,Burying something in something,4,0.384615,15,39
+10,Throwing something in the air and letting it fall,154,0.385827,49,127

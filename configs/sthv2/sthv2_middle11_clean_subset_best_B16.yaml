@@ -1,0 +1,73 @@
+pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+resume: null
+seed: 1024
+data:
+  dataset: sthv2
+  modality: residual
+  num_segments: 16
+  seg_length: 1
+  batch_size: 64
+  workers: 12
+  num_classes: 11
+  image_tmpl: image_{:06d}.jpg
+  train_root: /NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2
+  val_root: /NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2
+  train_list: /home/neimedia/gmk/BIKE/lists/sthv2/middle11_from_clean_subset_best/train_rgb_middle11_remap.txt
+  val_list: /home/neimedia/gmk/BIKE/lists/sthv2/middle11_from_clean_subset_best/val_rgb_middle11_remap.txt
+  label_list: /home/neimedia/gmk/BIKE/lists/sthv2/middle11_from_clean_subset_best/sthv2_middle11_labels.csv
+  input_size: 224
+  random_shift: true
+  output_path: exps
+  GOP_SIZE: 12
+network:
+  arch: ViT-B/16
+  init: true
+  tm: false
+  drop_out: 0.0
+  emb_dropout: 0.0
+  sim_header: Transf
+  S_Align: DP
+  M_Align: DP
+  interaction: DP
+  joint_st: false
+  drop: 0
+  fix_text: true
+  fix_video: false
+  residual_layers_to_use:
+  - 0
+  - 11
+  mvs_layers_to_use:
+  - 0
+  - 11
+  attribute_guided_fusion:
+    enable: true
+    num_heads: 8
+    num_attributes: 16
+    dropout: 0.1
+    fusion_lr_scale: 10.0
+  action_prompt:
+    enable: true
+    vocab_root: /home/neimedia/gmk/BIKE/attributes/llama3.1:8b
+    dataset_key: SOMETHING_SOMETHING_V2
+    seed_index: 1
+    num_attributes: 16
+    attribute_ctx: 2
+    n_ctx: 4
+    class_specific: true
+    template: a video about {}.
+solver:
+  type: cosine
+  epochs: 40
+  start_epoch: 0
+  optim: adamw
+  lr: 5.0e-05
+  lr_warmup_step: 5
+  weight_decay: 0.2
+  loss_type: NCE
+  evaluate: false
+  clip_ratio: 0.1
+  grad_accumulation_steps: 1
+  class_chunk_size: 32
+logging:
+  print_freq: 10
+  eval_freq: 2

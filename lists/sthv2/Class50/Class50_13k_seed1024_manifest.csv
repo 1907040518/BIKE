@@ -1,0 +1,51 @@
+new_label,original_label,class_name,source_train_count,source_val_count,selected_train_count,selected_val_count,total_selected
+0,0,Approaching something with your camera,1162,116,220,40,260
+1,5,Closing something,1068,228,220,40,260
+2,11,Dropping something next to something,982,137,220,40,260
+3,12,Dropping something onto something,1122,234,220,40,260
+4,13,Failing to put something into something because something does not fit,273,40,220,40,260
+5,15,Hitting something with something,1738,235,220,40,260
+6,17,Holding something behind something,991,152,220,40,260
+7,19,Holding something next to something,1403,211,220,40,260
+8,22,Letting something roll along a flat surface,783,172,220,40,260
+9,24,"Letting something roll up a slanted surface, so it rolls back down",348,44,220,40,260
+10,26,Lifting a surface with something on it until it starts sliding down,317,40,220,40,260
+11,27,Lifting something up completely without letting it drop down,1673,101,220,40,260
+12,28,"Lifting something up completely, then letting it drop down",1593,110,220,40,260
+13,29,Lifting something with something on it,1501,261,220,40,260
+14,32,Moving away from something with your camera,1076,88,220,40,260
+15,38,Moving something and something so they collide with each other,464,54,220,40,260
+16,40,Moving something away from something,910,183,220,40,260
+17,42,Moving something closer to something,907,213,220,40,260
+18,43,Moving something down,2741,311,220,40,260
+19,46,Opening something,1253,332,220,40,260
+20,50,Plugging something into something but pulling it right out as you remove your hand,671,237,220,40,260
+21,55,Poking something so it slightly moves,1287,150,220,40,260
+22,57,Poking something so that it falls over,679,106,220,40,260
+23,68,Pretending to pick something up,1547,228,220,40,260
+24,87,Pulling something from right to left,1587,125,220,40,260
+25,91,Pulling two ends of something so that it gets stretched,292,60,220,40,260
+26,100,Pushing something so that it slightly moves,1874,265,220,40,260
+27,101,Pushing something with something,1452,182,220,40,260
+28,106,Putting something into something,2188,292,220,40,260
+29,107,Putting something next to something,2031,203,220,40,260
+30,114,Putting something similar to other things that are already on the table,1766,288,220,40,260
+31,115,"Putting something that can't roll onto a slanted surface, so it slides down",368,46,220,40,260
+32,119,Putting something upright on the table,733,101,220,40,260
+33,120,"Putting something, something and something on the table",982,127,220,40,260
+34,125,Showing something behind something,1678,218,220,40,260
+35,126,Showing something next to something,832,103,220,40,260
+36,132,Something colliding with something and both are being deflected,462,87,220,40,260
+37,134,Something falling like a feather or paper,1100,368,220,40,260
+38,135,Something falling like a rock,1390,326,220,40,260
+39,140,Spinning something that quickly stops spinning,1071,258,220,40,260
+40,144,Stacking number of something,1032,157,220,40,260
+41,145,Stuffing something into something,1379,329,220,40,260
+42,146,Taking one of many similar things on the table,2275,360,220,40,260
+43,148,Taking something out of something,1699,239,220,40,260
+44,152,Throwing something against something,1254,98,220,40,260
+45,154,Throwing something in the air and letting it fall,774,127,220,40,260
+46,155,Throwing something onto a surface,875,82,220,40,260
+47,156,Tilting something with something on it slightly so it doesn't fall down,604,130,220,40,260
+48,162,Trying to bend something unbendable so nothing happens,748,107,220,40,260
+49,171,Uncovering something,2426,312,220,40,260

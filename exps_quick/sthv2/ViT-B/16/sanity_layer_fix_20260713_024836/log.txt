@@ -1,0 +1,94 @@
+[07/13 02:48:46] BIKE INFO: ------------------------------------
+[07/13 02:48:46] BIKE INFO: Environment Versions:
+[07/13 02:48:46] BIKE INFO: - Python: 3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]
+[07/13 02:48:46] BIKE INFO: - PyTorch: 2.5.1
+[07/13 02:48:46] BIKE INFO: - TorchVison: 0.20.1
+[07/13 02:48:46] BIKE INFO: ------------------------------------
+[07/13 02:48:46] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 16,
+                'dataset': 'sthv2',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': '/home/neimedia/gmk/BIKE/lists/sthv2/sthv2_labels.csv',
+                'modality': 'residual',
+                'num_classes': 174,
+                'num_segments': 16,
+                'output_path': 'exps_quick',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': '/home/neimedia/gmk/BIKE/lists/sthv2/train_rgb.txt',
+                'train_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'val_list': '/home/neimedia/gmk/BIKE/lists/sthv2/val_rgb.txt',
+                'val_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'SOMETHING_SOMETHING_V2',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 1,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'dropout': 0.1,
+                                                  'enable': True,
+                                                  'fusion_lr_scale': 10.0,
+                                                  'num_attributes': 16,
+                                                  'num_heads': 8},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 40,
+                  'evaluate': True,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 5,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/13 02:48:46] BIKE INFO: ------------------------------------
+[07/13 02:48:46] BIKE INFO: storing name: exps_quick/sthv2/ViT-B/16/sanity_layer_fix_20260713_024836
+[07/13 02:48:48] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7df7f698f210>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7df7f698f410>]
+[07/13 02:48:48] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7df7f698f090>, <Coviar.transforms.GroupCenterCrop object at 0x7df7f698f150>]
+[07/13 02:48:50] BIKE INFO: => loading pretrain checkpoint '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/13 02:48:52] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers [0, 11]
+[07/13 02:48:52] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers [0, 11]
+[07/13 02:48:52] BIKE INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json
+[07/13 02:48:52] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[07/13 02:48:52] BIKE INFO: Prompt[0]: a video about Approaching something with your camera. Moving Forward Straight Smooth Continuous Gentle Slow Controlled Deliberate Intentional Upward Sideways Rotating Tilting Focusing Zooming.
+[07/13 02:48:52] BIKE INFO: Prompt[1]: a video about Attaching something to something. Moving Close Touching Holding Pressing Tightening Wrapping Struggling Pulling Pushing Twisting Rotating Turning Bending Reaching Grabbing.
+[07/13 02:48:52] BIKE INFO: Prompt[2]: a video about Bending something so that it deforms. Curved Deformed Flexible Twisted Bent Warped Distorted Inclined Angled Arched Kinked Swaying Tilted Slanted Asymmetrical Jagged.
+[07/13 02:48:52] BIKE INFO: Attribute-guided fusion enabled
+[07/13 02:48:52] BIKE INFO: Attribute fusion config: {'num_heads': 8, 'dropout': 0.1}
+[07/13 02:48:52] BIKE INFO: Parameter keys saved → exps_quick/sthv2/ViT-B/16/sanity_layer_fix_20260713_024836/model_param_keys.txt
+[07/13 02:48:52] BIKE INFO: [CLIP-VIDEO-MODEL] Trainable: 118,201,117 / Total: 181,629,213  (65.08%)
+[07/13 02:48:52] BIKE INFO: [VIDEO_HEAD] Trainable: 18,953,728 / Total: 18,953,728  (100.00%)
+[07/13 02:48:53] BIKE INFO: ===========evaluate===========
+[07/13 02:49:01] BIKE INFO: Test: [0/1549]	Prec@1 0.000 (0.000)	Prec@5 6.250 (6.250)
+[07/13 02:49:14] BIKE INFO: Test: [10/1549]	Prec@1 0.000 (2.273)	Prec@5 6.250 (4.545)
+[07/13 02:49:28] BIKE INFO: Test: [20/1549]	Prec@1 0.000 (1.488)	Prec@5 0.000 (4.167)
+[07/13 02:49:41] BIKE INFO: Test: [30/1549]	Prec@1 0.000 (1.613)	Prec@5 12.500 (5.242)
+[07/13 02:49:54] BIKE INFO: Test: [40/1549]	Prec@1 0.000 (1.220)	Prec@5 12.500 (5.183)
+[07/13 02:50:07] BIKE INFO: Test: [50/1549]	Prec@1 0.000 (1.348)	Prec@5 6.250 (4.902)
+[07/13 02:50:20] BIKE INFO: Test: [60/1549]	Prec@1 0.000 (1.434)	Prec@5 0.000 (4.918)
+[07/13 02:50:33] BIKE INFO: Test: [70/1549]	Prec@1 0.000 (1.408)	Prec@5 0.000 (4.754)
+[07/13 02:50:46] BIKE INFO: Test: [80/1549]	Prec@1 0.000 (1.312)	Prec@5 6.250 (4.475)

@@ -1,0 +1,105 @@
+[07/13 02:51:50] BIKE INFO: ------------------------------------
+[07/13 02:51:50] BIKE INFO: Environment Versions:
+[07/13 02:51:50] BIKE INFO: - Python: 3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]
+[07/13 02:51:50] BIKE INFO: - PyTorch: 2.5.1
+[07/13 02:51:50] BIKE INFO: - TorchVison: 0.20.1
+[07/13 02:51:50] BIKE INFO: ------------------------------------
+[07/13 02:51:50] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'sthv2',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': '/home/neimedia/gmk/BIKE/lists/sthv2/sthv2_labels.csv',
+                'modality': 'residual',
+                'num_classes': 174,
+                'num_segments': 16,
+                'output_path': 'exps_quick',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': '/home/neimedia/gmk/BIKE/lists/sthv2/train_rgb_quick20cls.txt',
+                'train_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'val_list': '/home/neimedia/gmk/BIKE/lists/sthv2/val_rgb_quick5cls.txt',
+                'val_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'workers': 4},
+    'logging': {'eval_freq': 2, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'SOMETHING_SOMETHING_V2',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 1,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'dropout': 0.1,
+                                                  'enable': True,
+                                                  'fusion_lr_scale': 10.0,
+                                                  'num_attributes': 16,
+                                                  'num_heads': 8},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 2,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/13 02:51:50] BIKE INFO: ------------------------------------
+[07/13 02:51:50] BIKE INFO: storing name: exps_quick/sthv2/ViT-B/16/quick_layerfix_20260713_025143
+[07/13 02:51:52] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7346ee70f810>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7346ee70fe50>]
+[07/13 02:51:52] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7346ee70ff10>, <Coviar.transforms.GroupCenterCrop object at 0x7346ee70fe90>]
+[07/13 02:51:53] BIKE INFO: => loading pretrain checkpoint '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/13 02:51:54] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers [0, 11]
+[07/13 02:51:54] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers [0, 11]
+[07/13 02:51:54] BIKE INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json
+[07/13 02:51:54] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[07/13 02:51:54] BIKE INFO: Prompt[0]: a video about Approaching something with your camera. Moving Forward Straight Smooth Continuous Gentle Slow Controlled Deliberate Intentional Upward Sideways Rotating Tilting Focusing Zooming.
+[07/13 02:51:54] BIKE INFO: Prompt[1]: a video about Attaching something to something. Moving Close Touching Holding Pressing Tightening Wrapping Struggling Pulling Pushing Twisting Rotating Turning Bending Reaching Grabbing.
+[07/13 02:51:54] BIKE INFO: Prompt[2]: a video about Bending something so that it deforms. Curved Deformed Flexible Twisted Bent Warped Distorted Inclined Angled Arched Kinked Swaying Tilted Slanted Asymmetrical Jagged.
+[07/13 02:51:54] BIKE INFO: Attribute-guided fusion enabled
+[07/13 02:51:54] BIKE INFO: Attribute fusion config: {'dropout': 0.1, 'num_heads': 8}
+[07/13 02:51:54] BIKE INFO: Parameter keys saved → exps_quick/sthv2/ViT-B/16/quick_layerfix_20260713_025143/model_param_keys.txt
+[07/13 02:51:54] BIKE INFO: [CLIP-VIDEO-MODEL] Trainable: 118,201,117 / Total: 181,629,213  (65.08%)
+[07/13 02:51:54] BIKE INFO: [VIDEO_HEAD] Trainable: 18,953,728 / Total: 18,953,728  (100.00%)
+[07/13 02:52:06] BIKE INFO: Test: [0/28]	Prec@1 0.000 (0.000)	Prec@5 3.125 (3.125)
+[07/13 02:52:26] BIKE INFO: Test: [10/28]	Prec@1 0.000 (1.705)	Prec@5 3.125 (4.545)
+[07/13 02:52:47] BIKE INFO: Test: [20/28]	Prec@1 0.000 (1.339)	Prec@5 0.000 (4.762)
+[07/13 02:53:02] BIKE INFO: Testing Results: Prec@1 1.264 Prec@5 4.943
+[07/13 02:53:02] BIKE INFO: 逐样本预测结果 → exps_quick/sthv2/ViT-B/16/quick_layerfix_20260713_025143/sthv2_epoch001_predictions.csv  (870 条)
+[07/13 02:53:02] BIKE INFO: 每类别准确率     → exps_quick/sthv2/ViT-B/16/quick_layerfix_20260713_025143/sthv2_epoch001_per_class_acc.csv
+[07/13 02:53:02] BIKE INFO: ── Top-5 准确率最高类别 ──────────────────────────
+[07/13 02:53:02] BIKE INFO:   [  59] Pouring something into something            60.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [ 135] Something falling like a rock               60.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [  61] Pouring something onto something            40.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [  24] Letting something roll up a slanted surface, so it rolls back down    20.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [  56] Poking something so lightly that it doesn't or almost doesn't move    20.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO: ── Top-5 准确率最低类别 ──────────────────────────
+[07/13 02:53:02] BIKE INFO:   [ 169] Twisting (wringing) something wet until water comes out     0.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [ 170] Twisting something                           0.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [ 171] Uncovering something                         0.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [ 172] Unfolding something                          0.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO:   [ 173] Wiping something off of something            0.0%  (5 样本)
+[07/13 02:53:02] BIKE INFO: Similarity 矩阵  → exps_quick/sthv2/ViT-B/16/quick_layerfix_20260713_025143/sthv2_epoch001_similarities.pt
+[07/13 02:53:02] BIKE INFO: Testing: 1.264367816091954/1.264367816091954
+[07/13 02:53:02] BIKE INFO: Saving:

@@ -7,7 +7,7 @@ else
 fi
 
 now=$(date +"%Y%m%d_%H%M%S")
-export CUDA_VISIBLE_DEVICES=5,6,7
+export CUDA_VISIBLE_DEVICES=1,2,3
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True  # ← 必须 export
 
 torchrun --nproc_per_node=3 --master_port=12567 \

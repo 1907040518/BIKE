@@ -1,0 +1,73 @@
+pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
+# pretrain:
+resume:
+seed: 1024
+data:
+    dataset: sthv2
+    modality: residual
+    num_segments: 16
+    seg_length: 1
+    batch_size: 32
+    workers: 4
+    num_classes: 174
+    image_tmpl: 'image_{:06d}.jpg'
+    train_root: '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
+    val_root: '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2'
+    train_list: '/home/neimedia/gmk/BIKE/lists/sthv2/train_rgb_quick20cls.txt'
+    val_list: '/home/neimedia/gmk/BIKE/lists/sthv2/val_rgb_quick5cls.txt'
+    label_list: '/home/neimedia/gmk/BIKE/lists/sthv2/sthv2_labels.csv'
+    input_size: 224
+    random_shift: True
+    output_path: exps_quick
+    GOP_SIZE: 12
+network:
+    arch: ViT-B/16
+    init: True 
+    tm: False
+    drop_out: 0.0 
+    emb_dropout: 0.0 
+    sim_header: Transf
+    S_Align: DP
+    M_Align: DP
+    interaction: DP
+    joint_st: False
+    drop: 0      
+    fix_text: True  
+    fix_video: False
+    residual_layers_to_use: [0, 11]
+    mvs_layers_to_use: [0, 11]      # MVSEncoder使用的层
+    # ============================================
+    # attribute_guided_fusion / 融合模块 配置
+    # ============================================
+    attribute_guided_fusion:
+        enable: True         
+        num_heads: 8
+        num_attributes: 16
+        dropout: 0.1
+        fusion_lr_scale: 10.0 
+    action_prompt:
+        enable: True
+        vocab_root: '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'
+        dataset_key: SOMETHING_SOMETHING_V2
+        seed_index: 1
+        num_attributes: 16
+        attribute_ctx: 2
+        n_ctx: 4
+        class_specific: True
+        template: "a video about {}."
+
+solver:
+    type: cosine
+    epochs: 2
+    start_epoch: 0
+    optim: adamw
+    lr: 5.e-5
+    lr_warmup_step: 1
+    weight_decay: 0.2
+    loss_type: NCE
+    evaluate: False
+    clip_ratio: 0.1
+    grad_accumulation_steps: 1
+logging:
+    print_freq: 10
+    eval_freq: 2

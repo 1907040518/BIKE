@@ -40,7 +40,7 @@ network:
     # attribute_guided_fusion / 融合模块 配置
     # ============================================
     attribute_guided_fusion:
-        enable: False         
+        enable: True         
         num_heads: 8
         num_attributes: 16
         dropout: 0.1
@@ -67,6 +67,7 @@ solver:
     evaluate: False
     clip_ratio: 0.1
     grad_accumulation_steps: 1
+    class_chunk_size: 32
 logging:
     print_freq: 10
     eval_freq: 2

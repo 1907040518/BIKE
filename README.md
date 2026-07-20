@@ -212,7 +212,63 @@ Or from the repository root:
 sh scripts/run_train_23.sh configs/hmdb51/hmdb_CLIP_fix_L_0_11_fusion.yaml
 ```
 
-### 3.2 Testing
+### 3.2 SSv2 semantic-attribute ablation (Correct / Dummy / Shuffled + IADF)
+
+This controlled ablation tests whether SSv2 gains come from correct class-to-attribute semantics rather than merely longer prompts or arbitrary attribute text. All three configurations retain the same IADF settings, action-prompt template, training schedule, data lists, and seed index. Only `network.action_prompt.dataset_key` changes.
+
+The loader in [`train_comp_CoAPT.py`](train_comp_CoAPT.py) resolves an attribute file as `vocab_root / f"{dataset_key.upper()}_{seed_index}.json"`; therefore the runtime aliases use uppercase suffixes. The original source is [`SOMETHING_SOMETHING_V2_1.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json), a 174-key JSON object mapping each SSv2 class name to one whitespace-separated attribute string. At runtime the first 16 tokens are used.
+
+| Condition | Config | `dataset_key` | Resolved runtime attribute file |
+| --- | --- | --- | --- |
+| Correct Attributes + IADF | [`sthv2_pre_fix_B16_subset10k_val4k_fusion_on_correct_rerun.yaml`](configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_correct_rerun.yaml) | `SOMETHING_SOMETHING_V2` | [`SOMETHING_SOMETHING_V2_1.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json) |
+| Dummy Attributes + IADF | [`sthv2_pre_fix_B16_subset10k_val4k_fusion_on_dummy.yaml`](configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_dummy.yaml) | `SOMETHING_SOMETHING_V2_dummy` | [`SOMETHING_SOMETHING_V2_DUMMY_1.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_DUMMY_1.json) |
+| Shuffled Attributes + IADF | [`sthv2_pre_fix_B16_subset10k_val4k_fusion_on_shuffled_seed0.yaml`](configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_shuffled_seed0.yaml) | `SOMETHING_SOMETHING_V2_shuffled_seed0` | [`SOMETHING_SOMETHING_V2_SHUFFLED_SEED0_1.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_SHUFFLED_SEED0_1.json) |
+
+Generated source files are [`SOMETHING_SOMETHING_V2_dummy.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_dummy.json) and [`SOMETHING_SOMETHING_V2_shuffled_seed0.json`](attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_shuffled_seed0.json), with lowercase `_1` copies retained for traceability. The Dummy condition assigns the same 16 generic tokens to every class. The Shuffled condition deterministically permutes whole class attribute strings with seed 0 and verifies zero unchanged class-to-attribute assignments, preserving the original attribute-length distribution.
+
+Regenerate either controlled vocabulary without changing the source file:
+
+```sh
+python tools/make_ssv2_attribute_ablation.py \
+  --input attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json \
+  --output attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_dummy.json \
+  --mode dummy --seed 0 --num_attributes 16
+
+python tools/make_ssv2_attribute_ablation.py \
+  --input attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json \
+  --output attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_shuffled_seed0.json \
+  --mode shuffled --seed 0 --num_attributes 16
+```
+
+Run the three experiments from the repository root. Use the same visible GPUs and training precision for all three runs; only config and log tag vary.
+
+```sh
+CUDA_VISIBLE_DEVICES=1,5 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+conda run -n mpeg4 torchrun --nproc_per_node=2 --master_port=12691 \
+  train_comp_CoAPT.py \
+  --config configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_correct_rerun.yaml \
+  --log_time ssv2_attr_correct_$(date +%Y%m%d_%H%M%S) --precision amp
+
+CUDA_VISIBLE_DEVICES=1,5 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+conda run -n mpeg4 torchrun --nproc_per_node=2 --master_port=12692 \
+  train_comp_CoAPT.py \
+  --config configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_dummy.yaml \
+  --log_time ssv2_attr_dummy_$(date +%Y%m%d_%H%M%S) --precision amp
+
+CUDA_VISIBLE_DEVICES=1,5 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+conda run -n mpeg4 torchrun --nproc_per_node=2 --master_port=12693 \
+  train_comp_CoAPT.py \
+  --config configs/sthv2/sthv2_pre_fix_B16_subset10k_val4k_fusion_on_shuffled_seed0.yaml \
+  --log_time ssv2_attr_shuffled_seed0_$(date +%Y%m%d_%H%M%S) --precision amp
+```
+
+Validation logs contain final Top-1 / Top-5 in the `Testing Results: Prec@1 ... Prec@5 ...` line. [`train_comp_CoAPT.py`](train_comp_CoAPT.py) additionally logs `IADF mean modality weights (GT-conditioned; IFrame/MV/Residual): ...` once per validation. These values are averages over each sample's ground-truth-class-conditioned IADF route, so they are diagnostic only and are not used to compute predictions. To inspect a completed experiment:
+
+```sh
+grep -E 'Testing Results: Prec@1|IADF mean modality weights' exps/sthv2/ViT-B/16/<run_name>/log.txt
+```
+
+### 3.3 Testing
 
 Standard testing entry:
 
@@ -226,7 +282,7 @@ If using the provided shell script:
 sh scripts/run_test.sh configs/hmdb51/hmdb_CLIP_fix_L_0_11_fusion.yaml
 ```
 
-### 3.3 Zero-shot Testing
+### 3.4 Zero-shot Testing
 
 ```sh
 sh scripts/run_test_zeroshot.sh configs/hmdb51/hmdb_CLIP_fix_L_0_11_fusion.yaml
@@ -606,6 +662,15 @@ sh scripts/run_test.sh configs/hmdb51/hmdb_CLIP_fix_L_0_11_fusion.yaml
 ```sh
 sh scripts/run_test_zeroshot.sh configs/hmdb51/hmdb_CLIP_fix_L_0_11_fusion.yaml
 ```
+
+### Estimate TextComp FLOPs / Views
+
+```sh
+python scripts/estimate_textcomp_flops.py --config configs/sthv2/sthv2_pre_fix_B16.yaml
+python scripts/estimate_textcomp_flops.py --config configs/sthv2/sthv2_pre_fix_B16.yaml --class-conditioned
+```
+
+The first command reports the standard per-view paper-table cost. The second command also counts the current class-conditioned validation path where fusion and temporal head are repeated for every class.
 
 ### Check Data Loader
 

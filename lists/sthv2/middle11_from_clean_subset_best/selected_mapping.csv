@@ -1,0 +1,12 @@
+new_id,original_id,class_name,source_top1_acc,train_count,val_count
+0,10,Dropping something into something,0.348315,903,178
+1,20,Holding something over something,0.350394,1260,254
+2,100,Pushing something so that it slightly moves,0.358491,1874,265
+3,3,Bending something until it breaks,0.359223,487,103
+4,106,Putting something into something,0.359589,2188,292
+5,7,Digging something out of something,0.363636,449,33
+6,28,"Lifting something up completely, then letting it drop down",0.363636,1593,110
+7,5,Closing something,0.377193,1068,228
+8,42,Moving something closer to something,0.380282,907,213
+9,4,Burying something in something,0.384615,603,39
+10,154,Throwing something in the air and letting it fall,0.385827,774,127

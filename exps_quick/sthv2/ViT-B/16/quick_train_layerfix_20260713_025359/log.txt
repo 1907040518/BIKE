@@ -1,0 +1,115 @@
+[07/13 02:54:05] BIKE INFO: ------------------------------------
+[07/13 02:54:05] BIKE INFO: Environment Versions:
+[07/13 02:54:05] BIKE INFO: - Python: 3.11.14 (main, Oct 21 2025, 18:31:21) [GCC 11.2.0]
+[07/13 02:54:05] BIKE INFO: - PyTorch: 2.5.1
+[07/13 02:54:05] BIKE INFO: - TorchVison: 0.20.1
+[07/13 02:54:05] BIKE INFO: ------------------------------------
+[07/13 02:54:05] BIKE INFO: {   'data': {   'GOP_SIZE': 12,
+                'batch_size': 32,
+                'dataset': 'sthv2',
+                'image_tmpl': 'image_{:06d}.jpg',
+                'input_size': 224,
+                'label_list': '/home/neimedia/gmk/BIKE/lists/sthv2/sthv2_labels.csv',
+                'modality': 'residual',
+                'num_classes': 174,
+                'num_segments': 16,
+                'output_path': 'exps_quick',
+                'random_shift': True,
+                'seg_length': 1,
+                'train_list': '/home/neimedia/gmk/BIKE/lists/sthv2/train_rgb_quick20cls.txt',
+                'train_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'val_list': '/home/neimedia/gmk/BIKE/lists/sthv2/val_rgb_quick5cls.txt',
+                'val_root': '/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2',
+                'workers': 4},
+    'logging': {'eval_freq': 1, 'print_freq': 10},
+    'network': {   'M_Align': 'DP',
+                   'S_Align': 'DP',
+                   'action_prompt': {   'attribute_ctx': 2,
+                                        'class_specific': True,
+                                        'dataset_key': 'SOMETHING_SOMETHING_V2',
+                                        'enable': True,
+                                        'n_ctx': 4,
+                                        'num_attributes': 16,
+                                        'seed_index': 1,
+                                        'template': 'a video about {}.',
+                                        'vocab_root': '/home/neimedia/gmk/BIKE/attributes/llama3.1:8b'},
+                   'arch': 'ViT-B/16',
+                   'attribute_guided_fusion': {   'dropout': 0.1,
+                                                  'enable': True,
+                                                  'fusion_lr_scale': 10.0,
+                                                  'num_attributes': 16,
+                                                  'num_heads': 8},
+                   'drop': 0,
+                   'drop_out': 0.0,
+                   'emb_dropout': 0.0,
+                   'fix_text': True,
+                   'fix_video': False,
+                   'init': True,
+                   'interaction': 'DP',
+                   'joint_st': False,
+                   'mvs_layers_to_use': [0, 11],
+                   'residual_layers_to_use': [0, 11],
+                   'sim_header': 'Transf',
+                   'tm': False},
+    'pretrain': '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt',
+    'resume': None,
+    'seed': 1024,
+    'solver': {   'clip_ratio': 0.1,
+                  'epochs': 2,
+                  'evaluate': False,
+                  'grad_accumulation_steps': 1,
+                  'loss_type': 'NCE',
+                  'lr': 5e-05,
+                  'lr_warmup_step': 1,
+                  'optim': 'adamw',
+                  'start_epoch': 0,
+                  'type': 'cosine',
+                  'weight_decay': 0.2}}
+[07/13 02:54:05] BIKE INFO: ------------------------------------
+[07/13 02:54:05] BIKE INFO: storing name: exps_quick/sthv2/ViT-B/16/quick_train_layerfix_20260713_025359
+[07/13 02:54:08] BIKE INFO: train transforms: [<Coviar.transforms.GroupMultiScaleCrop object at 0x7da75d162fd0>, <Coviar.transforms.GroupRandomHorizontalFlip object at 0x7da75d162e50>]
+[07/13 02:54:08] BIKE INFO: val transforms: [<Coviar.transforms.GroupScale object at 0x7da75d163410>, <Coviar.transforms.GroupCenterCrop object at 0x7da75d163290>]
+[07/13 02:54:08] BIKE INFO: => loading pretrain checkpoint '/home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt'
+[07/13 02:54:09] BIKE INFO: => loaded pretrained weights for ResidualEncoder from layers [0, 11]
+[07/13 02:54:09] BIKE INFO: => loaded pretrained weights for MVSEncoder from layers [0, 11]
+[07/13 02:54:09] BIKE INFO: Loaded attribute descriptions from /home/neimedia/gmk/BIKE/attributes/llama3.1:8b/SOMETHING_SOMETHING_V2_1.json
+[07/13 02:54:09] BIKE INFO: Attribute prompt strings loaded from vocabulary
+[07/13 02:54:09] BIKE INFO: Prompt[0]: a video about Approaching something with your camera. Moving Forward Straight Smooth Continuous Gentle Slow Controlled Deliberate Intentional Upward Sideways Rotating Tilting Focusing Zooming.
+[07/13 02:54:09] BIKE INFO: Prompt[1]: a video about Attaching something to something. Moving Close Touching Holding Pressing Tightening Wrapping Struggling Pulling Pushing Twisting Rotating Turning Bending Reaching Grabbing.
+[07/13 02:54:09] BIKE INFO: Prompt[2]: a video about Bending something so that it deforms. Curved Deformed Flexible Twisted Bent Warped Distorted Inclined Angled Arched Kinked Swaying Tilted Slanted Asymmetrical Jagged.
+[07/13 02:54:09] BIKE INFO: Attribute-guided fusion enabled
+[07/13 02:54:09] BIKE INFO: Attribute fusion config: {'num_heads': 8, 'dropout': 0.1}
+[07/13 02:54:26] BIKE INFO: Epoch: [0][0/108], lr: 0.00e+00, eta: 0:59:07	Time 16.346 (16.346)	Data 11.736 (11.736)	Loss 3.8877 (3.8877)
+[07/13 02:55:00] BIKE INFO: Epoch: [0][10/108], lr: 4.17e-06, eta: 0:15:52	Time 3.414 (4.602)	Data 0.096 (1.187)	Loss 3.8107 (3.8561)
+[07/13 02:55:34] BIKE INFO: Epoch: [0][20/108], lr: 8.80e-06, eta: 0:13:16	Time 3.379 (4.045)	Data 0.096 (0.682)	Loss 3.2424 (3.7161)
+[07/13 02:56:08] BIKE INFO: Epoch: [0][30/108], lr: 1.34e-05, eta: 0:11:58	Time 3.487 (3.841)	Data 0.142 (0.498)	Loss 3.5166 (3.6064)
+[07/13 02:56:42] BIKE INFO: Epoch: [0][40/108], lr: 1.81e-05, eta: 0:11:00	Time 3.412 (3.733)	Data 0.108 (0.402)	Loss 3.3325 (3.5307)
+[07/13 02:57:16] BIKE INFO: Epoch: [0][50/108], lr: 2.27e-05, eta: 0:10:13	Time 3.435 (3.672)	Data 0.129 (0.346)	Loss 3.3137 (3.4689)
+[07/13 02:57:51] BIKE INFO: Epoch: [0][60/108], lr: 2.73e-05, eta: 0:09:30	Time 3.491 (3.634)	Data 0.186 (0.309)	Loss 3.1398 (3.4005)
+[07/13 02:58:26] BIKE INFO: Epoch: [0][70/108], lr: 3.19e-05, eta: 0:08:51	Time 3.455 (3.613)	Data 0.121 (0.285)	Loss 2.8813 (3.3427)
+[07/13 02:59:01] BIKE INFO: Epoch: [0][80/108], lr: 3.66e-05, eta: 0:08:12	Time 3.482 (3.598)	Data 0.128 (0.267)	Loss 2.7380 (3.2827)
+[07/13 02:59:36] BIKE INFO: Epoch: [0][90/108], lr: 4.12e-05, eta: 0:07:35	Time 3.457 (3.587)	Data 0.119 (0.253)	Loss 2.8354 (3.2258)
+[07/13 03:00:10] BIKE INFO: Epoch: [0][100/108], lr: 4.58e-05, eta: 0:06:58	Time 3.472 (3.574)	Data 0.131 (0.241)	Loss 2.6089 (3.1693)
+[07/13 03:00:46] BIKE INFO: Test: [0/28]	Prec@1 3.125 (3.125)	Prec@5 25.000 (25.000)
+[07/13 03:01:09] BIKE INFO: Test: [10/28]	Prec@1 3.125 (5.398)	Prec@5 12.500 (17.898)
+[07/13 03:01:36] BIKE INFO: Test: [20/28]	Prec@1 6.250 (5.357)	Prec@5 15.625 (18.155)
+[07/13 03:01:48] BIKE INFO: Testing Results: Prec@1 5.747 Prec@5 18.276
+[07/13 03:01:48] BIKE INFO: Testing: 5.747126436781609/5.747126436781609
+[07/13 03:01:48] BIKE INFO: Saving:
+[07/13 03:02:05] BIKE INFO: Epoch: [1][0/108], lr: 5.00e-05, eta: 0:26:07	Time 14.378 (14.378)	Data 11.052 (11.052)	Loss 2.3962 (2.3962)
+[07/13 03:02:39] BIKE INFO: Epoch: [1][10/108], lr: 4.91e-05, eta: 0:07:19	Time 3.426 (4.436)	Data 0.099 (1.124)	Loss 2.6692 (2.4949)
+[07/13 03:03:14] BIKE INFO: Epoch: [1][20/108], lr: 4.63e-05, eta: 0:05:52	Time 3.478 (3.961)	Data 0.130 (0.646)	Loss 2.7583 (2.5052)
+[07/13 03:03:48] BIKE INFO: Epoch: [1][30/108], lr: 4.16e-05, eta: 0:04:59	Time 3.419 (3.792)	Data 0.096 (0.476)	Loss 2.0298 (2.4611)
+[07/13 03:04:23] BIKE INFO: Epoch: [1][40/108], lr: 3.56e-05, eta: 0:04:15	Time 3.488 (3.707)	Data 0.143 (0.390)	Loss 2.3139 (2.4217)
+[07/13 03:04:57] BIKE INFO: Epoch: [1][50/108], lr: 2.86e-05, eta: 0:03:35	Time 3.472 (3.656)	Data 0.130 (0.337)	Loss 1.9596 (2.3811)
+[07/13 03:05:31] BIKE INFO: Epoch: [1][60/108], lr: 2.14e-05, eta: 0:02:57	Time 3.430 (3.621)	Data 0.103 (0.302)	Loss 2.2272 (2.3200)
+[07/13 03:06:06] BIKE INFO: Epoch: [1][70/108], lr: 1.44e-05, eta: 0:02:20	Time 3.448 (3.595)	Data 0.122 (0.276)	Loss 1.5762 (2.2673)
+[07/13 03:06:40] BIKE INFO: Epoch: [1][80/108], lr: 8.38e-06, eta: 0:01:43	Time 3.450 (3.577)	Data 0.109 (0.257)	Loss 1.8676 (2.2177)
+[07/13 03:07:15] BIKE INFO: Epoch: [1][90/108], lr: 3.72e-06, eta: 0:01:07	Time 3.457 (3.562)	Data 0.133 (0.242)	Loss 1.7318 (2.1658)
+[07/13 03:07:49] BIKE INFO: Epoch: [1][100/108], lr: 8.52e-07, eta: 0:00:31	Time 3.448 (3.550)	Data 0.114 (0.230)	Loss 1.6308 (2.1387)
+[07/13 03:08:25] BIKE INFO: Test: [0/28]	Prec@1 3.125 (3.125)	Prec@5 21.875 (21.875)
+[07/13 03:08:46] BIKE INFO: Test: [10/28]	Prec@1 3.125 (8.523)	Prec@5 25.000 (28.693)
+[07/13 03:09:11] BIKE INFO: Test: [20/28]	Prec@1 6.250 (7.887)	Prec@5 31.250 (26.935)
+[07/13 03:09:24] BIKE INFO: Testing Results: Prec@1 8.621 Prec@5 27.471
+[07/13 03:09:24] BIKE INFO: Testing: 8.620689650787705/8.620689650787705
+[07/13 03:09:24] BIKE INFO: Saving:

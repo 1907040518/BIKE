@@ -1,5 +1,4 @@
-# pretrain: /home/stu_a/BIKE-main/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
-pretrain: 
+pretrain: /home/neimedia/gmk/BIKE/exps/k400/ViT-B/16/8f/k400-vit-b-16-f8.pt
 resume:
 seed: 1024
 data:
@@ -8,7 +7,7 @@ data:
     num_segments: 16
     seg_length: 1
     batch_size: 64
-    workers: 4
+    workers: 8
     num_classes: 51
     image_tmpl: 'image_{:06d}.jpg'
     train_root: '/mnt/data/hmdb51/mpeg4_videos'

@@ -1,0 +1,175 @@
+class_idx,class_name,correct,total,accuracy
+0,Approaching something with your camera,0,5,0.0000
+1,Attaching something to something,0,5,0.0000
+2,Bending something so that it deforms,0,5,0.0000
+3,Bending something until it breaks,0,5,0.0000
+4,Burying something in something,0,5,0.0000
+5,Closing something,0,5,0.0000
+6,Covering something with something,0,5,0.0000
+7,Digging something out of something,0,5,0.0000
+8,Dropping something behind something,0,5,0.0000
+9,Dropping something in front of something,0,5,0.0000
+10,Dropping something into something,0,5,0.0000
+11,Dropping something next to something,0,5,0.0000
+12,Dropping something onto something,0,5,0.0000
+13,Failing to put something into something because something does not fit,0,5,0.0000
+14,Folding something,0,5,0.0000
+15,Hitting something with something,0,5,0.0000
+16,Holding something,0,5,0.0000
+17,Holding something behind something,0,5,0.0000
+18,Holding something in front of something,0,5,0.0000
+19,Holding something next to something,0,5,0.0000
+20,Holding something over something,0,5,0.0000
+21,"Laying something on the table on its side, not upright",0,5,0.0000
+22,Letting something roll along a flat surface,0,5,0.0000
+23,Letting something roll down a slanted surface,0,5,0.0000
+24,"Letting something roll up a slanted surface, so it rolls back down",1,5,0.2000
+25,Lifting a surface with something on it but not enough for it to slide down,0,5,0.0000
+26,Lifting a surface with something on it until it starts sliding down,0,5,0.0000
+27,Lifting something up completely without letting it drop down,0,5,0.0000
+28,"Lifting something up completely, then letting it drop down",0,5,0.0000
+29,Lifting something with something on it,0,5,0.0000
+30,Lifting up one end of something without letting it drop down,0,5,0.0000
+31,"Lifting up one end of something, then letting it drop down",0,5,0.0000
+32,Moving away from something with your camera,0,5,0.0000
+33,Moving part of something,0,5,0.0000
+34,Moving something across a surface until it falls down,0,5,0.0000
+35,Moving something across a surface without it falling down,0,5,0.0000
+36,Moving something and something away from each other,0,5,0.0000
+37,Moving something and something closer to each other,0,5,0.0000
+38,Moving something and something so they collide with each other,0,5,0.0000
+39,Moving something and something so they pass each other,0,5,0.0000
+40,Moving something away from something,0,5,0.0000
+41,Moving something away from the camera,0,5,0.0000
+42,Moving something closer to something,0,5,0.0000
+43,Moving something down,0,5,0.0000
+44,Moving something towards the camera,0,5,0.0000
+45,Moving something up,0,5,0.0000
+46,Opening something,0,5,0.0000
+47,Picking something up,0,5,0.0000
+48,Piling something up,0,5,0.0000
+49,Plugging something into something,0,5,0.0000
+50,Plugging something into something but pulling it right out as you remove your hand,0,5,0.0000
+51,Poking a hole into some substance,0,5,0.0000
+52,Poking a hole into something soft,0,5,0.0000
+53,Poking a stack of something so the stack collapses,0,5,0.0000
+54,Poking a stack of something without the stack collapsing,0,5,0.0000
+55,Poking something so it slightly moves,0,5,0.0000
+56,Poking something so lightly that it doesn't or almost doesn't move,1,5,0.2000
+57,Poking something so that it falls over,0,5,0.0000
+58,Poking something so that it spins around,0,5,0.0000
+59,Pouring something into something,3,5,0.6000
+60,Pouring something into something until it overflows,0,5,0.0000
+61,Pouring something onto something,2,5,0.4000
+62,Pouring something out of something,0,5,0.0000
+63,Pretending or failing to wipe something off of something,0,5,0.0000
+64,Pretending or trying and failing to twist something,0,5,0.0000
+65,Pretending to be tearing something that is not tearable,0,5,0.0000
+66,Pretending to close something without actually closing it,0,5,0.0000
+67,Pretending to open something without actually opening it,0,5,0.0000
+68,Pretending to pick something up,0,5,0.0000
+69,Pretending to poke something,0,5,0.0000
+70,"Pretending to pour something out of something, but something is empty",0,5,0.0000
+71,Pretending to put something behind something,0,5,0.0000
+72,Pretending to put something into something,0,5,0.0000
+73,Pretending to put something next to something,0,5,0.0000
+74,Pretending to put something on a surface,0,5,0.0000
+75,Pretending to put something onto something,0,5,0.0000
+76,Pretending to put something underneath something,0,5,0.0000
+77,Pretending to scoop something up with something,0,5,0.0000
+78,Pretending to spread air onto something,0,5,0.0000
+79,Pretending to sprinkle air onto something,0,5,0.0000
+80,Pretending to squeeze something,0,5,0.0000
+81,Pretending to take something from somewhere,0,5,0.0000
+82,Pretending to take something out of something,0,5,0.0000
+83,Pretending to throw something,0,5,0.0000
+84,Pretending to turn something upside down,0,5,0.0000
+85,Pulling something from behind of something,0,5,0.0000
+86,Pulling something from left to right,0,5,0.0000
+87,Pulling something from right to left,0,5,0.0000
+88,Pulling something onto something,0,5,0.0000
+89,Pulling something out of something,0,5,0.0000
+90,Pulling two ends of something but nothing happens,0,5,0.0000
+91,Pulling two ends of something so that it gets stretched,0,5,0.0000
+92,Pulling two ends of something so that it separates into two pieces,0,5,0.0000
+93,Pushing something from left to right,0,5,0.0000
+94,Pushing something from right to left,0,5,0.0000
+95,Pushing something off of something,0,5,0.0000
+96,Pushing something onto something,0,5,0.0000
+97,Pushing something so it spins,0,5,0.0000
+98,Pushing something so that it almost falls off but doesn't,0,5,0.0000
+99,Pushing something so that it falls off the table,0,5,0.0000
+100,Pushing something so that it slightly moves,0,5,0.0000
+101,Pushing something with something,0,5,0.0000
+102,Putting number of something onto something,0,5,0.0000
+103,Putting something and something on the table,0,5,0.0000
+104,Putting something behind something,0,5,0.0000
+105,Putting something in front of something,0,5,0.0000
+106,Putting something into something,0,5,0.0000
+107,Putting something next to something,0,5,0.0000
+108,Putting something on a flat surface without letting it roll,0,5,0.0000
+109,Putting something on a surface,0,5,0.0000
+110,Putting something on the edge of something so it is not supported and falls down,0,5,0.0000
+111,Putting something onto a slanted surface but it doesn't glide down,0,5,0.0000
+112,Putting something onto something,0,5,0.0000
+113,Putting something onto something else that cannot support it so it falls down,0,5,0.0000
+114,Putting something similar to other things that are already on the table,0,5,0.0000
+115,"Putting something that can't roll onto a slanted surface, so it slides down",0,5,0.0000
+116,"Putting something that can't roll onto a slanted surface, so it stays where it is",0,5,0.0000
+117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0,5,0.0000
+118,Putting something underneath something,0,5,0.0000
+119,Putting something upright on the table,0,5,0.0000
+120,"Putting something, something and something on the table",0,5,0.0000
+121,"Removing something, revealing something behind",0,5,0.0000
+122,Rolling something on a flat surface,0,5,0.0000
+123,Scooping something up with something,0,5,0.0000
+124,Showing a photo of something to the camera,1,5,0.2000
+125,Showing something behind something,0,5,0.0000
+126,Showing something next to something,0,5,0.0000
+127,Showing something on top of something,0,5,0.0000
+128,Showing something to the camera,0,5,0.0000
+129,Showing that something is empty,0,5,0.0000
+130,Showing that something is inside something,0,5,0.0000
+131,Something being deflected from something,0,5,0.0000
+132,Something colliding with something and both are being deflected,0,5,0.0000
+133,Something colliding with something and both come to a halt,0,5,0.0000
+134,Something falling like a feather or paper,0,5,0.0000
+135,Something falling like a rock,3,5,0.6000
+136,Spilling something behind something,0,5,0.0000
+137,Spilling something next to something,0,5,0.0000
+138,Spilling something onto something,0,5,0.0000
+139,Spinning something so it continues spinning,0,5,0.0000
+140,Spinning something that quickly stops spinning,0,5,0.0000
+141,Spreading something onto something,0,5,0.0000
+142,Sprinkling something onto something,0,5,0.0000
+143,Squeezing something,0,5,0.0000
+144,Stacking number of something,0,5,0.0000
+145,Stuffing something into something,0,5,0.0000
+146,Taking one of many similar things on the table,0,5,0.0000
+147,Taking something from somewhere,0,5,0.0000
+148,Taking something out of something,0,5,0.0000
+149,Tearing something into two pieces,0,5,0.0000
+150,Tearing something just a little bit,0,5,0.0000
+151,Throwing something,0,5,0.0000
+152,Throwing something against something,0,5,0.0000
+153,Throwing something in the air and catching it,0,5,0.0000
+154,Throwing something in the air and letting it fall,0,5,0.0000
+155,Throwing something onto a surface,0,5,0.0000
+156,Tilting something with something on it slightly so it doesn't fall down,0,5,0.0000
+157,Tilting something with something on it until it falls off,0,5,0.0000
+158,Tipping something over,0,5,0.0000
+159,"Tipping something with something in it over, so something in it falls out",0,5,0.0000
+160,Touching (without moving) part of something,0,5,0.0000
+161,Trying but failing to attach something to something because it doesn't stick,0,5,0.0000
+162,Trying to bend something unbendable so nothing happens,0,5,0.0000
+163,"Trying to pour something into something, but missing so it spills next to it",0,5,0.0000
+164,Turning something upside down,0,5,0.0000
+165,Turning the camera downwards while filming something,0,5,0.0000
+166,Turning the camera left while filming something,0,5,0.0000
+167,Turning the camera right while filming something,0,5,0.0000
+168,Turning the camera upwards while filming something,0,5,0.0000
+169,Twisting (wringing) something wet until water comes out,0,5,0.0000
+170,Twisting something,0,5,0.0000
+171,Uncovering something,0,5,0.0000
+172,Unfolding something,0,5,0.0000
+173,Wiping something off of something,0,5,0.0000

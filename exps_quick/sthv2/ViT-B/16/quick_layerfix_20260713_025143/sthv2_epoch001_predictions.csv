@@ -1,0 +1,871 @@
+video_path,gt_idx,gt_name,pred_idx,pred_name,confidence,correct
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/74225.mp4,140,Spinning something that quickly stops spinning,166,Turning the camera left while filming something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/116154.mp4,127,Showing something on top of something,59,Pouring something into something,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/198186.mp4,173,Wiping something off of something,143,Squeezing something,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/137878.mp4,99,Pushing something so that it falls off the table,56,Poking something so lightly that it doesn't or almost doesn't move,0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/151151.mp4,166,Turning the camera left while filming something,124,Showing a photo of something to the camera,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/195025.mp4,126,Showing something next to something,124,Showing a photo of something to the camera,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/172305.mp4,151,Throwing something,134,Something falling like a feather or paper,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92355.mp4,134,Something falling like a feather or paper,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/35671.mp4,2,Bending something so that it deforms,78,Pretending to spread air onto something,0.005920,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/69703.mp4,45,Moving something up,135,Something falling like a rock,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/177890.mp4,68,Pretending to pick something up,59,Pouring something into something,0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217571.mp4,14,Folding something,158,Tipping something over,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/202564.mp4,6,Covering something with something,79,Pretending to sprinkle air onto something,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/107014.mp4,9,Dropping something in front of something,159,"Tipping something with something in it over, so something in it falls out",0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/215371.mp4,149,Tearing something into two pieces,135,Something falling like a rock,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/149956.mp4,159,"Tipping something with something in it over, so something in it falls out",166,Turning the camera left while filming something,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/91336.mp4,15,Hitting something with something,110,Putting something on the edge of something so it is not supported and falls down,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/194094.mp4,19,Holding something next to something,110,Putting something on the edge of something so it is not supported and falls down,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/121269.mp4,145,Stuffing something into something,12,Dropping something onto something,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/169362.mp4,147,Taking something from somewhere,124,Showing a photo of something to the camera,0.006013,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/166924.mp4,93,Pushing something from left to right,56,Poking something so lightly that it doesn't or almost doesn't move,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/188509.mp4,31,"Lifting up one end of something, then letting it drop down",135,Something falling like a rock,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97908.mp4,23,Letting something roll down a slanted surface,124,Showing a photo of something to the camera,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/74440.mp4,145,Stuffing something into something,143,Squeezing something,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/104085.mp4,145,Stuffing something into something,143,Squeezing something,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/171745.mp4,4,Burying something in something,124,Showing a photo of something to the camera,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/33395.mp4,6,Covering something with something,135,Something falling like a rock,0.005974,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29495.mp4,45,Moving something up,59,Pouring something into something,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/20330.mp4,125,Showing something behind something,135,Something falling like a rock,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/24837.mp4,14,Folding something,158,Tipping something over,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/147255.mp4,108,Putting something on a flat surface without letting it roll,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/96312.mp4,172,Unfolding something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/214198.mp4,106,Putting something into something,59,Pouring something into something,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/108901.mp4,164,Turning something upside down,124,Showing a photo of something to the camera,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/66480.mp4,99,Pushing something so that it falls off the table,124,Showing a photo of something to the camera,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/136478.mp4,41,Moving something away from the camera,79,Pretending to sprinkle air onto something,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/82561.mp4,23,Letting something roll down a slanted surface,124,Showing a photo of something to the camera,0.005938,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211603.mp4,139,Spinning something so it continues spinning,159,"Tipping something with something in it over, so something in it falls out",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/104732.mp4,14,Folding something,143,Squeezing something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19977.mp4,121,"Removing something, revealing something behind",124,Showing a photo of something to the camera,0.006036,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/443.mp4,157,Tilting something with something on it until it falls off,61,Pouring something onto something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/184679.mp4,49,Plugging something into something,134,Something falling like a feather or paper,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29910.mp4,43,Moving something down,124,Showing a photo of something to the camera,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/160261.mp4,93,Pushing something from left to right,159,"Tipping something with something in it over, so something in it falls out",0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/32708.mp4,46,Opening something,124,Showing a photo of something to the camera,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/132073.mp4,164,Turning something upside down,124,Showing a photo of something to the camera,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/124009.mp4,42,Moving something closer to something,124,Showing a photo of something to the camera,0.006021,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/139061.mp4,22,Letting something roll along a flat surface,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006020,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/191800.mp4,135,Something falling like a rock,135,Something falling like a rock,0.005981,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51945.mp4,36,Moving something and something away from each other,124,Showing a photo of something to the camera,0.006021,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/69417.mp4,116,"Putting something that can't roll onto a slanted surface, so it stays where it is",61,Pouring something onto something,0.005945,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/83691.mp4,14,Folding something,159,"Tipping something with something in it over, so something in it falls out",0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/35220.mp4,173,Wiping something off of something,135,Something falling like a rock,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/28840.mp4,36,Moving something and something away from each other,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/111709.mp4,164,Turning something upside down,124,Showing a photo of something to the camera,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/94330.mp4,144,Stacking number of something,124,Showing a photo of something to the camera,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/57049.mp4,10,Dropping something into something,124,Showing a photo of something to the camera,0.006027,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/24972.mp4,139,Spinning something so it continues spinning,56,Poking something so lightly that it doesn't or almost doesn't move,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/103503.mp4,164,Turning something upside down,159,"Tipping something with something in it over, so something in it falls out",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211520.mp4,15,Hitting something with something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/154368.mp4,128,Showing something to the camera,159,"Tipping something with something in it over, so something in it falls out",0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64515.mp4,125,Showing something behind something,135,Something falling like a rock,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/35628.mp4,74,Pretending to put something on a surface,56,Poking something so lightly that it doesn't or almost doesn't move,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/113779.mp4,145,Stuffing something into something,143,Squeezing something,0.006000,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/156507.mp4,77,Pretending to scoop something up with something,110,Putting something on the edge of something so it is not supported and falls down,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/136644.mp4,20,Holding something over something,124,Showing a photo of something to the camera,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52838.mp4,149,Tearing something into two pieces,24,"Letting something roll up a slanted surface, so it rolls back down",0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43876.mp4,149,Tearing something into two pieces,159,"Tipping something with something in it over, so something in it falls out",0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49167.mp4,98,Pushing something so that it almost falls off but doesn't,56,Poking something so lightly that it doesn't or almost doesn't move,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123630.mp4,154,Throwing something in the air and letting it fall,159,"Tipping something with something in it over, so something in it falls out",0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/189367.mp4,49,Plugging something into something,61,Pouring something onto something,0.005945,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44212.mp4,114,Putting something similar to other things that are already on the table,158,Tipping something over,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84962.mp4,146,Taking one of many similar things on the table,124,Showing a photo of something to the camera,0.006005,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/28209.mp4,12,Dropping something onto something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/96361.mp4,109,Putting something on a surface,59,Pouring something into something,0.006018,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43315.mp4,8,Dropping something behind something,135,Something falling like a rock,0.006047,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/114129.mp4,125,Showing something behind something,61,Pouring something onto something,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/141732.mp4,120,"Putting something, something and something on the table",135,Something falling like a rock,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/77719.mp4,102,Putting number of something onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/108136.mp4,0,Approaching something with your camera,143,Squeezing something,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97052.mp4,135,Something falling like a rock,135,Something falling like a rock,0.005957,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26380.mp4,115,"Putting something that can't roll onto a slanted surface, so it slides down",74,Pretending to put something on a surface,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106595.mp4,139,Spinning something so it continues spinning,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/2645.mp4,145,Stuffing something into something,59,Pouring something into something,0.006014,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18966.mp4,14,Folding something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64373.mp4,45,Moving something up,56,Poking something so lightly that it doesn't or almost doesn't move,0.006036,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/67199.mp4,105,Putting something in front of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/89496.mp4,171,Uncovering something,110,Putting something on the edge of something so it is not supported and falls down,0.005931,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/70565.mp4,67,Pretending to open something without actually opening it,68,Pretending to pick something up,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/164170.mp4,135,Something falling like a rock,56,Poking something so lightly that it doesn't or almost doesn't move,0.006036,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18689.mp4,146,Taking one of many similar things on the table,68,Pretending to pick something up,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44748.mp4,29,Lifting something with something on it,110,Putting something on the edge of something so it is not supported and falls down,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153476.mp4,157,Tilting something with something on it until it falls off,124,Showing a photo of something to the camera,0.005996,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/212494.mp4,63,Pretending or failing to wipe something off of something,135,Something falling like a rock,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7675.mp4,75,Pretending to put something onto something,135,Something falling like a rock,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/177775.mp4,165,Turning the camera downwards while filming something,59,Pouring something into something,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/193283.mp4,70,"Pretending to pour something out of something, but something is empty",124,Showing a photo of something to the camera,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/138997.mp4,68,Pretending to pick something up,124,Showing a photo of something to the camera,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/20890.mp4,66,Pretending to close something without actually closing it,166,Turning the camera left while filming something,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/154208.mp4,43,Moving something down,124,Showing a photo of something to the camera,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/156912.mp4,109,Putting something on a surface,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/201874.mp4,137,Spilling something next to something,59,Pouring something into something,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/166797.mp4,114,Putting something similar to other things that are already on the table,143,Squeezing something,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/9037.mp4,127,Showing something on top of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005933,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/14004.mp4,160,Touching (without moving) part of something,59,Pouring something into something,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/189328.mp4,69,Pretending to poke something,124,Showing a photo of something to the camera,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161257.mp4,135,Something falling like a rock,124,Showing a photo of something to the camera,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/71728.mp4,16,Holding something,59,Pouring something into something,0.006013,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95667.mp4,131,Something being deflected from something,135,Something falling like a rock,0.005932,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/94158.mp4,65,Pretending to be tearing something that is not tearable,166,Turning the camera left while filming something,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155705.mp4,149,Tearing something into two pieces,24,"Letting something roll up a slanted surface, so it rolls back down",0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84062.mp4,128,Showing something to the camera,166,Turning the camera left while filming something,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161043.mp4,65,Pretending to be tearing something that is not tearable,166,Turning the camera left while filming something,0.005931,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/35870.mp4,23,Letting something roll down a slanted surface,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/183708.mp4,94,Pushing something from right to left,124,Showing a photo of something to the camera,0.006004,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38954.mp4,93,Pushing something from left to right,135,Something falling like a rock,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29556.mp4,73,Pretending to put something next to something,138,Spilling something onto something,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60790.mp4,91,Pulling two ends of something so that it gets stretched,56,Poking something so lightly that it doesn't or almost doesn't move,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43799.mp4,171,Uncovering something,124,Showing a photo of something to the camera,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/139114.mp4,57,Poking something so that it falls over,124,Showing a photo of something to the camera,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/210862.mp4,128,Showing something to the camera,135,Something falling like a rock,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/187386.mp4,20,Holding something over something,124,Showing a photo of something to the camera,0.005920,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/13823.mp4,59,Pouring something into something,59,Pouring something into something,0.005995,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/147203.mp4,59,Pouring something into something,59,Pouring something into something,0.005988,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/36317.mp4,94,Pushing something from right to left,59,Pouring something into something,0.005996,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39332.mp4,157,Tilting something with something on it until it falls off,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4709.mp4,139,Spinning something so it continues spinning,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97677.mp4,101,Pushing something with something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005989,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/193244.mp4,171,Uncovering something,56,Poking something so lightly that it doesn't or almost doesn't move,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19088.mp4,43,Moving something down,135,Something falling like a rock,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/129417.mp4,102,Putting number of something onto something,143,Squeezing something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/69390.mp4,37,Moving something and something closer to each other,135,Something falling like a rock,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/147675.mp4,49,Plugging something into something,166,Turning the camera left while filming something,0.006008,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43138.mp4,93,Pushing something from left to right,138,Spilling something onto something,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/131042.mp4,148,Taking something out of something,124,Showing a photo of something to the camera,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/166241.mp4,0,Approaching something with your camera,59,Pouring something into something,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/83546.mp4,106,Putting something into something,61,Pouring something onto something,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48021.mp4,84,Pretending to turn something upside down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/216344.mp4,105,Putting something in front of something,159,"Tipping something with something in it over, so something in it falls out",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/69819.mp4,121,"Removing something, revealing something behind",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006032,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19415.mp4,164,Turning something upside down,138,Spilling something onto something,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/209572.mp4,122,Rolling something on a flat surface,166,Turning the camera left while filming something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/27539.mp4,2,Bending something so that it deforms,113,Putting something onto something else that cannot support it so it falls down,0.005942,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/168029.mp4,93,Pushing something from left to right,56,Poking something so lightly that it doesn't or almost doesn't move,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/124553.mp4,154,Throwing something in the air and letting it fall,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40518.mp4,156,Tilting something with something on it slightly so it doesn't fall down,124,Showing a photo of something to the camera,0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51449.mp4,160,Touching (without moving) part of something,78,Pretending to spread air onto something,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97706.mp4,137,Spilling something next to something,59,Pouring something into something,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/147987.mp4,43,Moving something down,61,Pouring something onto something,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/91410.mp4,146,Taking one of many similar things on the table,56,Poking something so lightly that it doesn't or almost doesn't move,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/110768.mp4,155,Throwing something onto a surface,135,Something falling like a rock,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/214816.mp4,57,Poking something so that it falls over,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44183.mp4,157,Tilting something with something on it until it falls off,135,Something falling like a rock,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/77738.mp4,144,Stacking number of something,59,Pouring something into something,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153613.mp4,20,Holding something over something,159,"Tipping something with something in it over, so something in it falls out",0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/90979.mp4,23,Letting something roll down a slanted surface,143,Squeezing something,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/192450.mp4,106,Putting something into something,159,"Tipping something with something in it over, so something in it falls out",0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26839.mp4,102,Putting number of something onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98966.mp4,67,Pretending to open something without actually opening it,124,Showing a photo of something to the camera,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/159182.mp4,155,Throwing something onto a surface,110,Putting something on the edge of something so it is not supported and falls down,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/37042.mp4,140,Spinning something that quickly stops spinning,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006063,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/196208.mp4,109,Putting something on a surface,124,Showing a photo of something to the camera,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/120594.mp4,104,Putting something behind something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006031,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/218684.mp4,20,Holding something over something,124,Showing a photo of something to the camera,0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217129.mp4,169,Twisting (wringing) something wet until water comes out,59,Pouring something into something,0.005989,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181985.mp4,129,Showing that something is empty,59,Pouring something into something,0.006004,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/45474.mp4,50,Plugging something into something but pulling it right out as you remove your hand,166,Turning the camera left while filming something,0.005995,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/142616.mp4,59,Pouring something into something,135,Something falling like a rock,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/53972.mp4,5,Closing something,124,Showing a photo of something to the camera,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/107532.mp4,114,Putting something similar to other things that are already on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/12310.mp4,120,"Putting something, something and something on the table",124,Showing a photo of something to the camera,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38403.mp4,63,Pretending or failing to wipe something off of something,134,Something falling like a feather or paper,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52717.mp4,83,Pretending to throw something,110,Putting something on the edge of something so it is not supported and falls down,0.005921,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/165886.mp4,139,Spinning something so it continues spinning,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/99224.mp4,156,Tilting something with something on it slightly so it doesn't fall down,166,Turning the camera left while filming something,0.005989,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/119911.mp4,81,Pretending to take something from somewhere,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/216970.mp4,10,Dropping something into something,143,Squeezing something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/209810.mp4,59,Pouring something into something,124,Showing a photo of something to the camera,0.006013,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95120.mp4,140,Spinning something that quickly stops spinning,135,Something falling like a rock,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/66609.mp4,9,Dropping something in front of something,159,"Tipping something with something in it over, so something in it falls out",0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95884.mp4,151,Throwing something,34,Moving something across a surface until it falls down,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125327.mp4,1,Attaching something to something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43009.mp4,171,Uncovering something,124,Showing a photo of something to the camera,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84631.mp4,71,Pretending to put something behind something,12,Dropping something onto something,0.005932,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/120692.mp4,146,Taking one of many similar things on the table,56,Poking something so lightly that it doesn't or almost doesn't move,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68578.mp4,167,Turning the camera right while filming something,113,Putting something onto something else that cannot support it so it falls down,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/110564.mp4,129,Showing that something is empty,159,"Tipping something with something in it over, so something in it falls out",0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/129856.mp4,104,Putting something behind something,143,Squeezing something,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/194528.mp4,70,"Pretending to pour something out of something, but something is empty",59,Pouring something into something,0.006034,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217077.mp4,105,Putting something in front of something,124,Showing a photo of something to the camera,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29714.mp4,128,Showing something to the camera,166,Turning the camera left while filming something,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/175014.mp4,32,Moving away from something with your camera,12,Dropping something onto something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/160529.mp4,44,Moving something towards the camera,56,Poking something so lightly that it doesn't or almost doesn't move,0.005931,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125183.mp4,42,Moving something closer to something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68811.mp4,149,Tearing something into two pieces,24,"Letting something roll up a slanted surface, so it rolls back down",0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43345.mp4,134,Something falling like a feather or paper,135,Something falling like a rock,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/136567.mp4,150,Tearing something just a little bit,143,Squeezing something,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/99051.mp4,2,Bending something so that it deforms,124,Showing a photo of something to the camera,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/36907.mp4,85,Pulling something from behind of something,143,Squeezing something,0.005996,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80573.mp4,143,Squeezing something,135,Something falling like a rock,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/182272.mp4,152,Throwing something against something,124,Showing a photo of something to the camera,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/25769.mp4,56,Poking something so lightly that it doesn't or almost doesn't move,56,Poking something so lightly that it doesn't or almost doesn't move,0.006027,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/143967.mp4,55,Poking something so it slightly moves,110,Putting something on the edge of something so it is not supported and falls down,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/86832.mp4,36,Moving something and something away from each other,166,Turning the camera left while filming something,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93613.mp4,43,Moving something down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/23019.mp4,7,Digging something out of something,135,Something falling like a rock,0.006020,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/11672.mp4,138,Spilling something onto something,124,Showing a photo of something to the camera,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68670.mp4,15,Hitting something with something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/151913.mp4,8,Dropping something behind something,143,Squeezing something,0.006026,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/96349.mp4,31,"Lifting up one end of something, then letting it drop down",166,Turning the camera left while filming something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/139640.mp4,68,Pretending to pick something up,56,Poking something so lightly that it doesn't or almost doesn't move,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211654.mp4,142,Sprinkling something onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.006048,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/129019.mp4,101,Pushing something with something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/82769.mp4,154,Throwing something in the air and letting it fall,56,Poking something so lightly that it doesn't or almost doesn't move,0.005929,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/138002.mp4,157,Tilting something with something on it until it falls off,56,Poking something so lightly that it doesn't or almost doesn't move,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/132364.mp4,106,Putting something into something,135,Something falling like a rock,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51295.mp4,36,Moving something and something away from each other,124,Showing a photo of something to the camera,0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/202718.mp4,144,Stacking number of something,166,Turning the camera left while filming something,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/113757.mp4,8,Dropping something behind something,159,"Tipping something with something in it over, so something in it falls out",0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/141784.mp4,134,Something falling like a feather or paper,135,Something falling like a rock,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/174585.mp4,15,Hitting something with something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005932,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/216878.mp4,55,Poking something so it slightly moves,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/134197.mp4,147,Taking something from somewhere,56,Poking something so lightly that it doesn't or almost doesn't move,0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40786.mp4,29,Lifting something with something on it,166,Turning the camera left while filming something,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/112756.mp4,18,Holding something in front of something,159,"Tipping something with something in it over, so something in it falls out",0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123488.mp4,130,Showing that something is inside something,59,Pouring something into something,0.006053,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/15708.mp4,65,Pretending to be tearing something that is not tearable,135,Something falling like a rock,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26563.mp4,160,Touching (without moving) part of something,59,Pouring something into something,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/47727.mp4,17,Holding something behind something,59,Pouring something into something,0.006000,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/54357.mp4,45,Moving something up,56,Poking something so lightly that it doesn't or almost doesn't move,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/47054.mp4,129,Showing that something is empty,56,Poking something so lightly that it doesn't or almost doesn't move,0.006002,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43855.mp4,125,Showing something behind something,166,Turning the camera left while filming something,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/13467.mp4,56,Poking something so lightly that it doesn't or almost doesn't move,78,Pretending to spread air onto something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/46161.mp4,21,"Laying something on the table on its side, not upright",59,Pouring something into something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43943.mp4,133,Something colliding with something and both come to a halt,124,Showing a photo of something to the camera,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/96345.mp4,40,Moving something away from something,135,Something falling like a rock,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/142870.mp4,134,Something falling like a feather or paper,12,Dropping something onto something,0.005916,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/41835.mp4,114,Putting something similar to other things that are already on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006016,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60868.mp4,125,Showing something behind something,166,Turning the camera left while filming something,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/140726.mp4,155,Throwing something onto a surface,12,Dropping something onto something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155339.mp4,49,Plugging something into something,61,Pouring something onto something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60415.mp4,173,Wiping something off of something,135,Something falling like a rock,0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/27484.mp4,6,Covering something with something,135,Something falling like a rock,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181945.mp4,55,Poking something so it slightly moves,134,Something falling like a feather or paper,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38537.mp4,49,Plugging something into something,124,Showing a photo of something to the camera,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/103498.mp4,6,Covering something with something,135,Something falling like a rock,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29662.mp4,11,Dropping something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/158404.mp4,108,Putting something on a flat surface without letting it roll,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006051,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/118748.mp4,57,Poking something so that it falls over,159,"Tipping something with something in it over, so something in it falls out",0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88654.mp4,129,Showing that something is empty,59,Pouring something into something,0.006021,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/74754.mp4,40,Moving something away from something,166,Turning the camera left while filming something,0.006023,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19691.mp4,121,"Removing something, revealing something behind",135,Something falling like a rock,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/142038.mp4,134,Something falling like a feather or paper,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48464.mp4,74,Pretending to put something on a surface,159,"Tipping something with something in it over, so something in it falls out",0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155421.mp4,20,Holding something over something,159,"Tipping something with something in it over, so something in it falls out",0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/169068.mp4,48,Piling something up,135,Something falling like a rock,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/27404.mp4,67,Pretending to open something without actually opening it,59,Pouring something into something,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/135385.mp4,155,Throwing something onto a surface,12,Dropping something onto something,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/177251.mp4,55,Poking something so it slightly moves,159,"Tipping something with something in it over, so something in it falls out",0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/137007.mp4,90,Pulling two ends of something but nothing happens,166,Turning the camera left while filming something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/22357.mp4,150,Tearing something just a little bit,135,Something falling like a rock,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55968.mp4,6,Covering something with something,159,"Tipping something with something in it over, so something in it falls out",0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/184318.mp4,12,Dropping something onto something,143,Squeezing something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/9163.mp4,150,Tearing something just a little bit,12,Dropping something onto something,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/62602.mp4,131,Something being deflected from something,159,"Tipping something with something in it over, so something in it falls out",0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/65760.mp4,123,Scooping something up with something,59,Pouring something into something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/33701.mp4,95,Pushing something off of something,143,Squeezing something,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/87711.mp4,37,Moving something and something closer to each other,68,Pretending to pick something up,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93569.mp4,129,Showing that something is empty,159,"Tipping something with something in it over, so something in it falls out",0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/11495.mp4,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",61,Pouring something onto something,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40341.mp4,92,Pulling two ends of something so that it separates into two pieces,135,Something falling like a rock,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/33659.mp4,171,Uncovering something,143,Squeezing something,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/77886.mp4,15,Hitting something with something,135,Something falling like a rock,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/203992.mp4,45,Moving something up,143,Squeezing something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/139642.mp4,104,Putting something behind something,59,Pouring something into something,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217421.mp4,150,Tearing something just a little bit,135,Something falling like a rock,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/24644.mp4,65,Pretending to be tearing something that is not tearable,166,Turning the camera left while filming something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26938.mp4,42,Moving something closer to something,135,Something falling like a rock,0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/146367.mp4,150,Tearing something just a little bit,143,Squeezing something,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/133332.mp4,101,Pushing something with something,61,Pouring something onto something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204813.mp4,99,Pushing something so that it falls off the table,124,Showing a photo of something to the camera,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/28909.mp4,18,Holding something in front of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/56726.mp4,173,Wiping something off of something,135,Something falling like a rock,0.006017,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/190480.mp4,109,Putting something on a surface,56,Poking something so lightly that it doesn't or almost doesn't move,0.005945,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64086.mp4,148,Taking something out of something,124,Showing a photo of something to the camera,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153513.mp4,104,Putting something behind something,135,Something falling like a rock,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/101379.mp4,26,Lifting a surface with something on it until it starts sliding down,143,Squeezing something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/86006.mp4,170,Twisting something,24,"Letting something roll up a slanted surface, so it rolls back down",0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/174410.mp4,100,Pushing something so that it slightly moves,124,Showing a photo of something to the camera,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/140212.mp4,57,Poking something so that it falls over,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006018,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/66504.mp4,67,Pretending to open something without actually opening it,124,Showing a photo of something to the camera,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144105.mp4,27,Lifting something up completely without letting it drop down,59,Pouring something into something,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204422.mp4,63,Pretending or failing to wipe something off of something,134,Something falling like a feather or paper,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/111689.mp4,106,Putting something into something,110,Putting something on the edge of something so it is not supported and falls down,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199467.mp4,40,Moving something away from something,12,Dropping something onto something,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125112.mp4,18,Holding something in front of something,124,Showing a photo of something to the camera,0.006027,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219701.mp4,72,Pretending to put something into something,59,Pouring something into something,0.006028,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92321.mp4,31,"Lifting up one end of something, then letting it drop down",135,Something falling like a rock,0.005928,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/46410.mp4,7,Digging something out of something,135,Something falling like a rock,0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48167.mp4,36,Moving something and something away from each other,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/163950.mp4,151,Throwing something,134,Something falling like a feather or paper,0.005945,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/122281.mp4,46,Opening something,135,Something falling like a rock,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/170880.mp4,141,Spreading something onto something,135,Something falling like a rock,0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/85779.mp4,66,Pretending to close something without actually closing it,78,Pretending to spread air onto something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161872.mp4,80,Pretending to squeeze something,59,Pouring something into something,0.006038,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/138207.mp4,84,Pretending to turn something upside down,124,Showing a photo of something to the camera,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80436.mp4,167,Turning the camera right while filming something,135,Something falling like a rock,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4448.mp4,65,Pretending to be tearing something that is not tearable,110,Putting something on the edge of something so it is not supported and falls down,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51999.mp4,47,Picking something up,159,"Tipping something with something in it over, so something in it falls out",0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84661.mp4,48,Piling something up,12,Dropping something onto something,0.005974,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/118280.mp4,29,Lifting something with something on it,135,Something falling like a rock,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/104974.mp4,135,Something falling like a rock,135,Something falling like a rock,0.005998,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/182774.mp4,68,Pretending to pick something up,124,Showing a photo of something to the camera,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88339.mp4,18,Holding something in front of something,59,Pouring something into something,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/180344.mp4,140,Spinning something that quickly stops spinning,59,Pouring something into something,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/73115.mp4,99,Pushing something so that it falls off the table,135,Something falling like a rock,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199645.mp4,153,Throwing something in the air and catching it,135,Something falling like a rock,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48730.mp4,99,Pushing something so that it falls off the table,61,Pouring something onto something,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/87921.mp4,133,Something colliding with something and both come to a halt,59,Pouring something into something,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/54675.mp4,167,Turning the camera right while filming something,124,Showing a photo of something to the camera,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/86035.mp4,56,Poking something so lightly that it doesn't or almost doesn't move,124,Showing a photo of something to the camera,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/109202.mp4,47,Picking something up,135,Something falling like a rock,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/102985.mp4,37,Moving something and something closer to each other,59,Pouring something into something,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/168229.mp4,46,Opening something,135,Something falling like a rock,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/6483.mp4,140,Spinning something that quickly stops spinning,134,Something falling like a feather or paper,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/180572.mp4,158,Tipping something over,143,Squeezing something,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/131301.mp4,167,Turning the camera right while filming something,135,Something falling like a rock,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/152734.mp4,98,Pushing something so that it almost falls off but doesn't,56,Poking something so lightly that it doesn't or almost doesn't move,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/71265.mp4,127,Showing something on top of something,110,Putting something on the edge of something so it is not supported and falls down,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/24601.mp4,50,Plugging something into something but pulling it right out as you remove your hand,124,Showing a photo of something to the camera,0.006011,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/124806.mp4,172,Unfolding something,59,Pouring something into something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4929.mp4,81,Pretending to take something from somewhere,56,Poking something so lightly that it doesn't or almost doesn't move,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/208282.mp4,85,Pulling something from behind of something,124,Showing a photo of something to the camera,0.006020,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219796.mp4,29,Lifting something with something on it,135,Something falling like a rock,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/50228.mp4,54,Poking a stack of something without the stack collapsing,135,Something falling like a rock,0.005938,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/218363.mp4,5,Closing something,166,Turning the camera left while filming something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/171263.mp4,42,Moving something closer to something,59,Pouring something into something,0.006024,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/46937.mp4,40,Moving something away from something,124,Showing a photo of something to the camera,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93921.mp4,17,Holding something behind something,166,Turning the camera left while filming something,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/41416.mp4,9,Dropping something in front of something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29297.mp4,146,Taking one of many similar things on the table,134,Something falling like a feather or paper,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55161.mp4,158,Tipping something over,124,Showing a photo of something to the camera,0.006051,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/121523.mp4,90,Pulling two ends of something but nothing happens,56,Poking something so lightly that it doesn't or almost doesn't move,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/108076.mp4,74,Pretending to put something on a surface,135,Something falling like a rock,0.006000,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/28538.mp4,143,Squeezing something,124,Showing a photo of something to the camera,0.005995,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125216.mp4,60,Pouring something into something until it overflows,59,Pouring something into something,0.006061,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181459.mp4,19,Holding something next to something,124,Showing a photo of something to the camera,0.006038,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/188731.mp4,86,Pulling something from left to right,166,Turning the camera left while filming something,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8214.mp4,42,Moving something closer to something,124,Showing a photo of something to the camera,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98665.mp4,137,Spilling something next to something,61,Pouring something onto something,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/133200.mp4,156,Tilting something with something on it slightly so it doesn't fall down,59,Pouring something into something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205011.mp4,47,Picking something up,59,Pouring something into something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/17161.mp4,116,"Putting something that can't roll onto a slanted surface, so it stays where it is",56,Poking something so lightly that it doesn't or almost doesn't move,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106034.mp4,47,Picking something up,59,Pouring something into something,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/195941.mp4,74,Pretending to put something on a surface,59,Pouring something into something,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205232.mp4,138,Spilling something onto something,135,Something falling like a rock,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219259.mp4,21,"Laying something on the table on its side, not upright",124,Showing a photo of something to the camera,0.006032,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/127636.mp4,121,"Removing something, revealing something behind",159,"Tipping something with something in it over, so something in it falls out",0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/15607.mp4,17,Holding something behind something,135,Something falling like a rock,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/90648.mp4,109,Putting something on a surface,59,Pouring something into something,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/61072.mp4,147,Taking something from somewhere,135,Something falling like a rock,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/209704.mp4,94,Pushing something from right to left,135,Something falling like a rock,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/35575.mp4,47,Picking something up,150,Tearing something just a little bit,0.005930,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/37280.mp4,107,Putting something next to something,135,Something falling like a rock,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40676.mp4,168,Turning the camera upwards while filming something,124,Showing a photo of something to the camera,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/110933.mp4,17,Holding something behind something,124,Showing a photo of something to the camera,0.006023,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/164048.mp4,148,Taking something out of something,59,Pouring something into something,0.006032,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/195886.mp4,148,Taking something out of something,59,Pouring something into something,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161206.mp4,86,Pulling something from left to right,158,Tipping something over,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/187422.mp4,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",124,Showing a photo of something to the camera,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/184481.mp4,37,Moving something and something closer to each other,24,"Letting something roll up a slanted surface, so it rolls back down",0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/115602.mp4,128,Showing something to the camera,113,Putting something onto something else that cannot support it so it falls down,0.005936,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204553.mp4,154,Throwing something in the air and letting it fall,56,Poking something so lightly that it doesn't or almost doesn't move,0.006044,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/215451.mp4,83,Pretending to throw something,124,Showing a photo of something to the camera,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/24898.mp4,112,Putting something onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98600.mp4,77,Pretending to scoop something up with something,135,Something falling like a rock,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/130106.mp4,74,Pretending to put something on a surface,135,Something falling like a rock,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8943.mp4,148,Taking something out of something,159,"Tipping something with something in it over, so something in it falls out",0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68934.mp4,162,Trying to bend something unbendable so nothing happens,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005933,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/165134.mp4,61,Pouring something onto something,61,Pouring something onto something,0.006002,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/162901.mp4,169,Twisting (wringing) something wet until water comes out,134,Something falling like a feather or paper,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/129277.mp4,100,Pushing something so that it slightly moves,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/109688.mp4,66,Pretending to close something without actually closing it,166,Turning the camera left while filming something,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/6785.mp4,166,Turning the camera left while filming something,135,Something falling like a rock,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/151206.mp4,22,Letting something roll along a flat surface,11,Dropping something next to something,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/180193.mp4,37,Moving something and something closer to each other,74,Pretending to put something on a surface,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/159983.mp4,64,Pretending or trying and failing to twist something,124,Showing a photo of something to the camera,0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/131231.mp4,62,Pouring something out of something,59,Pouring something into something,0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/194540.mp4,169,Twisting (wringing) something wet until water comes out,134,Something falling like a feather or paper,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/79556.mp4,97,Pushing something so it spins,124,Showing a photo of something to the camera,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/185884.mp4,103,Putting something and something on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38859.mp4,50,Plugging something into something but pulling it right out as you remove your hand,134,Something falling like a feather or paper,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/131742.mp4,12,Dropping something onto something,135,Something falling like a rock,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/218646.mp4,136,Spilling something behind something,159,"Tipping something with something in it over, so something in it falls out",0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/22666.mp4,155,Throwing something onto a surface,56,Poking something so lightly that it doesn't or almost doesn't move,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/190456.mp4,59,Pouring something into something,59,Pouring something into something,0.005996,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/5368.mp4,143,Squeezing something,59,Pouring something into something,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/34240.mp4,40,Moving something away from something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88413.mp4,131,Something being deflected from something,124,Showing a photo of something to the camera,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/87879.mp4,118,Putting something underneath something,135,Something falling like a rock,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/145197.mp4,159,"Tipping something with something in it over, so something in it falls out",135,Something falling like a rock,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217432.mp4,11,Dropping something next to something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/146493.mp4,17,Holding something behind something,59,Pouring something into something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/59921.mp4,124,Showing a photo of something to the camera,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181548.mp4,27,Lifting something up completely without letting it drop down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/145183.mp4,87,Pulling something from right to left,135,Something falling like a rock,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98582.mp4,78,Pretending to spread air onto something,124,Showing a photo of something to the camera,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19159.mp4,102,Putting number of something onto something,135,Something falling like a rock,0.005989,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144584.mp4,105,Putting something in front of something,124,Showing a photo of something to the camera,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123873.mp4,143,Squeezing something,135,Something falling like a rock,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/185047.mp4,120,"Putting something, something and something on the table",134,Something falling like a feather or paper,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8053.mp4,46,Opening something,135,Something falling like a rock,0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92195.mp4,95,Pushing something off of something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19670.mp4,29,Lifting something with something on it,59,Pouring something into something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204865.mp4,143,Squeezing something,134,Something falling like a feather or paper,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/126522.mp4,100,Pushing something so that it slightly moves,124,Showing a photo of something to the camera,0.006002,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48313.mp4,102,Putting number of something onto something,143,Squeezing something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217288.mp4,120,"Putting something, something and something on the table",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/183565.mp4,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",24,"Letting something roll up a slanted surface, so it rolls back down",0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4324.mp4,167,Turning the camera right while filming something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8564.mp4,5,Closing something,158,Tipping something over,0.005932,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219866.mp4,114,Putting something similar to other things that are already on the table,59,Pouring something into something,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/89298.mp4,61,Pouring something onto something,59,Pouring something into something,0.006081,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52202.mp4,19,Holding something next to something,124,Showing a photo of something to the camera,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/196793.mp4,101,Pushing something with something,166,Turning the camera left while filming something,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155937.mp4,156,Tilting something with something on it slightly so it doesn't fall down,166,Turning the camera left while filming something,0.005919,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/9781.mp4,33,Moving part of something,124,Showing a photo of something to the camera,0.006005,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/129710.mp4,67,Pretending to open something without actually opening it,59,Pouring something into something,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/151665.mp4,131,Something being deflected from something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/112644.mp4,10,Dropping something into something,59,Pouring something into something,0.006054,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52734.mp4,166,Turning the camera left while filming something,124,Showing a photo of something to the camera,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/215975.mp4,68,Pretending to pick something up,56,Poking something so lightly that it doesn't or almost doesn't move,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/135631.mp4,80,Pretending to squeeze something,166,Turning the camera left while filming something,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/45667.mp4,18,Holding something in front of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48558.mp4,27,Lifting something up completely without letting it drop down,143,Squeezing something,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/96161.mp4,1,Attaching something to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55429.mp4,9,Dropping something in front of something,159,"Tipping something with something in it over, so something in it falls out",0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/114180.mp4,87,Pulling something from right to left,59,Pouring something into something,0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44143.mp4,31,"Lifting up one end of something, then letting it drop down",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/191738.mp4,38,Moving something and something so they collide with each other,159,"Tipping something with something in it over, so something in it falls out",0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199072.mp4,63,Pretending or failing to wipe something off of something,61,Pouring something onto something,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219941.mp4,33,Moving part of something,166,Turning the camera left while filming something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/162398.mp4,66,Pretending to close something without actually closing it,124,Showing a photo of something to the camera,0.006021,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/22740.mp4,21,"Laying something on the table on its side, not upright",59,Pouring something into something,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29368.mp4,33,Moving part of something,135,Something falling like a rock,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/21101.mp4,33,Moving part of something,59,Pouring something into something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/75436.mp4,144,Stacking number of something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204098.mp4,4,Burying something in something,143,Squeezing something,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39277.mp4,86,Pulling something from left to right,56,Poking something so lightly that it doesn't or almost doesn't move,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/121394.mp4,32,Moving away from something with your camera,143,Squeezing something,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/6420.mp4,120,"Putting something, something and something on the table",12,Dropping something onto something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39814.mp4,50,Plugging something into something but pulling it right out as you remove your hand,56,Poking something so lightly that it doesn't or almost doesn't move,0.006031,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144562.mp4,87,Pulling something from right to left,56,Poking something so lightly that it doesn't or almost doesn't move,0.005933,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/69434.mp4,158,Tipping something over,56,Poking something so lightly that it doesn't or almost doesn't move,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49185.mp4,23,Letting something roll down a slanted surface,24,"Letting something roll up a slanted surface, so it rolls back down",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/83104.mp4,151,Throwing something,135,Something falling like a rock,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/72277.mp4,101,Pushing something with something,135,Something falling like a rock,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/2934.mp4,95,Pushing something off of something,143,Squeezing something,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/157635.mp4,69,Pretending to poke something,124,Showing a photo of something to the camera,0.006011,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106056.mp4,28,"Lifting something up completely, then letting it drop down",124,Showing a photo of something to the camera,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84393.mp4,138,Spilling something onto something,79,Pretending to sprinkle air onto something,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7189.mp4,57,Poking something so that it falls over,166,Turning the camera left while filming something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153528.mp4,56,Poking something so lightly that it doesn't or almost doesn't move,124,Showing a photo of something to the camera,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/124831.mp4,7,Digging something out of something,24,"Letting something roll up a slanted surface, so it rolls back down",0.005933,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52771.mp4,142,Sprinkling something onto something,124,Showing a photo of something to the camera,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84949.mp4,83,Pretending to throw something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006006,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97913.mp4,27,Lifting something up completely without letting it drop down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/103415.mp4,16,Holding something,59,Pouring something into something,0.006017,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181749.mp4,28,"Lifting something up completely, then letting it drop down",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43847.mp4,48,Piling something up,124,Showing a photo of something to the camera,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/148919.mp4,46,Opening something,143,Squeezing something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/3304.mp4,5,Closing something,166,Turning the camera left while filming something,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98012.mp4,94,Pushing something from right to left,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006004,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/179542.mp4,100,Pushing something so that it slightly moves,56,Poking something so lightly that it doesn't or almost doesn't move,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/137291.mp4,110,Putting something on the edge of something so it is not supported and falls down,135,Something falling like a rock,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19019.mp4,10,Dropping something into something,143,Squeezing something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/2968.mp4,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",159,"Tipping something with something in it over, so something in it falls out",0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/122992.mp4,11,Dropping something next to something,124,Showing a photo of something to the camera,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/87164.mp4,56,Poking something so lightly that it doesn't or almost doesn't move,59,Pouring something into something,0.006006,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88008.mp4,132,Something colliding with something and both are being deflected,59,Pouring something into something,0.005911,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51727.mp4,158,Tipping something over,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006020,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88259.mp4,88,Pulling something onto something,158,Tipping something over,0.005908,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/54400.mp4,137,Spilling something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/12116.mp4,22,Letting something roll along a flat surface,124,Showing a photo of something to the camera,0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64454.mp4,158,Tipping something over,166,Turning the camera left while filming something,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/34449.mp4,19,Holding something next to something,135,Something falling like a rock,0.005938,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93281.mp4,147,Taking something from somewhere,143,Squeezing something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/127009.mp4,94,Pushing something from right to left,135,Something falling like a rock,0.005936,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/139805.mp4,16,Holding something,59,Pouring something into something,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4698.mp4,96,Pushing something onto something,135,Something falling like a rock,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39785.mp4,80,Pretending to squeeze something,59,Pouring something into something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/53780.mp4,34,Moving something across a surface until it falls down,124,Showing a photo of something to the camera,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144122.mp4,110,Putting something on the edge of something so it is not supported and falls down,21,"Laying something on the table on its side, not upright",0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/148893.mp4,110,Putting something on the edge of something so it is not supported and falls down,166,Turning the camera left while filming something,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49968.mp4,1,Attaching something to something,124,Showing a photo of something to the camera,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/207592.mp4,159,"Tipping something with something in it over, so something in it falls out",59,Pouring something into something,0.006017,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80875.mp4,19,Holding something next to something,12,Dropping something onto something,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/36.mp4,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",124,Showing a photo of something to the camera,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7935.mp4,166,Turning the camera left while filming something,110,Putting something on the edge of something so it is not supported and falls down,0.006005,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/61162.mp4,5,Closing something,59,Pouring something into something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/202729.mp4,137,Spilling something next to something,159,"Tipping something with something in it over, so something in it falls out",0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/132025.mp4,79,Pretending to sprinkle air onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155923.mp4,87,Pulling something from right to left,56,Poking something so lightly that it doesn't or almost doesn't move,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/17498.mp4,1,Attaching something to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55925.mp4,166,Turning the camera left while filming something,110,Putting something on the edge of something so it is not supported and falls down,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/17257.mp4,100,Pushing something so that it slightly moves,135,Something falling like a rock,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/12829.mp4,121,"Removing something, revealing something behind",135,Something falling like a rock,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/48257.mp4,119,Putting something upright on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/137900.mp4,151,Throwing something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/102786.mp4,107,Putting something next to something,124,Showing a photo of something to the camera,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/179131.mp4,69,Pretending to poke something,24,"Letting something roll up a slanted surface, so it rolls back down",0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/157468.mp4,170,Twisting something,166,Turning the camera left while filming something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/79939.mp4,82,Pretending to take something out of something,59,Pouring something into something,0.006024,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/42073.mp4,97,Pushing something so it spins,158,Tipping something over,0.005923,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/128996.mp4,122,Rolling something on a flat surface,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44549.mp4,69,Pretending to poke something,166,Turning the camera left while filming something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/28580.mp4,161,Trying but failing to attach something to something because it doesn't stick,166,Turning the camera left while filming something,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181053.mp4,64,Pretending or trying and failing to twist something,143,Squeezing something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/115519.mp4,55,Poking something so it slightly moves,56,Poking something so lightly that it doesn't or almost doesn't move,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/34488.mp4,170,Twisting something,59,Pouring something into something,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/53797.mp4,95,Pushing something off of something,124,Showing a photo of something to the camera,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/112551.mp4,54,Poking a stack of something without the stack collapsing,124,Showing a photo of something to the camera,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219208.mp4,130,Showing that something is inside something,124,Showing a photo of something to the camera,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55643.mp4,51,Poking a hole into some substance,135,Something falling like a rock,0.006022,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/145447.mp4,44,Moving something towards the camera,135,Something falling like a rock,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/9546.mp4,168,Turning the camera upwards while filming something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/191512.mp4,48,Piling something up,110,Putting something on the edge of something so it is not supported and falls down,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/25797.mp4,48,Piling something up,24,"Letting something roll up a slanted surface, so it rolls back down",0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/116458.mp4,8,Dropping something behind something,124,Showing a photo of something to the camera,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/171164.mp4,31,"Lifting up one end of something, then letting it drop down",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84686.mp4,98,Pushing something so that it almost falls off but doesn't,124,Showing a photo of something to the camera,0.006038,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/132006.mp4,75,Pretending to put something onto something,110,Putting something on the edge of something so it is not supported and falls down,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199559.mp4,38,Moving something and something so they collide with each other,124,Showing a photo of something to the camera,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68149.mp4,103,Putting something and something on the table,166,Turning the camera left while filming something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/183143.mp4,122,Rolling something on a flat surface,135,Something falling like a rock,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/159341.mp4,28,"Lifting something up completely, then letting it drop down",166,Turning the camera left while filming something,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/43735.mp4,170,Twisting something,59,Pouring something into something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/102829.mp4,9,Dropping something in front of something,124,Showing a photo of something to the camera,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/114323.mp4,115,"Putting something that can't roll onto a slanted surface, so it slides down",159,"Tipping something with something in it over, so something in it falls out",0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/94666.mp4,97,Pushing something so it spins,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80215.mp4,154,Throwing something in the air and letting it fall,143,Squeezing something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/159703.mp4,7,Digging something out of something,134,Something falling like a feather or paper,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/170730.mp4,1,Attaching something to something,135,Something falling like a rock,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/120511.mp4,127,Showing something on top of something,134,Something falling like a feather or paper,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38000.mp4,24,"Letting something roll up a slanted surface, so it rolls back down",12,Dropping something onto something,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/175194.mp4,124,Showing a photo of something to the camera,124,Showing a photo of something to the camera,0.006032,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/150105.mp4,168,Turning the camera upwards while filming something,135,Something falling like a rock,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/218009.mp4,130,Showing that something is inside something,124,Showing a photo of something to the camera,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92611.mp4,33,Moving part of something,166,Turning the camera left while filming something,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/67907.mp4,81,Pretending to take something from somewhere,124,Showing a photo of something to the camera,0.006006,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/85174.mp4,112,Putting something onto something,166,Turning the camera left while filming something,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/67687.mp4,75,Pretending to put something onto something,59,Pouring something into something,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/190241.mp4,8,Dropping something behind something,166,Turning the camera left while filming something,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/198080.mp4,90,Pulling two ends of something but nothing happens,135,Something falling like a rock,0.005942,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123899.mp4,98,Pushing something so that it almost falls off but doesn't,124,Showing a photo of something to the camera,0.005990,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/191530.mp4,22,Letting something roll along a flat surface,61,Pouring something onto something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/88362.mp4,159,"Tipping something with something in it over, so something in it falls out",117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/10866.mp4,172,Unfolding something,159,"Tipping something with something in it over, so something in it falls out",0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/198452.mp4,107,Putting something next to something,25,Lifting a surface with something on it but not enough for it to slide down,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205408.mp4,105,Putting something in front of something,166,Turning the camera left while filming something,0.005960,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18715.mp4,97,Pushing something so it spins,61,Pouring something onto something,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/167767.mp4,107,Putting something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161997.mp4,107,Putting something next to something,135,Something falling like a rock,0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/143239.mp4,108,Putting something on a flat surface without letting it roll,120,"Putting something, something and something on the table",0.005933,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/65771.mp4,85,Pulling something from behind of something,124,Showing a photo of something to the camera,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/215332.mp4,170,Twisting something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/175295.mp4,61,Pouring something onto something,79,Pretending to sprinkle air onto something,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155575.mp4,169,Twisting (wringing) something wet until water comes out,124,Showing a photo of something to the camera,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106207.mp4,35,Moving something across a surface without it falling down,124,Showing a photo of something to the camera,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/135901.mp4,44,Moving something towards the camera,56,Poking something so lightly that it doesn't or almost doesn't move,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/112457.mp4,110,Putting something on the edge of something so it is not supported and falls down,124,Showing a photo of something to the camera,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/22470.mp4,72,Pretending to put something into something,159,"Tipping something with something in it over, so something in it falls out",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93447.mp4,28,"Lifting something up completely, then letting it drop down",134,Something falling like a feather or paper,0.005932,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/22496.mp4,21,"Laying something on the table on its side, not upright",56,Poking something so lightly that it doesn't or almost doesn't move,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/99129.mp4,163,"Trying to pour something into something, but missing so it spills next to it",124,Showing a photo of something to the camera,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39565.mp4,108,Putting something on a flat surface without letting it roll,135,Something falling like a rock,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80109.mp4,30,Lifting up one end of something without letting it drop down,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/128655.mp4,30,Lifting up one end of something without letting it drop down,135,Something falling like a rock,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/204636.mp4,4,Burying something in something,135,Something falling like a rock,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/137994.mp4,85,Pulling something from behind of something,124,Showing a photo of something to the camera,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/157182.mp4,38,Moving something and something so they collide with each other,166,Turning the camera left while filming something,0.005915,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/182982.mp4,62,Pouring something out of something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006034,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/32194.mp4,162,Trying to bend something unbendable so nothing happens,166,Turning the camera left while filming something,0.005995,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/217495.mp4,3,Bending something until it breaks,56,Poking something so lightly that it doesn't or almost doesn't move,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/172000.mp4,7,Digging something out of something,134,Something falling like a feather or paper,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/180257.mp4,92,Pulling two ends of something so that it separates into two pieces,166,Turning the camera left while filming something,0.005929,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/27356.mp4,131,Something being deflected from something,124,Showing a photo of something to the camera,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80.mp4,69,Pretending to poke something,56,Poking something so lightly that it doesn't or almost doesn't move,0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/61492.mp4,50,Plugging something into something but pulling it right out as you remove your hand,143,Squeezing something,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/105603.mp4,98,Pushing something so that it almost falls off but doesn't,56,Poking something so lightly that it doesn't or almost doesn't move,0.005971,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/218504.mp4,112,Putting something onto something,124,Showing a photo of something to the camera,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/171468.mp4,22,Letting something roll along a flat surface,12,Dropping something onto something,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92623.mp4,96,Pushing something onto something,59,Pouring something into something,0.005986,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/16171.mp4,133,Something colliding with something and both come to a halt,135,Something falling like a rock,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205267.mp4,173,Wiping something off of something,124,Showing a photo of something to the camera,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/160394.mp4,92,Pulling two ends of something so that it separates into two pieces,56,Poking something so lightly that it doesn't or almost doesn't move,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/192030.mp4,138,Spilling something onto something,59,Pouring something into something,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/9943.mp4,133,Something colliding with something and both come to a halt,59,Pouring something into something,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181540.mp4,3,Bending something until it breaks,56,Poking something so lightly that it doesn't or almost doesn't move,0.006013,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/29614.mp4,127,Showing something on top of something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/184258.mp4,38,Moving something and something so they collide with each other,12,Dropping something onto something,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/214569.mp4,130,Showing that something is inside something,159,"Tipping something with something in it over, so something in it falls out",0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/4602.mp4,116,"Putting something that can't roll onto a slanted surface, so it stays where it is",24,"Letting something roll up a slanted surface, so it rolls back down",0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/150041.mp4,104,Putting something behind something,59,Pouring something into something,0.006017,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/16353.mp4,144,Stacking number of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144039.mp4,12,Dropping something onto something,135,Something falling like a rock,0.005982,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/62236.mp4,81,Pretending to take something from somewhere,59,Pouring something into something,0.006008,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/220.mp4,11,Dropping something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/15926.mp4,172,Unfolding something,135,Something falling like a rock,0.005956,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/177070.mp4,10,Dropping something into something,143,Squeezing something,0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/120471.mp4,160,Touching (without moving) part of something,124,Showing a photo of something to the camera,0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/149391.mp4,156,Tilting something with something on it slightly so it doesn't fall down,78,Pretending to spread air onto something,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/130708.mp4,11,Dropping something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/136140.mp4,80,Pretending to squeeze something,59,Pouring something into something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144094.mp4,122,Rolling something on a flat surface,166,Turning the camera left while filming something,0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8970.mp4,90,Pulling two ends of something but nothing happens,56,Poking something so lightly that it doesn't or almost doesn't move,0.006023,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/34355.mp4,172,Unfolding something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005981,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/113603.mp4,122,Rolling something on a flat surface,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/128353.mp4,12,Dropping something onto something,166,Turning the camera left while filming something,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/32334.mp4,2,Bending something so that it deforms,56,Poking something so lightly that it doesn't or almost doesn't move,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/41023.mp4,62,Pouring something out of something,59,Pouring something into something,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64452.mp4,34,Moving something across a surface until it falls down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92782.mp4,41,Moving something away from the camera,78,Pretending to spread air onto something,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/156996.mp4,21,"Laying something on the table on its side, not upright",166,Turning the camera left while filming something,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/51973.mp4,147,Taking something from somewhere,124,Showing a photo of something to the camera,0.006018,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/102174.mp4,123,Scooping something up with something,59,Pouring something into something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/14774.mp4,126,Showing something next to something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211053.mp4,71,Pretending to put something behind something,59,Pouring something into something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/146355.mp4,87,Pulling something from right to left,166,Turning the camera left while filming something,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/134009.mp4,13,Failing to put something into something because something does not fit,59,Pouring something into something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/170385.mp4,169,Twisting (wringing) something wet until water comes out,143,Squeezing something,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205421.mp4,138,Spilling something onto something,159,"Tipping something with something in it over, so something in it falls out",0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/170006.mp4,16,Holding something,124,Showing a photo of something to the camera,0.005996,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/36854.mp4,132,Something colliding with something and both are being deflected,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/196201.mp4,70,"Pretending to pour something out of something, but something is empty",59,Pouring something into something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/58959.mp4,72,Pretending to put something into something,135,Something falling like a rock,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38974.mp4,168,Turning the camera upwards while filming something,124,Showing a photo of something to the camera,0.005915,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/140684.mp4,95,Pushing something off of something,159,"Tipping something with something in it over, so something in it falls out",0.005931,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/83915.mp4,112,Putting something onto something,166,Turning the camera left while filming something,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/200447.mp4,103,Putting something and something on the table,134,Something falling like a feather or paper,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/182340.mp4,119,Putting something upright on the table,135,Something falling like a rock,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/209575.mp4,3,Bending something until it breaks,56,Poking something so lightly that it doesn't or almost doesn't move,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/101111.mp4,0,Approaching something with your camera,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55100.mp4,72,Pretending to put something into something,59,Pouring something into something,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/209781.mp4,108,Putting something on a flat surface without letting it roll,124,Showing a photo of something to the camera,0.005955,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/52799.mp4,61,Pouring something onto something,135,Something falling like a rock,0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/157915.mp4,161,Trying but failing to attach something to something because it doesn't stick,24,"Letting something roll up a slanted surface, so it rolls back down",0.005924,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60401.mp4,159,"Tipping something with something in it over, so something in it falls out",124,Showing a photo of something to the camera,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97458.mp4,97,Pushing something so it spins,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/54550.mp4,112,Putting something onto something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/187909.mp4,92,Pulling two ends of something so that it separates into two pieces,135,Something falling like a rock,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/216153.mp4,133,Something colliding with something and both come to a halt,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/160059.mp4,78,Pretending to spread air onto something,124,Showing a photo of something to the camera,0.005966,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/38744.mp4,92,Pulling two ends of something so that it separates into two pieces,143,Squeezing something,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/109910.mp4,16,Holding something,135,Something falling like a rock,0.006027,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/110248.mp4,89,Pulling something out of something,143,Squeezing something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/62606.mp4,153,Throwing something in the air and catching it,61,Pouring something onto something,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26350.mp4,26,Lifting a surface with something on it until it starts sliding down,59,Pouring something into something,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/208507.mp4,113,Putting something onto something else that cannot support it so it falls down,124,Showing a photo of something to the camera,0.006035,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/219411.mp4,26,Lifting a surface with something on it until it starts sliding down,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/187452.mp4,168,Turning the camera upwards while filming something,110,Putting something on the edge of something so it is not supported and falls down,0.005915,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44945.mp4,58,Poking something so that it spins around,56,Poking something so lightly that it doesn't or almost doesn't move,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/200445.mp4,3,Bending something until it breaks,166,Turning the camera left while filming something,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8131.mp4,126,Showing something next to something,59,Pouring something into something,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/166116.mp4,165,Turning the camera downwards while filming something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/190591.mp4,41,Moving something away from the camera,135,Something falling like a rock,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/16876.mp4,2,Bending something so that it deforms,61,Pouring something onto something,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/169568.mp4,4,Burying something in something,59,Pouring something into something,0.005939,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95193.mp4,80,Pretending to squeeze something,124,Showing a photo of something to the camera,0.006016,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/81420.mp4,153,Throwing something in the air and catching it,59,Pouring something into something,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/61699.mp4,83,Pretending to throw something,159,"Tipping something with something in it over, so something in it falls out",0.006025,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/206312.mp4,66,Pretending to close something without actually closing it,56,Poking something so lightly that it doesn't or almost doesn't move,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/115171.mp4,63,Pretending or failing to wipe something off of something,25,Lifting a surface with something on it but not enough for it to slide down,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/160802.mp4,84,Pretending to turn something upside down,124,Showing a photo of something to the camera,0.006015,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/66301.mp4,61,Pouring something onto something,61,Pouring something onto something,0.005978,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/26145.mp4,103,Putting something and something on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/30050.mp4,70,"Pretending to pour something out of something, but something is empty",59,Pouring something into something,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/141334.mp4,123,Scooping something up with something,135,Something falling like a rock,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49569.mp4,30,Lifting up one end of something without letting it drop down,110,Putting something on the edge of something so it is not supported and falls down,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95600.mp4,86,Pulling something from left to right,56,Poking something so lightly that it doesn't or almost doesn't move,0.005974,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/216998.mp4,103,Putting something and something on the table,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/166191.mp4,38,Moving something and something so they collide with each other,166,Turning the camera left while filming something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/11138.mp4,124,Showing a photo of something to the camera,135,Something falling like a rock,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/58990.mp4,73,Pretending to put something next to something,124,Showing a photo of something to the camera,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/206702.mp4,62,Pouring something out of something,124,Showing a photo of something to the camera,0.005999,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/21225.mp4,86,Pulling something from left to right,124,Showing a photo of something to the camera,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/162440.mp4,27,Lifting something up completely without letting it drop down,166,Turning the camera left while filming something,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/184397.mp4,160,Touching (without moving) part of something,158,Tipping something over,0.005942,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125403.mp4,82,Pretending to take something out of something,124,Showing a photo of something to the camera,0.006010,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7694.mp4,62,Pouring something out of something,61,Pouring something onto something,0.006002,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/3201.mp4,32,Moving away from something with your camera,11,Dropping something next to something,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/31921.mp4,28,"Lifting something up completely, then letting it drop down",135,Something falling like a rock,0.006007,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/126884.mp4,85,Pulling something from behind of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/206851.mp4,35,Moving something across a surface without it falling down,59,Pouring something into something,0.005929,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18771.mp4,64,Pretending or trying and failing to twist something,166,Turning the camera left while filming something,0.005926,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/53468.mp4,162,Trying to bend something unbendable so nothing happens,135,Something falling like a rock,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/3007.mp4,118,Putting something underneath something,124,Showing a photo of something to the camera,0.006005,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/145187.mp4,24,"Letting something roll up a slanted surface, so it rolls back down",59,Pouring something into something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8968.mp4,141,Spreading something onto something,135,Something falling like a rock,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80347.mp4,153,Throwing something in the air and catching it,61,Pouring something onto something,0.005952,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/20536.mp4,83,Pretending to throw something,124,Showing a photo of something to the camera,0.006011,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/183702.mp4,13,Failing to put something into something because something does not fit,143,Squeezing something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/50683.mp4,163,"Trying to pour something into something, but missing so it spills next to it",110,Putting something on the edge of something so it is not supported and falls down,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/147838.mp4,126,Showing something next to something,166,Turning the camera left while filming something,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/197169.mp4,30,Lifting up one end of something without letting it drop down,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199010.mp4,64,Pretending or trying and failing to twist something,166,Turning the camera left while filming something,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/10507.mp4,163,"Trying to pour something into something, but missing so it spills next to it",59,Pouring something into something,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/30260.mp4,44,Moving something towards the camera,124,Showing a photo of something to the camera,0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/207150.mp4,41,Moving something away from the camera,12,Dropping something onto something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/205156.mp4,41,Moving something away from the camera,124,Showing a photo of something to the camera,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/122887.mp4,130,Showing that something is inside something,124,Showing a photo of something to the camera,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/174300.mp4,110,Putting something on the edge of something so it is not supported and falls down,124,Showing a photo of something to the camera,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/168562.mp4,26,Lifting a surface with something on it until it starts sliding down,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/100710.mp4,118,Putting something underneath something,124,Showing a photo of something to the camera,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153984.mp4,91,Pulling two ends of something so that it gets stretched,56,Poking something so lightly that it doesn't or almost doesn't move,0.005928,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211937.mp4,13,Failing to put something into something because something does not fit,124,Showing a photo of something to the camera,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49872.mp4,39,Moving something and something so they pass each other,166,Turning the camera left while filming something,0.006008,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/177476.mp4,111,Putting something onto a slanted surface but it doesn't glide down,135,Something falling like a rock,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60251.mp4,72,Pretending to put something into something,143,Squeezing something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40202.mp4,71,Pretending to put something behind something,124,Showing a photo of something to the camera,0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/167683.mp4,84,Pretending to turn something upside down,59,Pouring something into something,0.005931,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/73217.mp4,0,Approaching something with your camera,34,Moving something across a surface until it falls down,0.005945,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/210076.mp4,126,Showing something next to something,124,Showing a photo of something to the camera,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/2100.mp4,70,"Pretending to pour something out of something, but something is empty",166,Turning the camera left while filming something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8139.mp4,123,Scooping something up with something,59,Pouring something into something,0.005995,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80575.mp4,30,Lifting up one end of something without letting it drop down,12,Dropping something onto something,0.005958,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/165871.mp4,153,Throwing something in the air and catching it,124,Showing a photo of something to the camera,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/158627.mp4,4,Burying something in something,135,Something falling like a rock,0.005936,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/76113.mp4,96,Pushing something onto something,124,Showing a photo of something to the camera,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123603.mp4,152,Throwing something against something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/47879.mp4,26,Lifting a surface with something on it until it starts sliding down,143,Squeezing something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/108286.mp4,0,Approaching something with your camera,110,Putting something on the edge of something so it is not supported and falls down,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144648.mp4,32,Moving away from something with your camera,56,Poking something so lightly that it doesn't or almost doesn't move,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/113228.mp4,34,Moving something across a surface until it falls down,124,Showing a photo of something to the camera,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/181536.mp4,91,Pulling two ends of something so that it gets stretched,59,Pouring something into something,0.005929,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/76642.mp4,113,Putting something onto something else that cannot support it so it falls down,159,"Tipping something with something in it over, so something in it falls out",0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/201156.mp4,162,Trying to bend something unbendable so nothing happens,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/161479.mp4,90,Pulling two ends of something but nothing happens,56,Poking something so lightly that it doesn't or almost doesn't move,0.005961,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93183.mp4,89,Pulling something out of something,143,Squeezing something,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97975.mp4,161,Trying but failing to attach something to something because it doesn't stick,124,Showing a photo of something to the camera,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18563.mp4,123,Scooping something up with something,59,Pouring something into something,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/176401.mp4,116,"Putting something that can't roll onto a slanted surface, so it stays where it is",143,Squeezing something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/208445.mp4,141,Spreading something onto something,135,Something falling like a rock,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/138146.mp4,81,Pretending to take something from somewhere,12,Dropping something onto something,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/100064.mp4,32,Moving away from something with your camera,135,Something falling like a rock,0.006038,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106803.mp4,124,Showing a photo of something to the camera,56,Poking something so lightly that it doesn't or almost doesn't move,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/195098.mp4,115,"Putting something that can't roll onto a slanted surface, so it slides down",143,Squeezing something,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68921.mp4,91,Pulling two ends of something so that it gets stretched,56,Poking something so lightly that it doesn't or almost doesn't move,0.005927,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/138078.mp4,60,Pouring something into something until it overflows,59,Pouring something into something,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/23062.mp4,34,Moving something across a surface until it falls down,124,Showing a photo of something to the camera,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/188146.mp4,34,Moving something across a surface until it falls down,59,Pouring something into something,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/192933.mp4,124,Showing a photo of something to the camera,135,Something falling like a rock,0.006012,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153216.mp4,152,Throwing something against something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005979,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/91981.mp4,132,Something colliding with something and both are being deflected,56,Poking something so lightly that it doesn't or almost doesn't move,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/31846.mp4,163,"Trying to pour something into something, but missing so it spills next to it",56,Poking something so lightly that it doesn't or almost doesn't move,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/187246.mp4,13,Failing to put something into something because something does not fit,143,Squeezing something,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199039.mp4,119,Putting something upright on the table,124,Showing a photo of something to the camera,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/110723.mp4,79,Pretending to sprinkle air onto something,59,Pouring something into something,0.005976,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/58860.mp4,161,Trying but failing to attach something to something because it doesn't stick,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/55274.mp4,3,Bending something until it breaks,56,Poking something so lightly that it doesn't or almost doesn't move,0.005975,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/47417.mp4,132,Something colliding with something and both are being deflected,158,Tipping something over,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/211019.mp4,116,"Putting something that can't roll onto a slanted surface, so it stays where it is",56,Poking something so lightly that it doesn't or almost doesn't move,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/116900.mp4,142,Sprinkling something onto something,135,Something falling like a rock,0.005968,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/118270.mp4,44,Moving something towards the camera,124,Showing a photo of something to the camera,0.006009,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/60004.mp4,118,Putting something underneath something,134,Something falling like a feather or paper,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/31319.mp4,73,Pretending to put something next to something,59,Pouring something into something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/77667.mp4,162,Trying to bend something unbendable so nothing happens,166,Turning the camera left while filming something,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64037.mp4,165,Turning the camera downwards while filming something,166,Turning the camera left while filming something,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/180626.mp4,84,Pretending to turn something upside down,124,Showing a photo of something to the camera,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/78578.mp4,161,Trying but failing to attach something to something because it doesn't stick,56,Poking something so lightly that it doesn't or almost doesn't move,0.005923,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18135.mp4,132,Something colliding with something and both are being deflected,159,"Tipping something with something in it over, so something in it falls out",0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/108531.mp4,89,Pulling something out of something,68,Pretending to pick something up,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/206631.mp4,111,Putting something onto a slanted surface but it doesn't glide down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005919,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/5621.mp4,60,Pouring something into something until it overflows,59,Pouring something into something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/169847.mp4,79,Pretending to sprinkle air onto something,134,Something falling like a feather or paper,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144726.mp4,165,Turning the camera downwards while filming something,124,Showing a photo of something to the camera,0.005974,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/16515.mp4,82,Pretending to take something out of something,124,Showing a photo of something to the camera,0.006011,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/103742.mp4,113,Putting something onto something else that cannot support it so it falls down,59,Pouring something into something,0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/193830.mp4,118,Putting something underneath something,61,Pouring something onto something,0.006001,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/200419.mp4,89,Pulling something out of something,143,Squeezing something,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/59179.mp4,141,Spreading something onto something,124,Showing a photo of something to the camera,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/59065.mp4,78,Pretending to spread air onto something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/3846.mp4,54,Poking a stack of something without the stack collapsing,135,Something falling like a rock,0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/63663.mp4,58,Poking something so that it spins around,59,Pouring something into something,0.005922,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/90446.mp4,52,Poking a hole into something soft,159,"Tipping something with something in it over, so something in it falls out",0.005929,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/68077.mp4,53,Poking a stack of something so the stack collapses,12,Dropping something onto something,0.005984,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106497.mp4,54,Poking a stack of something without the stack collapsing,74,Pretending to put something on a surface,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/90627.mp4,152,Throwing something against something,79,Pretending to sprinkle air onto something,0.005997,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/153244.mp4,89,Pulling something out of something,134,Something falling like a feather or paper,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/27547.mp4,152,Throwing something against something,11,Dropping something next to something,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/119693.mp4,25,Lifting a surface with something on it but not enough for it to slide down,159,"Tipping something with something in it over, so something in it falls out",0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/114878.mp4,79,Pretending to sprinkle air onto something,135,Something falling like a rock,0.005969,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/115921.mp4,115,"Putting something that can't roll onto a slanted surface, so it slides down",143,Squeezing something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/165650.mp4,119,Putting something upright on the table,166,Turning the camera left while filming something,0.005990,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/19509.mp4,141,Spreading something onto something,61,Pouring something onto something,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/178689.mp4,88,Pulling something onto something,135,Something falling like a rock,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/12839.mp4,64,Pretending or trying and failing to twist something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005973,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/175002.mp4,119,Putting something upright on the table,124,Showing a photo of something to the camera,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/144173.mp4,91,Pulling two ends of something so that it gets stretched,135,Something falling like a rock,0.005942,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/118503.mp4,73,Pretending to put something next to something,124,Showing a photo of something to the camera,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/64138.mp4,75,Pretending to put something onto something,143,Squeezing something,0.005943,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/102111.mp4,24,"Letting something roll up a slanted surface, so it rolls back down",134,Something falling like a feather or paper,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/76914.mp4,77,Pretending to scoop something up with something,61,Pouring something onto something,0.006002,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/37118.mp4,142,Sprinkling something onto something,135,Something falling like a rock,0.006027,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/25382.mp4,96,Pushing something onto something,143,Squeezing something,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/71477.mp4,58,Poking something so that it spins around,56,Poking something so lightly that it doesn't or almost doesn't move,0.005972,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/13569.mp4,53,Poking a stack of something so the stack collapses,24,"Letting something roll up a slanted surface, so it rolls back down",0.005937,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/39471.mp4,79,Pretending to sprinkle air onto something,124,Showing a photo of something to the camera,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7507.mp4,165,Turning the camera downwards while filming something,110,Putting something on the edge of something so it is not supported and falls down,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/63706.mp4,13,Failing to put something into something because something does not fit,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/45771.mp4,60,Pouring something into something until it overflows,59,Pouring something into something,0.006059,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/207533.mp4,142,Sprinkling something onto something,135,Something falling like a rock,0.005983,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/194530.mp4,88,Pulling something onto something,124,Showing a photo of something to the camera,0.005980,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/106031.mp4,35,Moving something across a surface without it falling down,56,Poking something so lightly that it doesn't or almost doesn't move,0.005947,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/1584.mp4,82,Pretending to take something out of something,56,Poking something so lightly that it doesn't or almost doesn't move,0.005941,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/36967.mp4,82,Pretending to take something out of something,166,Turning the camera left while filming something,0.005957,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/197287.mp4,25,Lifting a surface with something on it but not enough for it to slide down,143,Squeezing something,0.005993,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/89540.mp4,73,Pretending to put something next to something,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/73278.mp4,96,Pushing something onto something,166,Turning the camera left while filming something,0.006041,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123678.mp4,88,Pulling something onto something,166,Turning the camera left while filming something,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/125947.mp4,51,Poking a hole into some substance,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005942,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/206745.mp4,113,Putting something onto something else that cannot support it so it falls down,124,Showing a photo of something to the camera,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/148441.mp4,35,Moving something across a surface without it falling down,59,Pouring something into something,0.006020,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/117728.mp4,113,Putting something onto something else that cannot support it so it falls down,159,"Tipping something with something in it over, so something in it falls out",0.005940,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/195189.mp4,76,Pretending to put something underneath something,59,Pouring something into something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/15602.mp4,58,Poking something so that it spins around,124,Showing a photo of something to the camera,0.005990,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/123327.mp4,24,"Letting something roll up a slanted surface, so it rolls back down",24,"Letting something roll up a slanted surface, so it rolls back down",0.005962,1
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/111511.mp4,163,"Trying to pour something into something, but missing so it spills next to it",59,Pouring something into something,0.005987,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/89708.mp4,58,Poking something so that it spins around,117,"Putting something that cannot actually stand upright upright on the table, so it falls on its side",0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/84989.mp4,71,Pretending to put something behind something,159,"Tipping something with something in it over, so something in it falls out",0.005951,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/186875.mp4,75,Pretending to put something onto something,59,Pouring something into something,0.005967,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/97799.mp4,52,Poking a hole into something soft,135,Something falling like a rock,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/7412.mp4,35,Moving something across a surface without it falling down,124,Showing a photo of something to the camera,0.006041,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/18181.mp4,136,Spilling something behind something,166,Turning the camera left while filming something,0.006003,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/122313.mp4,78,Pretending to spread air onto something,143,Squeezing something,0.005965,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/8249.mp4,53,Poking a stack of something so the stack collapses,124,Showing a photo of something to the camera,0.005954,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/186712.mp4,77,Pretending to scoop something up with something,59,Pouring something into something,0.005992,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/203717.mp4,52,Poking a hole into something soft,12,Dropping something onto something,0.005935,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/62240.mp4,136,Spilling something behind something,79,Pretending to sprinkle air onto something,0.005994,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/194936.mp4,78,Pretending to spread air onto something,135,Something falling like a rock,0.005962,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/170235.mp4,60,Pouring something into something until it overflows,59,Pouring something into something,0.006011,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/130905.mp4,111,Putting something onto a slanted surface but it doesn't glide down,135,Something falling like a rock,0.005991,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/93367.mp4,24,"Letting something roll up a slanted surface, so it rolls back down",143,Squeezing something,0.005950,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/54257.mp4,115,"Putting something that can't roll onto a slanted surface, so it slides down",12,Dropping something onto something,0.005948,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/188413.mp4,52,Poking a hole into something soft,135,Something falling like a rock,0.005977,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/80513.mp4,39,Moving something and something so they pass each other,135,Something falling like a rock,0.005978,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/169688.mp4,52,Poking a hole into something soft,12,Dropping something onto something,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/212697.mp4,25,Lifting a surface with something on it but not enough for it to slide down,59,Pouring something into something,0.005959,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/183894.mp4,77,Pretending to scoop something up with something,61,Pouring something onto something,0.005985,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/131849.mp4,39,Moving something and something so they pass each other,68,Pretending to pick something up,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/141056.mp4,88,Pulling something onto something,110,Putting something on the edge of something so it is not supported and falls down,0.005946,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/98671.mp4,53,Poking a stack of something so the stack collapses,143,Squeezing something,0.005934,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/104588.mp4,71,Pretending to put something behind something,124,Showing a photo of something to the camera,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/46863.mp4,25,Lifting a surface with something on it but not enough for it to slide down,56,Poking something so lightly that it doesn't or almost doesn't move,0.006018,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/40960.mp4,53,Poking a stack of something so the stack collapses,59,Pouring something into something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/142478.mp4,39,Moving something and something so they pass each other,124,Showing a photo of something to the camera,0.006024,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/65409.mp4,54,Poking a stack of something without the stack collapsing,56,Poking something so lightly that it doesn't or almost doesn't move,0.005944,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/155968.mp4,51,Poking a hole into some substance,143,Squeezing something,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/199886.mp4,39,Moving something and something so they pass each other,134,Something falling like a feather or paper,0.005949,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/44698.mp4,76,Pretending to put something underneath something,135,Something falling like a rock,0.006006,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/212504.mp4,136,Spilling something behind something,159,"Tipping something with something in it over, so something in it falls out",0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/92832.mp4,25,Lifting a surface with something on it but not enough for it to slide down,135,Something falling like a rock,0.005964,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/121585.mp4,111,Putting something onto a slanted surface but it doesn't glide down,135,Something falling like a rock,0.005988,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/167385.mp4,51,Poking a hole into some substance,59,Pouring something into something,0.005998,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/49307.mp4,76,Pretending to put something underneath something,59,Pouring something into something,0.006014,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/207331.mp4,136,Spilling something behind something,59,Pouring something into something,0.006013,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/145073.mp4,111,Putting something onto a slanted surface but it doesn't glide down,143,Squeezing something,0.005970,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/95719.mp4,51,Poking a hole into some substance,59,Pouring something into something,0.005963,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/33885.mp4,76,Pretending to put something underneath something,135,Something falling like a rock,0.005953,0
+/NetMedia_Nas/Videodataset/sthv2/mpeg4_video/20bn-something-something-v2/83530.mp4,76,Pretending to put something underneath something,124,Showing a photo of something to the camera,0.005976,0
